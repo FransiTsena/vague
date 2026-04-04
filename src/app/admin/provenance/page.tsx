@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import QRCode from "qrcode";
-import { ArrowLeft, Copy, Download, ExternalLink, Plus, QrCode, Sparkles, Trash2 } from "lucide-react";
+import { ArrowLeft, Copy, Download, Edit2, ExternalLink, Plus, QrCode, Save, Sparkles, Trash2, X } from "lucide-react";
 import Button from "@/components/ui/Button";
 import { useTheme } from "@/context/ThemeContext";
 import { defaultProvenanceDraft, slugify, type ProvenanceProductDraft } from "@/lib/provenance-admin";
@@ -55,6 +55,10 @@ export default function ProvenanceAdminPage() {
   const [generatingImage, setGeneratingImage] = useState(false);
   const [showManualForm, setShowManualForm] = useState(false);
   const [saving, setSaving] = useState(false);
+  
+  // Editing state
+  const [editingSlug, setEditingSlug] = useState<string | null>(null);
+  const [editDraft, setEditDraft] = useState<ProvenanceProductRecord | null>(null);
 
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
@@ -194,7 +198,7 @@ export default function ProvenanceAdminPage() {
 
     const exists = items.some((item) => item.slug === slug);
     if (exists) {
-      setError(`Slug \"${slug}\" already exists. Use a unique slug.`);
+      setError(`Slug "${slug}" already exists. Use a unique slug.`);
       return;
     }
 
@@ -229,6 +233,69 @@ export default function ProvenanceAdminPage() {
       setMessage(`QR created for ${slug} and saved to database.`);
     } catch (saveError) {
       setError(saveError instanceof Error ? saveError.message : "Failed to save product.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleStartEdit = (item: ProvenanceProductRecord) => {
+    setEditingSlug(item.slug);
+    setEditDraft({ ...item });
+  };
+
+  const handleCancelEdit = () => {
+    setEditingSlug(null);
+    setEditDraft(null);
+  };
+
+  const updateEditDraft = (field: keyof ProvenanceProductDraft, value: string) => {
+    if (!editDraft) return;
+    
+    const newDraft = { ...editDraft, [field]: value };
+    
+    if (field === "title") {
+      newDraft.slug = slugify(value);
+    }
+    
+    // Update the scan URL if slug changes
+    const base = origin || "http://localhost:3000";
+    newDraft.scanUrl = `${base}/provenance/${newDraft.slug}`;
+    
+    setEditDraft(newDraft);
+  };
+
+  const handleSaveEdit = async () => {
+    if (!editDraft || !editingSlug) return;
+
+    setSaving(true);
+    setError(null);
+
+    try {
+      // Regenerate QR code if the scan URL changed
+      const qrDataUrl = await QRCode.toDataURL(editDraft.scanUrl, {
+        errorCorrectionLevel: "M",
+        margin: settings.margin,
+        width: settings.size,
+        color: {
+          dark: "#050505",
+          light: "#ffffff",
+        },
+      });
+
+      const updatedItem: ProvenanceProductRecord = {
+        ...editDraft,
+        qrDataUrl,
+      };
+
+      setItems((current) =>
+        current.map((item) => (item.slug === editingSlug ? updatedItem : item))
+      );
+
+      setEditingSlug(null);
+      setEditDraft(null);
+      setMessage("Product updated and QR code refreshed.");
+    } catch (saveError) {
+      setError("Failed to update product.");
     } finally {
       setSaving(false);
     }
@@ -518,58 +585,102 @@ export default function ProvenanceAdminPage() {
                   items.map((item) => (
                     <article
                       key={item.slug}
-                      className={`rounded-2xl border p-4 shadow-sm ${isDark ? "border-white/10 bg-black/25" : "border-black/10 bg-white"}`}
+                      className={`rounded-2xl border p-4 shadow-sm transition-all duration-300 ${isDark ? "border-white/10 bg-black/25" : "border-black/10 bg-white"} ${editingSlug === item.slug ? "scale-[1.02] border-amber-500/40 ring-1 ring-amber-500/20 shadow-xl" : ""}`}
                     >
-                      <div className="flex items-start justify-between gap-3">
-                        <div>
-                          <p className={`text-[10px] uppercase tracking-[0.3em] ${isDark ? "text-neutral-500" : "text-neutral-500"}`}>{item.itemType}</p>
-                          <h2 className={`mt-1 text-lg ${isDark ? "text-white" : "text-neutral-900"}`}>{item.title}</h2>
-                          <p className={`mt-1 text-sm ${isDark ? "text-neutral-400" : "text-neutral-600"}`}>{item.creatorName}</p>
+                      {editingSlug === item.slug && editDraft ? (
+                        <div className="space-y-4">
+                          <div className="flex items-center justify-between mb-2">
+                            <h3 className="text-xs font-black uppercase tracking-[0.3em] text-amber-500">Edit Mode</h3>
+                            <div className="flex gap-2">
+                              <button
+                                onClick={handleCancelEdit}
+                                className="p-1.5 rounded-full hover:bg-neutral-800 transition-colors"
+                              >
+                                <X className="h-4 w-4" />
+                              </button>
+                            </div>
+                          </div>
+                          
+                          <div className="grid grid-cols-2 gap-3">
+                            <InputField label="Title" value={editDraft.title} onChange={(v) => updateEditDraft("title", v)} isDark={isDark} />
+                            <InputField label="Type" value={editDraft.itemType} onChange={(v) => updateEditDraft("itemType", v)} isDark={isDark} />
+                            <InputField label="Creator" value={editDraft.creatorName} onChange={(v) => updateEditDraft("creatorName", v)} isDark={isDark} />
+                            <InputField label="Role" value={editDraft.creatorRole} onChange={(v) => updateEditDraft("creatorRole", v)} isDark={isDark} />
+                          </div>
+                          <InputField label="Story Fragment" value={editDraft.story} onChange={(v) => updateEditDraft("story", v)} isDark={isDark} isTextArea />
+
+                          <div className="flex items-center gap-3 pt-2">
+                            <button
+                              onClick={handleSaveEdit}
+                              className="inline-flex items-center gap-2 rounded-full bg-amber-500 text-black px-5 py-2 text-[10px] font-black uppercase tracking-widest hover:bg-amber-400 transition-colors"
+                            >
+                              <Save className="h-3 w-3" />
+                              Update Record
+                            </button>
+                          </div>
                         </div>
-                        <div className={`rounded-2xl overflow-hidden border p-2 ${isDark ? "border-white/10 bg-white" : "border-black/10 bg-neutral-50"}`}>
-                          <Image src={item.qrDataUrl} alt={`${item.title} QR`} width={88} height={88} className="h-20 w-20" unoptimized />
-                        </div>
-                      </div>
-                      <div className="mt-4 flex flex-wrap gap-2">
-                        <button
-                          type="button"
-                          onClick={() => handleCopy(item.scanUrl, item.slug)}
-                          className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-xs uppercase tracking-[0.3em] transition ${isDark ? "border-white/10 text-white hover:bg-white/10" : "border-black/10 text-neutral-800 hover:bg-neutral-100"}`}
-                        >
-                          <Copy className="h-4 w-4" />
-                          {copiedSlug === item.slug ? "Copied" : "Copy link"}
-                        </button>
-                        <Link
-                          href={item.scanUrl}
-                          target="_blank"
-                          className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-xs uppercase tracking-[0.3em] transition ${isDark ? "border-white/10 text-white hover:bg-white/10" : "border-black/10 text-neutral-800 hover:bg-neutral-100"}`}
-                        >
-                          <ExternalLink className="h-4 w-4" />
-                          Open page
-                        </Link>
-                        <button
-                          type="button"
-                          onClick={() => handleDownload(item.qrDataUrl, item.slug)}
-                          className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-xs uppercase tracking-[0.3em] transition ${isDark ? "border-white/10 text-white hover:bg-white/10" : "border-black/10 text-neutral-800 hover:bg-neutral-100"}`}
-                        >
-                          <Download className="h-4 w-4" />
-                          Download
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => handleDelete(item.slug)}
-                          className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-xs uppercase tracking-[0.3em] transition ${isDark ? "border-red-400/30 text-red-300 hover:bg-red-500/15" : "border-red-300 text-red-600 hover:bg-red-100"}`}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                          Delete
-                        </button>
-                      </div>
-                      <div className={`mt-4 text-xs ${isDark ? "text-neutral-400" : "text-neutral-600"}`}>
-                        Route: <span className={isDark ? "text-white" : "text-neutral-900"}>/provenance/{item.slug}</span>
-                      </div>
-                      <div className={`mt-1 text-xs ${isDark ? "text-neutral-500" : "text-neutral-500"}`}>
-                        Created: {new Date(item.createdAt).toLocaleString()}
-                      </div>
+                      ) : (
+                        <>
+                          <div className="flex items-start justify-between gap-3">
+                            <div>
+                              <p className={`text-[10px] uppercase tracking-[0.3em] ${isDark ? "text-neutral-500" : "text-neutral-500"}`}>{item.itemType}</p>
+                              <h2 className={`mt-1 text-lg ${isDark ? "text-white" : "text-neutral-900"}`}>{item.title}</h2>
+                              <p className={`mt-1 text-sm ${isDark ? "text-neutral-400" : "text-neutral-600"}`}>{item.creatorName}</p>
+                            </div>
+                            <div className={`rounded-2xl overflow-hidden border p-2 ${isDark ? "border-white/10 bg-white" : "border-black/10 bg-neutral-50"}`}>
+                              <Image src={item.qrDataUrl} alt={`${item.title} QR`} width={88} height={88} className="h-20 w-20" unoptimized />
+                            </div>
+                          </div>
+                          <div className="mt-4 flex flex-wrap gap-2">
+                            <button
+                              type="button"
+                              onClick={() => handleCopy(item.scanUrl, item.slug)}
+                              className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-xs uppercase tracking-[0.3em] transition ${isDark ? "border-white/10 text-white hover:bg-white/10" : "border-black/10 text-neutral-800 hover:bg-neutral-100"}`}
+                            >
+                              <Copy className="h-4 w-4" />
+                              {copiedSlug === item.slug ? "Copied" : "Copy link"}
+                            </button>
+                            <Link
+                              href={item.scanUrl}
+                              target="_blank"
+                              className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-xs uppercase tracking-[0.3em] transition ${isDark ? "border-white/10 text-white hover:bg-white/10" : "border-black/10 text-neutral-800 hover:bg-neutral-100"}`}
+                            >
+                              <ExternalLink className="h-4 w-4" />
+                              Open page
+                            </Link>
+                            <button
+                              type="button"
+                              onClick={() => handleStartEdit(item)}
+                              className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-xs uppercase tracking-[0.3em] transition ${isDark ? "border-white/10 text-white hover:bg-white/10" : "border-black/10 text-neutral-800 hover:bg-neutral-100"}`}
+                            >
+                              <Edit2 className="h-4 w-4" />
+                              Edit
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleDownload(item.qrDataUrl, item.slug)}
+                              className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-xs uppercase tracking-[0.3em] transition ${isDark ? "border-white/10 text-white hover:bg-white/10" : "border-black/10 text-neutral-800 hover:bg-neutral-100"}`}
+                            >
+                              <Download className="h-4 w-4" />
+                              Download
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleDelete(item.slug)}
+                              className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-xs uppercase tracking-[0.3em] transition ${isDark ? "border-red-400/30 text-red-300 hover:bg-red-500/15" : "border-red-300 text-red-600 hover:bg-red-100"}`}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                              Delete
+                            </button>
+                          </div>
+                          <div className={`mt-4 text-xs ${isDark ? "text-neutral-400" : "text-neutral-600"}`}>
+                            Route: <span className={isDark ? "text-white" : "text-neutral-900"}>/provenance/{item.slug}</span>
+                          </div>
+                          <div className={`mt-1 text-xs ${isDark ? "text-neutral-500" : "text-neutral-500"}`}>
+                            Created: {new Date(item.createdAt).toLocaleString()}
+                          </div>
+                        </>
+                      )}
                     </article>
                   ))
                 )}
@@ -585,3 +696,28 @@ export default function ProvenanceAdminPage() {
     </main>
   );
 }
+
+const InputField = ({ label, value, onChange, isDark, isTextArea = false }: { 
+  label: string, 
+  value: string, 
+  onChange: (v: string) => void, 
+  isDark: boolean,
+  isTextArea?: boolean
+}) => (
+  <label className="block space-y-1">
+    <span className="text-[9px] uppercase tracking-[0.2em] text-neutral-500 font-bold ml-1">{label}</span>
+    {isTextArea ? (
+      <textarea
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className={`w-full rounded-xl border px-3 py-2 text-xs outline-none transition min-h-[80px] ${isDark ? "border-white/10 bg-black/40 focus:border-amber-500/30" : "border-black/10 bg-white focus:border-amber-500/30"}`}
+      />
+    ) : (
+      <input
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className={`w-full rounded-xl border px-3 py-2 text-xs outline-none transition ${isDark ? "border-white/10 bg-black/40 focus:border-amber-500/30" : "border-black/10 bg-white focus:border-amber-500/30"}`}
+      />
+    )}
+  </label>
+);
