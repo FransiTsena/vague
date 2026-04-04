@@ -67,58 +67,51 @@ export default function Hero() {
     return (
         <section
             ref={containerRef}
-            className={`relative min-h-screen w-full overflow-hidden flex items-center justify-center pt-12 md:pt-14 pb-16 ${isDark ? "bg-black" : "bg-white"}`}
+            className={`relative min-h-[100svh] w-full overflow-hidden flex items-center justify-center pt-24 pb-32 ${isDark ? "bg-black" : "bg-white"}`}
         >
             {/* Background */}
             <div
                 ref={bgRef}
-                className={`absolute inset-0 w-full h-full ${isDark ? "bg-gradient-to-b from-neutral-800 to-black" : "bg-gradient-to-b from-neutral-200 to-white"}`}
+                className={`absolute inset-0 w-full h-full ${isDark ? "bg-black" : "bg-white"}`}
             >
                 <div className="absolute inset-0 bg-[url('/photos/hero-background.webp')] bg-cover bg-center opacity-80" />
             </div>
 
             {/* Overlay for better text readability */}
             {isDark && (
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/30 to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/20 to-black/80" />
             )}
 
             {/* Content */}
             <div
                 ref={textRef}
-                className="relative z-10 text-center px-4 max-w-5xl mx-auto flex flex-col items-center gap-8"
+                className="relative z-10 text-center px-6 max-w-7xl mx-auto flex flex-col items-center gap-10"
                 lang={language}
             >
-                <h1 className={`hero-text text-5xl md:text-7xl lg:text-8xl font-bold tracking-tighter ${isDark ? "text-white drop-shadow-[0_2px_10px_rgba(0,0,0,0.5)]" : "text-black"}`}>
-                    {t("hero.title1")} <br />
-                    <span className={isDark ? "text-white" : "text-neutral-600"}>{t("hero.title2")}</span>
-                </h1>
-                <p className={`hero-text text-lg md:text-xl max-w-2xl font-light tracking-wide subpixel-antialiased ${isDark ? "text-neutral-200 drop-shadow-[0_1px_4px_rgba(0,0,0,0.4)]" : "text-neutral-900 drop-shadow-[0_1px_2px_rgba(0,0,0,0.25)]"} ${language === "am" ? "leading-relaxed" : ""}`}>
-                    {t("hero.subtitle")}
-                </p>
-                <div className="hero-btn flex flex-col sm:flex-row gap-4 mt-4">
-                    <Button variant="primary" onClick={() => document.getElementById("services")?.scrollIntoView({ behavior: "smooth" })}>
+                <div>
+                    <h1 className={`hero-text text-5xl md:text-8xl lg:text-9xl font-serif font-light tracking-tight leading-[0.9] mb-8 ${isDark ? "text-white" : "text-black"}`}>
+                        {t("hero.title1")} <br />
+                        <span className={`italic font-light ${isDark ? "text-neutral-400" : "text-neutral-500"}`}>{t("hero.title2")}</span>
+                    </h1>
+                    <p className={`hero-text text-lg md:text-2xl max-w-2xl mx-auto font-light tracking-wide leading-relaxed ${isDark ? "text-neutral-300" : "text-neutral-600"}`}>
+                        {t("hero.subtitle")}
+                    </p>
+                </div>
+                
+                <div className="hero-btn flex flex-col sm:flex-row gap-6 mt-4">
+                    <Button variant="primary" className="px-10 py-4 text-sm tracking-[0.2em] uppercase rounded-none border border-white" onClick={() => document.getElementById("services")?.scrollIntoView({ behavior: "smooth" })}>
                         {t("hero.cta1")}
                     </Button>
-                    <Button variant="secondary" onClick={() => document.getElementById("story")?.scrollIntoView({ behavior: "smooth" })}>
+                    <Button variant="secondary" className="px-10 py-4 text-sm tracking-[0.2em] uppercase rounded-none border border-white/20" onClick={() => document.getElementById("story")?.scrollIntoView({ behavior: "smooth" })}>
                         {t("hero.cta2")}
                     </Button>
                 </div>
             </div>
 
             {/* Scroll Indicator */}
-            <div className={`absolute bottom-10 left-1/2 -translate-x-1/2 animate-bounce ${isDark ? "text-white/50" : "text-black/50"}`}>
-                <svg
-                    width="24"
-                    height="24"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                >
-                    <path d="M7 13l5 5 5-5M7 6l5 5 5-5" />
-                </svg>
+            <div className={`absolute bottom-12 left-1/2 -translate-x-1/2 flex flex-col items-center gap-4 ${isDark ? "text-white/30" : "text-black/30"}`}>
+                <span className="text-[10px] uppercase tracking-[0.3em] vertical-text mb-2">Scroll</span>
+                <div className="w-[1px] h-12 bg-current animate-pulse md:h-20" />
             </div>
         </section>
     );

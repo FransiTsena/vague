@@ -10,10 +10,12 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-black theme-transition">
       <Hero />
-      <Story />
-      <Services />
-      <RoomShowcase />
-      <Gallery />
+      <div className="flex flex-col gap-0">
+        <Story />
+        <Services />
+        <RoomShowcase />
+        <Gallery />
+      </div>
       <Footer />
     </div>
   );

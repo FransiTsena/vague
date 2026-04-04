@@ -15,7 +15,7 @@ const Section = forwardRef<HTMLElement, SectionProps>(
             <section
                 ref={ref}
                 id={id}
-                className={cn("py-20 md:py-32 lg:py-40 px-4 md:px-8", className)}
+                className={cn("py-16 md:py-24 lg:py-32 px-4 md:px-8", className)}
             >
                 {children}
             </section>

@@ -119,24 +119,25 @@ export default function Gallery() {
         `"${designName}" is a signature resort experience designed for comfort, relaxation, and memorable stays.`;
 
     return (
-        <Section id="gallery" className={`min-h-screen ${isDark ? "bg-neutral-950 text-white" : "bg-white text-black"}`}>
+        <Section id="gallery" className={`min-h-screen ${isDark ? "bg-black text-white" : "bg-white text-black"}`}>
             <div className="max-w-7xl mx-auto" lang={language}>
-                <div className="text-center mb-16">
-                    <h2 className={`text-4xl md:text-6xl font-bold tracking-tighter mb-4 ${isDark ? "text-white/90" : "text-black/90"}`}>
-                        {t("gallery.title1")} <span className={isDark ? "text-neutral-500" : "text-neutral-400"}>{t("gallery.title2")}</span>
+                <div className="text-center mb-32">
+                    <h2 className={`text-5xl md:text-8xl font-serif font-light tracking-tight mb-8 ${isDark ? "text-white/90" : "text-black/90"}`}>
+                        {t("gallery.title1")} <br />
+                        <span className={`italic ${isDark ? "text-neutral-500" : "text-neutral-400"}`}>{t("gallery.title2")}</span>
                     </h2>
-                    <p className={`${isDark ? "text-neutral-400" : "text-neutral-600"} opacity-80`}>{t("gallery.subtitle")}</p>
+                    <p className={`text-xl font-light tracking-wide max-w-2xl mx-auto ${isDark ? "text-neutral-400" : "text-neutral-500"}`}>{t("gallery.subtitle")}</p>
                 </div>
 
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 md:gap-12">
                     {displayedProjects.map((design, idx) => (
                         <motion.div
                             key={design.id}
-                            initial={{ opacity: 0, y: 20 }}
+                            initial={{ opacity: 0, y: 30 }}
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
-                            transition={{ duration: 0.5, delay: idx * 0.05 }}
-                            className={`group relative aspect-[4/5] rounded-xl overflow-hidden border cursor-pointer transition-all duration-300 ${isDark ? "bg-neutral-900/70 border-white/5 hover:border-white/20" : "bg-neutral-100/70 border-black/5 hover:border-black/20"}`}
+                            transition={{ duration: 0.8, delay: idx * 0.1, ease: [0.16, 1, 0.3, 1] }}
+                            className={`group relative aspect-[3/4] overflow-hidden cursor-pointer transition-all duration-700 ${isDark ? "bg-neutral-900" : "bg-neutral-50"}`}
                             role="button"
                             tabIndex= { 0}
                             aria-label={`View ${design.titleEn} design`}
@@ -150,39 +151,32 @@ export default function Gallery() {
                         >
                             {/* Background Image */}
                             <div
-                                className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110"
+                                className="absolute inset-0 bg-cover bg-center transition-transform duration-1000 group-hover:scale-110"
                                 style={{ backgroundImage: `url(${design.thumbnailUrl})` }}
                             />
 
                             {/* Gradient Overlay */}
-                            {isDark && (
-                                <div className="absolute inset-0 opacity-60 group-hover:opacity-80 transition-opacity duration-300 bg-gradient-to-t from-black via-black/20 to-transparent" />
-                            )}
+                            <div className="absolute inset-0 opacity-40 group-hover:opacity-100 transition-opacity duration-700 bg-gradient-to-t from-black via-black/20 to-transparent" />
 
                             {/* Content */}
-                            <div className="absolute inset-0 p-4 flex flex-col justify-between z-10">
+                            <div className="absolute inset-0 p-8 flex flex-col justify-between z-10">
                                 {/* Category Badge */}
-                                <div className="flex justify-end">
-                                    <span className={`text-[10px] font-medium uppercase tracking-wider px-2 py-1 rounded-full border ${isDark ? "text-neutral-400 bg-black/40 border-white/10" : "text-neutral-600 bg-white border-black/10"}`}>
+                                <div className="flex justify-end overflow-hidden">
+                                    <span className={`text-[10px] font-light uppercase tracking-[0.3em] px-4 py-2 bg-black/40 backdrop-blur-sm border border-white/10 text-white transform translate-y-[-120%] group-hover:translate-y-0 transition-transform duration-500`}>
                                         {language === "am" ? "ሪዞርት" : "resort"}
                                     </span>
                                 </div>
 
                                 {/* Title & CTA */}
-                                <div className="space-y-2">
-                                    <h3 className="text-xl font-bold text-white">
+                                <div className="space-y-4">
+                                    <h3 className="text-2xl font-serif font-light text-white transform translate-y-4 group-hover:translate-y-0 transition-transform duration-700">
                                         {language === "am" ? design.titleAm : design.titleEn}
                                     </h3>
-                                    <div className="flex items-center gap-2 opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300">
-                                        <Eye className={`w-4 h-4 ${isDark ? "text-neutral-400" : "text-neutral-600"}`} />
-                                        <span className={`text-xs ${isDark ? "text-neutral-400" : "text-neutral-600"}`}>{t("gallery.viewProject")}</span>
+                                    <div className="flex items-center gap-3 opacity-0 transform translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-700 delay-100">
+                                        <Eye className="w-4 h-4 text-white/60" />
+                                        <span className="text-[10px] uppercase tracking-[0.3em] text-white/60 font-medium">{t("gallery.viewProject")}</span>
                                     </div>
                                 </div>
-                            </div>
-
-                            {/* Hover Glow Effect */}
-                            <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none">
-                                <div className="absolute inset-0 bg-gradient-to-t from-cognac/20 to-transparent" />
                             </div>
                         </motion.div>
                     ))}
