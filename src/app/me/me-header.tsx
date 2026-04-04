@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { signOut } from "next-auth/react";
-import type { AccessRole } from "@prisma/client";
+import type { AccessRole } from "@/lib/models";
 import { Button } from "@/components/ui";
 
 export function MeHeader({ name, accessRole }: { name: string; accessRole: AccessRole }) {

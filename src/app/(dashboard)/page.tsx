@@ -2,15 +2,15 @@ import Link from "next/link";
 import { unstable_noStore as noStore } from "next/cache";
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
-import { prisma } from "@/lib/prisma";
-import type { NotificationStatus } from "@prisma/client";
+import dbConnect from "@/lib/mongodb";
+import { DepartmentModel, Member, ScheduleEvent, StaffingDemand, StaffAssignment } from "@/lib/models";
 
 export const dynamic = "force-dynamic";
 
 type RecentRow = {
   id: string;
   subject: string;
-  status: NotificationStatus;
+  status: string;
   member: {
     name: string;
     email: string;
@@ -25,6 +25,7 @@ export default async function OverviewPage() {
   }
 
   noStore();
+  await dbConnect();
 
   let stats: {
     departments: number;
@@ -37,49 +38,25 @@ export default async function OverviewPage() {
   let recent: RecentRow[] = [];
 
   try {
-    const [departments, members, events, notifications, r] = await Promise.all([
-      prisma.department.count(),
-      prisma.member.count(),
-      prisma.scheduleEvent.count(),
-      prisma.notificationLog.count(),
-      prisma.notificationLog.findMany({
-        take: 6,
-        orderBy: { createdAt: "desc" },
-        include: {
-          member: {
-            select: {
-              name: true,
-              email: true,
-              department: { select: { name: true } },
-            },
-          },
-        },
-      }),
+    const [departments, members, events, staffingDemands, shiftAssignments] = await Promise.all([
+      DepartmentModel.countDocuments(),
+      Member.countDocuments(),
+      ScheduleEvent.countDocuments(),
+      StaffingDemand.countDocuments(),
+      StaffAssignment.countDocuments(),
     ]);
-
-    let staffingDemands = 0;
-    let shiftAssignments = 0;
-    try {
-      staffingDemands = await prisma.staffingDemand.count();
-    } catch {
-      /* optional tables */
-    }
-    try {
-      shiftAssignments = await prisma.staffAssignment.count();
-    } catch {
-      /* optional tables */
-    }
 
     stats = {
       departments,
       members,
       events,
-      notifications,
+      notifications: 0,
       staffingDemands,
       shiftAssignments,
     };
-    recent = r;
-  } catch {
+    recent = []; // NotificationLog not in Mongo models yet
+  } catch (err: any) {
+    console.error("Stats fetch error:", err);
     stats = null;
   }
 

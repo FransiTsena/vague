@@ -1,8 +1,7 @@
 import nodemailer from "nodemailer";
-import type { NotificationStatus } from "@prisma/client";
 
 export type SendMailResult = {
-  status: NotificationStatus;
+  status: string;
   error?: string;
   sentAt?: Date;
 };

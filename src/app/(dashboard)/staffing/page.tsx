@@ -29,7 +29,7 @@ export default async function StaffingPage() {
         id: demand._id.toString(),
         requirements: requirements.map((req: any) => ({
           ...req,
-          department: req.departmentId ? { name: req.departmentId.name } : { name: 'Unknown' }
+          department: req.departmentId ? { name: (req.departmentId as any).name } : { name: 'Unknown' }
         })),
         assignments: assignments.map((asgn: any) => ({ id: asgn._id.toString() }))
       };
@@ -108,8 +108,8 @@ export default async function StaffingPage() {
               )}
               <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
                 {d.assignments.length} assignment(s) ·{" "}
-                {d.requirements
-                  .map((r) => `${r.department.name}: ${r.requiredCount} requested`)
+                {(d.requirements as any[])
+                  .map((r: any) => `${r.department.name}: ${r.requiredCount} requested`)
                   .join(" · ")}
               </p>
             </li>
