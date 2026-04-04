@@ -57,6 +57,7 @@ export default function Header() {
         { key: "nav.rooms", href: "/rooms" },
         { key: "nav.services", href: "/#services" },
         { key: "nav.gallery", href: "/gallery" },
+        { key: "nav.provenance", href: "/provenance" },
         { key: "nav.training", href: "/training" },
         { key: "nav.contact", href: "/#contact" },
     ];

@@ -57,6 +57,9 @@ export default function Footer() {
                             <Link href="/#contact" className={`text-sm transition-colors ${isDark ? "text-neutral-400 hover:text-white" : "text-neutral-600 hover:text-black"}`}>
                                 {t("nav.contact")}
                             </Link>
+                            <Link href="/provenance" className={`text-sm transition-colors ${isDark ? "text-neutral-400 hover:text-white" : "text-neutral-600 hover:text-black"}`}>
+                                {language === "en" ? "Provenance" : "ፕሮቬናንስ"}
+                            </Link>
                             <Link href="/training" className={`text-sm transition-colors ${isDark ? "text-neutral-400 hover:text-white" : "text-neutral-600 hover:text-black"}`}>
                                 {t("nav.training")}
                             </Link>
