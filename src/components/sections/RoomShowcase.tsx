@@ -104,9 +104,9 @@ export default function RoomShowcase() {
   return (
     <Section id="rooms" className={isDark ? "bg-black text-white" : "bg-[#fcfbf9] text-black"}>
       <div className="mx-auto max-w-7xl">
-        <div className="mb-32 flex flex-col md:flex-row items-baseline justify-between gap-12">
+        <div className="mb-20 flex flex-col md:flex-row items-baseline justify-between gap-12">
           <div className="max-w-3xl">
-            <h2 className="text-5xl md:text-8xl font-serif font-light tracking-tight leading-none mb-4">Our Accommodations</h2>
+            <h2 className="text-5xl md:text-7xl font-serif font-light tracking-tight leading-none mb-4">Our Accommodations</h2>
             <p className="mt-8 text-xl md:text-2xl font-light leading-relaxed text-neutral-500">
               Immerse yourself in thoughtfully curated spaces. Each room promises an elevated experience with uncompromised comfort and timeless aesthetics.
             </p>
@@ -114,7 +114,7 @@ export default function RoomShowcase() {
         </div>
 
         <motion.div
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12 md:gap-16"
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12"
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, amount: 0.1 }}
@@ -154,7 +154,7 @@ export default function RoomShowcase() {
                 </div>
               </div>
 
-              <div className="mt-10 flex flex-col items-start px-2">
+              <div className="mt-8 flex flex-col items-start px-2">
                 <div className="flex w-full items-baseline justify-between mb-4">
                   <h3 className="font-serif text-3xl font-light">{roomTitle(room.type)}</h3>
                   <div className="text-right">
@@ -164,7 +164,7 @@ export default function RoomShowcase() {
                   </div>
                 </div>
                 {room.description && (
-                  <p className="text-base leading-relaxed font-light text-neutral-400 line-clamp-2 md:line-clamp-3 mb-8">
+                  <p className="text-base leading-relaxed font-light text-neutral-400 line-clamp-2 md:line-clamp-3 mb-6">
                     {room.description}
                   </p>
                 )}

@@ -121,15 +121,15 @@ export default function Gallery() {
     return (
         <Section id="gallery" className={`min-h-screen ${isDark ? "bg-black text-white" : "bg-white text-black"}`}>
             <div className="max-w-7xl mx-auto" lang={language}>
-                <div className="text-center mb-32">
-                    <h2 className={`text-5xl md:text-8xl font-serif font-light tracking-tight mb-8 ${isDark ? "text-white/90" : "text-black/90"}`}>
+                <div className="text-center mb-20 md:mb-24">
+                    <h2 className={`text-5xl md:text-7xl font-serif font-light tracking-tight mb-8 ${isDark ? "text-white/90" : "text-black/90"}`}>
                         {t("gallery.title1")} <br />
                         <span className={`italic ${isDark ? "text-neutral-500" : "text-neutral-400"}`}>{t("gallery.title2")}</span>
                     </h2>
                     <p className={`text-xl font-light tracking-wide max-w-2xl mx-auto ${isDark ? "text-neutral-400" : "text-neutral-500"}`}>{t("gallery.subtitle")}</p>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 md:gap-12">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
                     {displayedProjects.map((design, idx) => (
                         <motion.div
                             key={design.id}
