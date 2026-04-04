@@ -1,8 +1,14 @@
 import type { NextConfig } from "next";
+const isProd = process.env.TYPE === 'production'
 
+ const nextConfigOptions= {
+  basePath: isProd ? '/hackathon' : '',
+  assetPrefix: isProd ? '/hackathon/' : '',
+}
 const nextConfig: NextConfig = {
   // basePath: "/hackathon",
   // assetPrefix: "/hackathon/",
+  ...nextConfigOptions,
   allowedDevOrigins: ["46.225.89.2", "localhost", "localhost:3000", "localhost:3001"],
   devIndicators: {
     appIsrStatus: false,
