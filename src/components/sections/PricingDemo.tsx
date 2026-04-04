@@ -245,7 +245,7 @@ export default function PricingDemo() {
   }, []);
 
   return (
-    <Section id="pricing-demo" className="pb-12 bg-transparent">
+    <Section id="pricing-demo" className="py-0 bg-transparent">
       <div className="max-w-7xl mx-auto px-4 md:px-8">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-20 md:mb-32 border-b border-neutral-100 dark:border-white/10 pb-12 gap-8">
           <div className="space-y-6">

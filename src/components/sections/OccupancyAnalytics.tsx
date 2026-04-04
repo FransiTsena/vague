@@ -84,7 +84,7 @@ export default function OccupancyAnalytics() {
   if (!data.length) return null;
 
   return (
-    <Section id="ai-analytics" className="pb-12 bg-transparent">
+    <Section id="ai-analytics" className="py-0 bg-transparent">
       <div className="max-w-7xl mx-auto px-4 md:px-8 relative">
         <div className="flex flex-col md:flex-row items-baseline justify-between gap-6 mb-20 md:mb-24 border-b border-neutral-100 dark:border-white/5 pb-10">
           <div className="space-y-4">

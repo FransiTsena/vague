@@ -52,7 +52,7 @@ export default function GuestIntelligence() {
   if (!data.length) return null;
 
   return (
-    <Section id="guest-intelligence" className="pb-24 bg-transparent mt-20">
+    <Section id="guest-intelligence" className="py-0 bg-transparent mt-0">
       <div className="max-w-7xl mx-auto px-4 md:px-8">
         <div className="flex flex-col md:flex-row items-baseline justify-between gap-10 mb-20 md:mb-32 border-b border-neutral-100 dark:border-white/10 pb-12">
           <div className="space-y-6">

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, ScanLine, ShieldCheck, Wallet } from "lucide-react";
+import { ArrowRight, ArrowUpRight, ScanLine, ShieldCheck, Wallet } from "lucide-react";
 import { provenanceProducts, type ProvenanceProduct } from "@/lib/provenance";
 import dbConnect from "@/lib/mongodb";
 import { ProvenanceProduct as ProvenanceProductModel } from "@/lib/models";
@@ -50,73 +50,99 @@ export default async function ProvenanceIndexPage() {
   const allProducts = await getAllProducts();
 
   return (
-    <main className="min-h-screen bg-[radial-gradient(circle_at_top,_rgba(201,170,120,0.18),_transparent_34%),linear-gradient(180deg,_#050505_0%,_#090909_100%)] text-white">
-      <section className="mx-auto flex w-full max-w-7xl flex-col gap-12 px-6 pb-20 pt-28 md:px-12">
-        <div className="max-w-3xl space-y-6">
-          <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs uppercase tracking-[0.35em] text-neutral-300">
-            <ScanLine className="h-4 w-4" />
-            QR dynamic routing demo
-          </span>
-          <h1 className="font-serif text-4xl leading-tight md:text-6xl">
-            Provenance turns scanned room items into product-specific stories.
-          </h1>
-          <p className="max-w-2xl text-sm leading-7 text-neutral-300 md:text-base">
-            Each QR code resolves to a dynamic route like <span className="text-white">/provenance/[slug]</span>, so the guest sees the exact coffee, textile, or artwork they scanned, along with the maker&apos;s story and a tip action.
-          </p>
+    <main className="min-h-screen theme-transition bg-white dark:bg-black text-black dark:text-white pt-12 md:pt-20">
+      <div className="mx-auto flex w-full max-w-7xl flex-col px-6 pb-20 pt-10 md:px-12">
+        {/* Header Section */}
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-12 border-b border-neutral-100 dark:border-white/10 pb-12 mb-16 md:mb-24">
+          <div className="max-w-4xl space-y-6">
+            <div className="flex items-center gap-3 opacity-50">
+              <ScanLine className="h-3 w-3" />
+              <span className="text-[10px] font-bold tracking-[0.4em] uppercase">Digital Collection</span>
+            </div>
+            <h1 className="font-serif text-5xl leading-[1.1] md:text-8xl font-light tracking-tight">
+              The <span className="italic text-neutral-400 dark:text-neutral-500">Provenance</span> Archive
+            </h1>
+            <p className="max-w-2xl text-sm md:text-base leading-relaxed font-light text-neutral-500 dark:text-neutral-400">
+              A curated digital record of the artisans and materials that define the VAGUE experience. Scan any room item to unveil its unique architectural journey and heritage.
+            </p>
+          </div>
+          
+          <div className="flex md:flex-col items-center md:items-end gap-6 md:gap-3 grayscale opacity-60 font-mono">
+            <span className="text-[10px] tracking-[0.3em] uppercase text-neutral-400 font-bold order-2 md:order-1">Registry Sync</span>
+            <span className="text-[10px] text-foreground flex items-center gap-3 font-medium tracking-widest border border-current px-3 py-1 order-1 md:order-2">
+              VERIFIED ORIGIN
+            </span>
+          </div>
         </div>
 
-        <div className="grid gap-4 md:grid-cols-3">
+        {/* Product Grid - Normal Grid Layout */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12 lg:gap-16">
           {allProducts.map((product, index) => (
             <article
               key={product.slug}
-              className="group overflow-hidden rounded-3xl border border-white/10 bg-white/5 backdrop-blur-sm transition duration-300 hover:border-white/20 hover:bg-white/8"
+              className="group flex flex-col"
             >
-              <div className="relative aspect-[4/3] overflow-hidden">
+              <Link 
+                href={`/provenance/${product.slug}`}
+                className="relative aspect-[4/5] w-full overflow-hidden mb-6"
+              >
                 <div
-                  className="absolute inset-0 bg-cover bg-center transition duration-700 group-hover:scale-110"
+                  className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105"
                   style={{ backgroundImage: `url(${product.imageUrl})` }}
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
-                <div className="absolute left-4 top-4 rounded-full border border-white/15 bg-black/45 px-3 py-1 text-[10px] uppercase tracking-[0.3em] text-neutral-200">
-                  Item 0{index + 1}
-                </div>
-              </div>
-              <div className="space-y-4 p-5">
-                <div>
-                  <p className="text-xs uppercase tracking-[0.35em] text-neutral-400">{product.itemType}</p>
-                  <h2 className="mt-2 font-serif text-2xl text-white">{product.title}</h2>
-                  <p className="mt-1 text-sm text-neutral-300">{product.creatorName}</p>
-                </div>
-                <p className="text-sm leading-6 text-neutral-400">{product.story}</p>
+              </Link>
+              
+              <div className="space-y-3">
+                <p className="text-[10px] uppercase tracking-widest text-neutral-500 font-medium">
+                  {product.itemType}
+                </p>
+                <h2 className="font-serif text-2xl tracking-tight text-black dark:text-white">
+                  {product.title}
+                </h2>
+                <p className="text-sm leading-relaxed text-neutral-600 dark:text-neutral-400 line-clamp-2 font-light">
+                  {product.story}
+                </p>
                 <Link
                   href={`/provenance/${product.slug}`}
-                  className="inline-flex items-center gap-2 text-sm font-semibold uppercase tracking-[0.3em] text-white transition hover:text-neutral-300"
+                  className="inline-flex items-center gap-2 text-[10px] uppercase tracking-widest font-bold pt-2 hover:opacity-60 transition-opacity"
                 >
-                  Open story
-                  <ArrowRight className="h-4 w-4" />
+                  View Entry <ArrowRight className="h-3 w-3" />
                 </Link>
               </div>
             </article>
           ))}
         </div>
 
-        <div className="grid gap-4 md:grid-cols-3">
-          <div className="rounded-3xl border border-white/10 bg-white/5 p-6">
-            <h3 className="mt-4 font-serif text-2xl text-white">AI-generated story</h3>
-            <p className="mt-2 text-sm leading-6 text-neutral-400">The route can generate a refined story from verified product data while keeping the tone aligned with the hotel brand.</p>
+        {/* Features Section - Normal Layout */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-12 border-t border-neutral-100 dark:border-white/10 pt-8 mt-8">
+          <div className="space-y-4">
+            <h3 className="font-serif text-xl tracking-tight text-black dark:text-white lowercase first-letter:uppercase">
+              Algorithmic <span className="italic">Narrative</span>
+            </h3>
+            <p className="text-sm leading-relaxed text-neutral-500 dark:text-neutral-400 font-light">
+              Each entry features a dynamically refined narrative, calibrated to the brand&apos;s architectural tone and the specific heritage of the piece.
+            </p>
           </div>
-          <div className="rounded-3xl border border-white/10 bg-white/5 p-6">
-            <ShieldCheck className="h-5 w-5 text-neutral-300" />
-            <h3 className="mt-4 font-serif text-2xl text-white">Verified provenance</h3>
-            <p className="mt-2 text-sm leading-6 text-neutral-400">Only the item record attached to the QR code is shown, so guests see the exact maker, origin, and materials tied to that product.</p>
+          
+          <div className="space-y-4">
+            <h3 className="font-serif text-xl tracking-tight text-black dark:text-white lowercase first-letter:uppercase">
+              Verified <span className="italic">Registry</span>
+            </h3>
+            <p className="text-sm leading-relaxed text-neutral-500 dark:text-neutral-400 font-light">
+              Immutable product records linked directly to the physical asset via secure QR protocols, ensuring 100% material transparency.
+            </p>
           </div>
-          <div className="rounded-3xl border border-white/10 bg-white/5 p-6">
-            <Wallet className="h-5 w-5 text-neutral-300" />
-            <h3 className="mt-4 font-serif text-2xl text-white">Tip-ready flow</h3>
-            <p className="mt-2 text-sm leading-6 text-neutral-400">The page is structured for future payment integrations so a guest can tip the creator after reading the story.</p>
+          
+          <div className="space-y-4">
+            <h3 className="font-serif text-xl tracking-tight text-black dark:text-white lowercase first-letter:uppercase">
+              Direct <span className="italic">Patronage</span>
+            </h3>
+            <p className="text-sm leading-relaxed text-neutral-500 dark:text-neutral-400 font-light">
+              An integrated framework allowing for direct creator appreciation, fostering a sustainable link between guest and artisan.
+            </p>
           </div>
         </div>
-      </section>
+      </div>
     </main>
   );
 }

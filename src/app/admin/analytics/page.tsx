@@ -56,18 +56,18 @@ export default function AnalyticsPage() {
       </div>
 
       {/* Content Sections */}
-      <div className="max-w-7xl mx-auto px-6 sm:px-12 space-y-32 md:space-y-48">
+      <div className="max-w-7xl mx-auto px-6 sm:px-12 space-y-12 md:space-y-16">
         <div className="relative">
           <div className="absolute -left-12 top-0 h-full w-[1px] bg-neutral-100 dark:bg-white/5 hidden xl:block" />
           <OccupancyAnalytics />
         </div>
 
-        <div className="relative">
+        <div className="relative border-t border-neutral-100 dark:border-white/5 pt-12 md:pt-16">
           <div className="absolute -left-12 top-0 h-full w-[1px] bg-neutral-100 dark:border-white/5 hidden xl:block" />
           <PricingDemo />
         </div>
 
-        <div className="relative">
+        <div className="relative border-t border-neutral-100 dark:border-white/5 pt-12 md:pt-16">
           <div className="absolute -left-12 top-0 h-full w-[1px] bg-neutral-100 dark:bg-white/5 hidden xl:block" />
           <GuestIntelligence />
         </div>
