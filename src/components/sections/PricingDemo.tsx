@@ -62,6 +62,12 @@ interface ServicePricingResponse {
   services: ServicePricingRow[];
 }
 
+interface PricingTrendPoint {
+  date: string;
+  dynamicPrice: number;
+  occupancyRate: number;
+}
+
 function clamp(value: number, min: number, max: number) {
   return Math.min(max, Math.max(min, value));
 }
@@ -73,6 +79,9 @@ function round2(value: number) {
 export default function PricingDemo() {
   const [pricing, setPricing] = useState<PricingData | null>(null);
   const [servicePricing, setServicePricing] = useState<ServicePricingRow[]>([]);
+  const [pricingTrend, setPricingTrend] = useState<PricingTrendPoint[]>([]);
+  const [trendLoading, setTrendLoading] = useState(false);
+  const [trendError, setTrendError] = useState("");
   const [loading, setLoading] = useState(false);
   const [seeding, setSeeding] = useState(false);
   const [seedMessage, setSeedMessage] = useState("");
@@ -84,6 +93,14 @@ export default function PricingDemo() {
 
   const MIN_DYNAMIC_MULTIPLIER = 0.75;
   const MAX_DYNAMIC_MULTIPLIER = 2.5;
+
+  const addDays = (date: Date, days: number) => {
+    const clone = new Date(date);
+    clone.setDate(clone.getDate() + days);
+    return clone;
+  };
+
+  const toDateInput = (date: Date) => date.toISOString().split("T")[0];
 
   const applyOverrideState = (override: PricingOverride) => {
     if (override.isActive) {
@@ -101,6 +118,8 @@ export default function PricingDemo() {
 
   const fetchPricing = async () => {
     setLoading(true);
+    setTrendLoading(true);
+    setTrendError("");
     setSeedMessage("");
     try {
       const today = new Date().toISOString().split("T")[0];
@@ -129,10 +148,36 @@ export default function PricingDemo() {
       } else {
         setServicePricing([]);
       }
+
+      const trendStart = new Date(today);
+      const trendDates = [0, 1, 2].map((offset) => toDateInput(addDays(trendStart, offset)));
+      const trendResponses = await Promise.all(
+        trendDates.map((date) => fetch(`/api/pricing?roomId=demo-id&date=${date}`)),
+      );
+
+      const trendPayloads = await Promise.all(trendResponses.map((response) => response.json()));
+      const normalizedTrend = trendPayloads
+        .map((payload, index) => {
+          if (!payload || payload.error || typeof payload.dynamicPrice !== "number") return null;
+          return {
+            date: trendDates[index],
+            dynamicPrice: payload.dynamicPrice,
+            occupancyRate: payload?.factors?.occupancyRate ?? 0,
+          } as PricingTrendPoint;
+        })
+        .filter((point): point is PricingTrendPoint => point !== null);
+
+      setPricingTrend(normalizedTrend);
+      if (normalizedTrend.length === 0) {
+        setTrendError("Unable to render 3-day trend right now.");
+      }
     } catch (err) {
       console.error(err);
+      setPricingTrend([]);
+      setTrendError("Unable to load 3-day trend.");
     } finally {
       setLoading(false);
+      setTrendLoading(false);
     }
   };
 
@@ -286,6 +331,56 @@ export default function PricingDemo() {
                       );
                     })}
                   </div>
+                </div>
+
+                <div className="pt-8 border-t border-neutral-100 dark:border-neutral-800">
+                  <div className="flex items-end justify-between mb-5">
+                    <h4 className="text-[10px] font-mono uppercase tracking-[0.2em] font-bold text-neutral-400 dark:text-neutral-500">
+                      3-Day Trendline
+                    </h4>
+                    <span className="text-[10px] uppercase tracking-[0.2em] text-neutral-400">AI + Occupancy</span>
+                  </div>
+
+                  {trendLoading ? (
+                    <p className="text-xs text-neutral-500">Projecting next 3 days...</p>
+                  ) : trendError ? (
+                    <p className="text-xs text-rose-400 uppercase tracking-widest">{trendError}</p>
+                  ) : (
+                    <div className="space-y-3">
+                      {pricingTrend.map((point, index) => {
+                        const prev = index > 0 ? pricingTrend[index - 1] : null;
+                        const delta = prev ? round2(point.dynamicPrice - prev.dynamicPrice) : 0;
+                        const deltaPercent = prev && prev.dynamicPrice > 0
+                          ? round2((delta / prev.dynamicPrice) * 100)
+                          : 0;
+                        const directionClass =
+                          !prev || delta === 0
+                            ? "text-neutral-500"
+                            : delta > 0
+                              ? "text-emerald-500"
+                              : "text-amber-500";
+
+                        return (
+                          <div key={point.date} className="grid grid-cols-12 gap-2 items-center text-xs border-b border-neutral-100 dark:border-neutral-800 pb-2">
+                            <span className="col-span-4 uppercase tracking-wide text-neutral-500">
+                              {new Date(point.date).toLocaleDateString(undefined, { weekday: "short", day: "numeric" })}
+                            </span>
+                            <span className="col-span-4 font-mono text-neutral-500">
+                              Occ {(point.occupancyRate * 100).toFixed(0)}%
+                            </span>
+                            <span className="col-span-4 font-mono text-right">
+                              <span className="text-foreground">${point.dynamicPrice.toFixed(2)}</span>
+                              {prev && (
+                                <span className={`ml-2 ${directionClass}`}>
+                                  {delta > 0 ? "+" : ""}{deltaPercent.toFixed(1)}%
+                                </span>
+                              )}
+                            </span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
                 </div>
               </div>
 

@@ -73,6 +73,76 @@ function getStdDev(values: number[]) {
   return Math.sqrt(variance);
 }
 
+function toPercentLabel(value: number) {
+  return `${Math.round(value * 100)}%`;
+}
+
+function buildActionablePricingAdvice(input: {
+  occupancyRate: number;
+  leadDays: number;
+  weekendShare: number;
+  demandTrendMultiplier: number;
+  seasonalityMultiplier: number;
+  isHoliday: boolean;
+  eventName: string;
+  modelAiMultiplier: number;
+  effectiveAiMultiplier: number;
+  baseReason: string;
+}) {
+  const insights: string[] = [];
+  const actions: string[] = [];
+
+  insights.push(
+    `Occupancy is ${toPercentLabel(input.occupancyRate)} with ${Math.max(input.leadDays, 0)} day lead time.`
+  );
+
+  if (input.isHoliday || (input.eventName && input.eventName !== "None")) {
+    insights.push(
+      `Event pressure is active (${input.eventName && input.eventName !== "None" ? input.eventName : "Holiday period"}).`
+    );
+  }
+
+  if (input.seasonalityMultiplier >= 1.1) {
+    insights.push("Seasonal demand is elevated.");
+  } else if (input.seasonalityMultiplier <= 0.98) {
+    insights.push("Seasonal demand is soft.");
+  }
+
+  const overrideGap = input.effectiveAiMultiplier - input.modelAiMultiplier;
+  if (overrideGap > 0.25) {
+    actions.push(
+      `Override is aggressive versus AI baseline (${input.modelAiMultiplier.toFixed(2)}x); reduce by ${(Math.min(overrideGap, 0.35)).toFixed(2)}x if conversion drops.`
+    );
+  } else if (overrideGap < -0.2) {
+    actions.push(
+      `Override is below AI baseline (${input.modelAiMultiplier.toFixed(2)}x); consider adding ${Math.min(Math.abs(overrideGap), 0.25).toFixed(2)}x if pace remains strong.`
+    );
+  }
+
+  if (input.occupancyRate >= 0.8 && input.leadDays <= 3) {
+    actions.push("Hold rate integrity, close broad discounts, and prioritize premium upsells.");
+  } else if (input.occupancyRate <= 0.55 && input.leadDays <= 7) {
+    actions.push("Demand is soft near arrival; run a short direct-only offer and bundle breakfast value.");
+  } else if (input.leadDays > 14 && input.occupancyRate < 0.65) {
+    actions.push("Open early-booking packages now to build base occupancy before final week.");
+  }
+
+  if (input.weekendShare >= 0.5) {
+    actions.push("Weekend-heavy stay: use 2-night minimums and weekend package positioning.");
+  }
+
+  if (input.demandTrendMultiplier < 0.98) {
+    actions.push("Recent booking pace is cooling; favor conversion tactics over margin expansion.");
+  } else if (input.demandTrendMultiplier > 1.04) {
+    actions.push("Recent booking pace is accelerating; maintain current price posture and limit blanket promos.");
+  }
+
+  const aiLine = input.baseReason?.trim() ? `AI signal: ${input.baseReason.trim()}` : "";
+  const actionLine = actions.length > 0 ? `Recommended actions: ${actions.slice(0, 3).join(" ")}` : "Recommended actions: Monitor pickup for 24h and keep current strategy.";
+
+  return [insights.join(" "), aiLine, actionLine].filter(Boolean).join(" ");
+}
+
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const roomId = searchParams.get("roomId");
@@ -293,20 +363,20 @@ export async function GET(request: Request) {
       event: calendarEntry?.event || "None",
     });
 
-    let aiMultiplier = 1;
-    let aiReason = "Rule-based dynamic pricing applied.";
+    let modelAiMultiplier = 1;
+    let modelAiReason = "Rule-based dynamic pricing applied.";
 
     if (aiResponse && aiResponse.multiplier) {
-      aiMultiplier = clamp(Number(aiResponse.multiplier), 0.85, 1.35);
+      modelAiMultiplier = clamp(Number(aiResponse.multiplier), 0.85, 1.35);
       if (typeof aiResponse.reason === "string" && aiResponse.reason.trim()) {
-        aiReason = aiResponse.reason;
+        modelAiReason = aiResponse.reason;
       }
     }
 
+    let aiMultiplier = modelAiMultiplier;
     const pricingControl = await PricingControl.findOne({ key: "global", isActive: true }).lean();
     if (pricingControl?.aiMultiplier) {
       aiMultiplier = clamp(Number(pricingControl.aiMultiplier), 0.5, 2);
-      aiReason = `Manager override committed (${aiMultiplier.toFixed(2)}x). ${aiReason}`;
     }
 
     const dynamicMultiplier = clamp(ruleMultiplier * aiMultiplier, MIN_DYNAMIC_MULTIPLIER, MAX_DYNAMIC_MULTIPLIER);
@@ -321,6 +391,8 @@ export async function GET(request: Request) {
       occupancyRate: round2(occupancyRate),
       leadDays,
       aiMultiplier: round2(aiMultiplier),
+      modelAiMultiplier: round2(modelAiMultiplier),
+      isManagerOverrideActive: Boolean(pricingControl?.aiMultiplier),
       ruleMultiplier: round2(ruleMultiplier),
       weekendShare: round2(weekendShare),
       occupancyMultiplier: round2(occupancyMultiplier),
@@ -345,6 +417,19 @@ export async function GET(request: Request) {
       eventName: calendarEntry?.event || "None",
     };
 
+    const actionableAdvice = buildActionablePricingAdvice({
+      occupancyRate,
+      leadDays,
+      weekendShare,
+      demandTrendMultiplier,
+      seasonalityMultiplier,
+      isHoliday,
+      eventName: calendarEntry?.event || "None",
+      modelAiMultiplier,
+      effectiveAiMultiplier: aiMultiplier,
+      baseReason: modelAiReason,
+    });
+
     return NextResponse.json({
       roomId: String(room._id),
       roomType: room.type,
@@ -358,7 +443,7 @@ export async function GET(request: Request) {
       stayNights,
       checkIn: checkInDate.toISOString().slice(0, 10),
       checkOut: checkOutDate.toISOString().slice(0, 10),
-      aiInsight: aiReason,
+      aiInsight: actionableAdvice,
       factors: factorBreakdown,
       date: checkInDate.toISOString().slice(0, 10),
     });
