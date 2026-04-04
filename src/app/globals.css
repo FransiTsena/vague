@@ -1,0 +1,175 @@
+@import "tailwindcss";
+
+:root {
+  /* Dark Mode Colors (Default) */
+  --background: #050505;
+  --foreground: #ffffff;
+
+  --color-charcoal: #1a1a1a;
+  --color-cognac: #8b4513;
+  --color-silver: #e5e5e5;
+  --color-midnight: #0a192f;
+
+  /* Functional */
+  --color-success: #10b981;
+  --color-error: #ef4444;
+  --color-warning: #f59e0b;
+
+  /* Shades for dark mode */
+  --neutral-50: #fafafa;
+  --neutral-100: #f5f5f5;
+  --neutral-200: #e5e5e5;
+  --neutral-300: #d4d4d4;
+  --neutral-400: #a3a3a3;
+  --neutral-500: #737373;
+  --neutral-600: #525252;
+  --neutral-700: #404040;
+  --neutral-800: #262626;
+  --neutral-900: #171717;
+  --neutral-950: #0a0a0a;
+}
+
+/* Light Mode */
+.light {
+  --background: #f8f8f8;
+  --foreground: #1a1a1a;
+
+  --color-charcoal: #1a1a1a;
+  --color-cognac: #a0522d;
+  --color-silver: #e5e5e5;
+  --color-midnight: #f0f0f0;
+
+  /* Invert neutrals for light mode */
+  --neutral-50: #0a0a0a;
+  --neutral-100: #171717;
+  --neutral-200: #262626;
+  --neutral-300: #404040;
+  --neutral-400: #525252;
+  --neutral-500: #737373;
+  --neutral-600: #a3a3a3;
+  --neutral-700: #d4d4d4;
+  --neutral-800: #e5e5e5;
+  --neutral-900: #f0f0f0;
+  --neutral-950: #f5f5f5;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+
+  --color-charcoal: var(--color-charcoal);
+  --color-cognac: var(--color-cognac);
+  --color-silver: var(--color-silver);
+  --color-midnight: var(--color-midnight);
+
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  --font-serif: var(--font-playfair);
+  --font-ethiopic: var(--font-noto-ethiopic);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+  overflow-x: hidden;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-serif), Georgia, serif;
+}
+
+/* Amharic text styling */
+[lang="am"] h1,
+[lang="am"] h2,
+[lang="am"] h3,
+[lang="am"] h4,
+[lang="am"] h5,
+[lang="am"] h6 {
+  font-family: var(--font-ethiopic), var(--font-serif), Georgia, serif;
+  letter-spacing: 0;
+}
+
+[lang="am"] {
+  font-family:
+    var(--font-ethiopic), var(--font-sans), Arial, Helvetica, sans-serif;
+  letter-spacing: 0;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--background);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-charcoal);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-cognac);
+}
+
+/* Light mode adjustments */
+.light ::-webkit-scrollbar-thumb {
+  background: #d4d4d4;
+}
+
+.light ::-webkit-scrollbar-thumb:hover {
+  background: var(--color-cognac);
+}
+
+/* Trusted By slider */
+@keyframes trustedBySlide {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(calc(-50% - 0.375rem));
+  }
+}
+
+.trusted-by-slider {
+  width: 100%;
+  -webkit-mask-image: linear-gradient(to right, transparent, black 5%, black 95%, transparent);
+  mask-image: linear-gradient(to right, transparent, black 5%, black 95%, transparent);
+}
+
+.trusted-by-track {
+  display: flex;
+  width: max-content;
+  gap: 0.75rem;
+  animation: trustedBySlide 25s linear infinite;
+}
+
+.trusted-by-slider:hover .trusted-by-track {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .trusted-by-track {
+    animation: none;
+  }
+}
+
+/* Scrollbar for light mode */
+.light ::-webkit-scrollbar-track {
+  background: var(--background);
+}
+
+.light ::-webkit-scrollbar-thumb {
+  background: #d4d4d4;
+}
+
+.light ::-webkit-scrollbar-thumb:hover {
+  background: var(--color-cognac);
+}
