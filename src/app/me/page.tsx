@@ -1,9 +1,9 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
-import type { CalendarItem } from "@/components/schedule-calendar";
-import { ScheduleCalendar } from "@/components/schedule-calendar";
-import { prisma } from "@/lib/prisma";
+import { StaffingCalendar } from "@/components/StaffingCalendar";
+import dbConnect from "@/lib/mongodb";
+import { Member, StaffAssignment, ScheduleEvent, DepartmentModel } from "@/lib/models";
 
 export const dynamic = "force-dynamic";
 
@@ -11,17 +11,11 @@ export default async function MeSchedulePage() {
   const session = await auth();
   if (!session?.user?.id) redirect("/login?callbackUrl=/me");
 
-  const member = await prisma.member.findUnique({
-    where: { id: session.user.id },
-    select: {
-      id: true,
-      name: true,
-      email: true,
-      role: true,
-      departmentId: true,
-      department: { select: { name: true } },
-    },
-  });
+  await dbConnect();
+
+  const member = await Member.findById(session.user.id)
+    .populate({ path: 'departmentId', model: DepartmentModel })
+    .lean();
 
   if (!member) {
     return (
@@ -32,49 +26,45 @@ export default async function MeSchedulePage() {
   }
 
   const now = new Date();
-  const [rows, deptEvents] = await Promise.all([
-    prisma.staffAssignment.findMany({
-      where: { memberId: member.id },
-      orderBy: { startsAt: "desc" },
-      take: 200,
-      include: {
-        department: { select: { name: true } },
-        demand: { select: { referenceId: true, status: true } },
-      },
-    }),
-    member.departmentId
-      ? prisma.scheduleEvent.findMany({
-          where: { departmentId: member.departmentId },
-          orderBy: { startsAt: "asc" },
-          take: 200,
-        })
-      : Promise.resolve(
-          [] as Awaited<ReturnType<typeof prisma.scheduleEvent.findMany>>,
-        ),
-  ]);
+  
+  // Manual population for MongoDB
+  const rawAssignments = await StaffAssignment.find({ memberId: member._id })
+    .sort({ startsAt: -1 })
+    .limit(200)
+    .lean();
+  
+  const assignments = await Promise.all(rawAssignments.map(async (asgn: any) => {
+    const dept = await DepartmentModel.findById(asgn.departmentId).lean();
+    return { ...asgn, department: dept || { name: 'Unknown' } };
+  }));
 
-  const upcoming = rows.filter((a) => a.endsAt >= now).sort((a, b) => +a.startsAt - +b.startsAt);
-  const history = rows.filter((a) => a.endsAt < now);
+  const deptEvents = member.departmentId
+    ? await ScheduleEvent.find({ departmentId: (member.departmentId as any)._id })
+        .sort({ startsAt: 1 })
+        .limit(200)
+        .lean()
+    : [];
 
-  const calendarItems: CalendarItem[] = [
-    ...deptEvents.map((e) => ({
-      start: e.startsAt.toISOString(),
-      end: e.endsAt.toISOString(),
+  const upcoming = assignments.filter((a: any) => new Date(a.endsAt) >= now).sort((a: any, b: any) => +new Date(a.startsAt) - +new Date(b.startsAt));
+  const history = assignments.filter((a: any) => new Date(a.endsAt) < now);
+
+  const calendarItems: any[] = [
+    ...deptEvents.map((e: any) => ({
+      startsAt: e.startsAt.toISOString(),
+      endsAt: e.endsAt.toISOString(),
       title: e.title,
-      subtitle: member.department?.name ? `Dept: ${member.department.name}` : "Department event",
     })),
-    ...rows.map((a) => ({
-      start: a.startsAt.toISOString(),
-      end: a.endsAt.toISOString(),
+    ...assignments.map((a: any) => ({
+      startsAt: a.startsAt.toISOString(),
+      endsAt: a.endsAt.toISOString(),
       title: a.department.name,
-      subtitle: "On-site shift",
     })),
   ];
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-10 text-zinc-900 dark:text-zinc-50">
       <p className="text-sm text-zinc-600 dark:text-zinc-400">
-        {member.department?.name ?? "No department"}
+        {(member.departmentId as any)?.name ?? "No department"}
         {member.role ? ` · ${member.role}` : ""} · {member.email}
       </p>
       <p className="mt-4 text-xs text-zinc-500">
@@ -86,7 +76,7 @@ export default async function MeSchedulePage() {
       </p>
 
       <div className="mt-10">
-        <ScheduleCalendar items={calendarItems} title="My calendar (department events + your shifts)" />
+        <StaffingCalendar items={calendarItems} title="My calendar (department events + your shifts)" />
       </div>
 
       <section className="mt-10">

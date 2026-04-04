@@ -1,29 +1,41 @@
-import type { Prisma } from "@prisma/client";
 import { unstable_noStore as noStore } from "next/cache";
-import { prisma } from "@/lib/prisma";
+import dbConnect from "@/lib/mongodb";
+import { StaffingDemand, StaffingRequirement, DepartmentModel, StaffAssignment } from "@/lib/models";
 
 export const dynamic = "force-dynamic";
 
-const staffingInclude = {
-  requirements: { include: { department: { select: { name: true } } } },
-  assignments: { select: { id: true } },
-} satisfies Prisma.StaffingDemandInclude;
-
-type StaffingDemandRow = Prisma.StaffingDemandGetPayload<{ include: typeof staffingInclude }>;
-
 export default async function StaffingPage() {
   noStore();
+  await dbConnect();
 
-  let demands: StaffingDemandRow[] = [];
+  let demands: any[] = [];
   let loadError: string | null = null;
   try {
-    demands = await prisma.staffingDemand.findMany({
-      take: 40,
-      orderBy: { createdAt: "desc" },
-      include: staffingInclude,
-    });
-  } catch {
-    loadError = "Could not read staffing data. Run npm run db:push if the database schema is out of date.";
+    // Fetch demands and manually populate requirements and assignments since they are separate collections in MongoDB
+    const rawDemands = await StaffingDemand.find({})
+      .sort({ createdAt: -1 })
+      .limit(40)
+      .lean();
+
+    demands = await Promise.all(rawDemands.map(async (demand: any) => {
+      const requirements = await StaffingRequirement.find({ demandId: demand._id })
+        .populate({ path: 'departmentId', model: DepartmentModel })
+        .lean();
+      
+      const assignments = await StaffAssignment.find({ demandId: demand._id }).lean();
+
+      return {
+        ...demand,
+        id: demand._id.toString(),
+        requirements: requirements.map((req: any) => ({
+          ...req,
+          department: req.departmentId ? { name: req.departmentId.name } : { name: 'Unknown' }
+        })),
+        assignments: assignments.map((asgn: any) => ({ id: asgn._id.toString() }))
+      };
+    }));
+  } catch (err: any) {
+    loadError = `Could not read staffing data: ${err.message}`;
   }
 
   return (

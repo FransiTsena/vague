@@ -1,6 +1,5 @@
-import type { Metadata } from "next";
-import Link from "next/link";
-import { prisma } from "@/lib/prisma";
+import dbConnect from "@/lib/mongodb";
+import { Member, StaffAssignment, DepartmentModel, StaffingDemand } from "@/lib/models";
 import { StaffTokenForm } from "./staff-token-form";
 
 export const metadata: Metadata = {
@@ -41,16 +40,11 @@ export default async function StaffSchedulePage({
     );
   }
 
-  const member = await prisma.member.findUnique({
-    where: { portalToken: token },
-    select: {
-      id: true,
-      name: true,
-      email: true,
-      role: true,
-      department: { select: { name: true } },
-    },
-  });
+  await dbConnect();
+
+  const member = await Member.findOne({ portalToken: token })
+    .populate({ path: 'departmentId', model: DepartmentModel })
+    .lean();
 
   if (!member) {
     return (
@@ -66,18 +60,24 @@ export default async function StaffSchedulePage({
   }
 
   const now = new Date();
-  const rows = await prisma.staffAssignment.findMany({
-    where: { memberId: member.id },
-    orderBy: { startsAt: "desc" },
-    take: 200,
-    include: {
-      department: { select: { name: true } },
-      demand: { select: { referenceId: true, status: true } },
-    },
-  });
+  const rawAssignments = await StaffAssignment.find({ memberId: member._id })
+    .sort({ startsAt: -1 })
+    .limit(200)
+    .lean();
 
-  const upcoming = rows.filter((a) => a.endsAt >= now).sort((a, b) => +a.startsAt - +b.startsAt);
-  const history = rows.filter((a) => a.endsAt < now);
+  const rows = await Promise.all(rawAssignments.map(async (asgn: any) => {
+    const dept = await DepartmentModel.findById(asgn.departmentId).lean();
+    const demand = await StaffingDemand.findById(asgn.demandId).lean();
+    return {
+      ...asgn,
+      id: asgn._id.toString(),
+      department: dept || { name: 'Unknown' },
+      demand: demand || { referenceId: null, status: 'Unknown' }
+    };
+  }));
+
+  const upcoming = rows.filter((a: any) => new Date(a.endsAt) >= now).sort((a: any, b: any) => +new Date(a.startsAt) - +new Date(b.startsAt));
+  const history = rows.filter((a: any) => new Date(a.endsAt) < now);
 
   return (
     <div className="min-h-screen bg-zinc-50 px-4 py-10 text-zinc-900 dark:bg-zinc-950 dark:text-zinc-50">
@@ -88,7 +88,7 @@ export default async function StaffSchedulePage({
           </p>
           <h1 className="mt-1 text-2xl font-semibold">{member.name}</h1>
           <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
-            {member.department?.name ?? "—"}
+            {(member.departmentId as any)?.name ?? "—"}
             {member.role ? ` · ${member.role}` : ""} · {member.email}
           </p>
         </header>
@@ -103,23 +103,23 @@ export default async function StaffSchedulePage({
             </p>
           ) : (
             <ul className="space-y-3">
-              {upcoming.map((a) => (
+              {upcoming.map((a: any) => (
                 <li
                   key={a.id}
                   className="rounded-2xl border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-900"
                 >
                   <p className="font-medium text-zinc-900 dark:text-zinc-50">{a.department.name}</p>
                   <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
-                    {a.startsAt.toLocaleString()} → {a.endsAt.toLocaleString()}
+                    {new Date(a.startsAt).toLocaleString()} → {new Date(a.endsAt).toLocaleString()}
                   </p>
-                  {a.demand.referenceId && (
+                  {a.demand?.referenceId && (
                     <p className="mt-2 font-mono text-xs text-zinc-400">
                       ref: {a.demand.referenceId} · {a.demand.status}
                     </p>
                   )}
                   {a.notifiedAt && (
                     <p className="mt-1 text-xs text-zinc-500">
-                      Notified {a.notifiedAt.toLocaleString()}
+                      Notified {new Date(a.notifiedAt).toLocaleString()}
                     </p>
                   )}
                 </li>
@@ -134,11 +134,11 @@ export default async function StaffSchedulePage({
             <p className="text-sm text-zinc-500">No past shifts recorded yet.</p>
           ) : (
             <ul className="divide-y divide-zinc-200 overflow-hidden rounded-2xl border border-zinc-200 dark:divide-zinc-800 dark:border-zinc-800">
-              {history.map((a) => (
+              {history.map((a: any) => (
                 <li key={a.id} className="bg-white px-4 py-3 dark:bg-zinc-900">
                   <p className="text-sm font-medium text-zinc-800 dark:text-zinc-200">{a.department.name}</p>
                   <p className="text-xs text-zinc-500">
-                    {a.startsAt.toLocaleString()} → {a.endsAt.toLocaleString()}
+                    {new Date(a.startsAt).toLocaleString()} → {new Date(a.endsAt).toLocaleString()}
                   </p>
                 </li>
               ))}
