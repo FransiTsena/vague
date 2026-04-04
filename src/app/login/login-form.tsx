@@ -47,116 +47,132 @@ export function LoginForm() {
   }
 
   return (
-    <div className="w-full animate-in fade-in duration-1000">
-      <div className="mb-12">
-        <h1 className={`text-3xl font-serif tracking-tight mb-2 ${isDark ? "text-white" : "text-zinc-900"}`}>Personnel Access</h1>
-        <p className={`text-xs uppercase tracking-widest ${isDark ? "text-zinc-400" : "text-zinc-500"}`}>Provide credentials to continue</p>
+    <div className="flex flex-col gap-12 w-full animate-in fade-in duration-1000">
+      <div className="space-y-4">
+        <div className="flex items-center gap-2 mb-2">
+          <div className={`w-1 h-3 transition-colors ${isDark ? "bg-white" : "bg-black"}`} />
+          <h1 className={`text-[10px] font-mono tracking-[0.5em] uppercase transition-colors ${isDark ? "text-neutral-500" : "text-neutral-400"}`}>
+            Personnel Authentication
+          </h1>
+        </div>
+        <p className={`font-serif text-4xl italic transition-colors ${isDark ? "text-white" : "text-black"}`}>
+          Welcome Back.
+        </p>
       </div>
 
-      <div className="relative">
-        <div className={`mb-12 p-6 shadow-sm border rounded-xl transition-colors duration-300 ${isDark ? "bg-zinc-900 border-zinc-800" : "bg-zinc-50 border-zinc-100"}`}>
-          <div className="flex items-center justify-between mb-4">
-             <p className={`text-[10px] uppercase tracking-[0.2em] font-semibold ${isDark ? "text-zinc-400" : "text-zinc-500"}`}>Quick Access Credentials</p>
-             <button 
-                onClick={async () => {
-                    setPending(true);
-                    try {
-                        const res = await fetch("/api/seed/staff", { method: "POST" });
-                        if (res.ok) alert("Staff accounts seeded successfully.");
-                        else alert("Seeding failed. Check database connection.");
-                    } catch (e) {
-                        alert("Seeding error. Check network.");
-                    }
-                    setPending(false);
-                }}
-                className={`text-[9px] font-black uppercase tracking-widest px-3 py-1 rounded-full border ${isDark ? "border-amber-500/30 text-amber-500 hover:bg-amber-500/10" : "border-blue-500/30 text-blue-500 hover:bg-blue-500/5"}`}
-             >
-                Initial Seed API
-             </button>
-          </div>
-          <div className="flex flex-col gap-4">
-            <button 
-              type="button"
-              onClick={() => { setEmail("gm@hotel.local"); setPassword("changeme"); }}
-              className="group flex justify-between items-center hover:opacity-70 transition-opacity"
-            >
-              <div className="text-left">
-                <span className={`block text-xs font-semibold ${isDark ? "text-white" : "text-zinc-900"}`}>General Manager</span>
-                <span className="block text-[10px] text-zinc-500 font-mono mt-0.5">gm@hotel.local / changeme</span>
-              </div>
-              <span className={`text-[10px] uppercase tracking-widest font-bold ${isDark ? "text-blue-400" : "text-blue-600"}`}>Use</span>
-            </button>
-            <div className={`h-px ${isDark ? "bg-zinc-800" : "bg-zinc-200"}`} />
-            <button 
-              type="button"
-              onClick={() => { setEmail("head.culinarybanquets@hotel.local"); setPassword("changeme"); }}
-              className="group flex justify-between items-center hover:opacity-70 transition-opacity"
-            >
-              <div className="text-left">
-                <span className={`block text-xs font-semibold ${isDark ? "text-white" : "text-zinc-900"}`}>Department Head</span>
-                <span className="block text-[10px] text-zinc-500 font-mono mt-0.5">head.culinarybanquets@hotel.local</span>
-              </div>
-              <span className={`text-[10px] uppercase tracking-widest font-bold ${isDark ? "text-blue-400" : "text-blue-600"}`}>Use</span>
-            </button>
-            <div className={`h-px ${isDark ? "bg-zinc-800" : "bg-zinc-200"}`} />
-            <button 
-              type="button"
-              onClick={() => { setEmail("staff.bellman@hotel.local"); setPassword("changeme"); }}
-              className="group flex justify-between items-center hover:opacity-70 transition-opacity"
-            >
-              <div className="text-left">
-                <span className={`block text-xs font-semibold ${isDark ? "text-white" : "text-zinc-900"}`}>Bell Service (Staff)</span>
-                <span className="block text-[10px] text-zinc-500 font-mono mt-0.5">staff.bellman@hotel.local</span>
-              </div>
-              <span className={`text-[10px] uppercase tracking-widest font-bold ${isDark ? "text-blue-400" : "text-blue-600"}`}>Use</span>
-            </button>
-          </div>
+      {error && (
+        <div className={`p-4 text-[10px] font-mono uppercase tracking-widest text-center border rounded-none ${isDark ? "bg-red-950/30 text-red-400 border-red-900" : "bg-red-50 text-red-600 border-red-100"}`}>
+          {error}
+        </div>
+      )}
+
+      <form onSubmit={onSubmit} className="flex flex-col gap-8">
+        <div className="space-y-3 group">
+          <label htmlFor="email" className={`text-[9.5px] font-mono tracking-[0.3em] uppercase transition-colors ${isDark ? "text-neutral-500" : "text-neutral-400"} group-focus-within:text-neutral-100`}>
+            Staff Identifier
+          </label>
+          <input
+            id="email"
+            type="email"
+            autoComplete="username"
+            value={email}
+            onChange={(e: any) => setEmail(e.target.value)}
+            placeholder="example@vague.com"
+            required
+            className={`w-full bg-transparent border-b transition-all duration-300 py-3 outline-none focus:border-neutral-500 font-serif text-lg rounded-none ${isDark ? "border-neutral-800 text-white" : "border-neutral-200 text-black shadow-sm"}`}
+          />
         </div>
 
-        {error && (
-          <div className={`mb-8 p-4 text-[10px] font-bold uppercase tracking-widest text-center border rounded-lg ${isDark ? "bg-red-950/30 text-red-400 border-red-900" : "bg-red-50 text-red-600 border-red-100"}`}>
-            {error}
+        <div className="space-y-3 group">
+          <div className="flex justify-between items-center">
+            <label htmlFor="password" className={`text-[9.5px] font-mono tracking-[0.3em] uppercase transition-colors ${isDark ? "text-neutral-500" : "text-neutral-400"}`}>
+              Security Phrase
+            </label>
+            <a href="#" className={`text-[9px] font-mono uppercase tracking-widest opacity-40 hover:opacity-100 transition-opacity ${isDark ? "text-white" : "text-black"}`}>
+              Forgot?
+            </a>
           </div>
-        )}
-        
-        <form onSubmit={onSubmit} className="space-y-8">
-          <div className="space-y-3">
-            <label htmlFor="email" className={`block text-[10px] uppercase tracking-widest font-semibold ${isDark ? "text-zinc-400" : "text-zinc-500"}`}>Email Address</label>
-            <input
-              id="email"
-              type="email"
-              autoComplete="username"
-              value={email}
-              onChange={(e: any) => setEmail(e.target.value)}
-              required
-              className={`w-full h-12 border focus:border-zinc-900 dark:focus:border-white rounded-lg transition-all text-sm px-4 outline-none ${isDark ? "bg-zinc-900 border-zinc-800 text-white" : "bg-white border-zinc-200 text-zinc-900"}`}
-              placeholder="name@hotel.local"
-            />
-          </div>
-          
-          <div className="space-y-3">
-            <label htmlFor="password" className={`block text-[10px] uppercase tracking-widest font-semibold ${isDark ? "text-zinc-400" : "text-zinc-500"}`}>Password</label>
-            <input
-              id="password"
-              type="password"
-              autoComplete="current-password"
-              value={password}
-              onChange={(e: any) => setPassword(e.target.value)}
-              required
-              className={`w-full h-12 border focus:border-zinc-900 dark:focus:border-white rounded-lg transition-all text-sm px-4 outline-none ${isDark ? "bg-zinc-900 border-zinc-800 text-white" : "bg-white border-zinc-200 text-zinc-900"}`}
-              placeholder="••••••••"
-            />
-          </div>
+          <input
+            id="password"
+            type="password"
+            autoComplete="current-password"
+            value={password}
+            onChange={(e: any) => setPassword(e.target.value)}
+            required
+            className={`w-full bg-transparent border-b transition-all duration-300 py-3 outline-none focus:border-neutral-500 font-serif text-lg rounded-none ${isDark ? "border-neutral-800 text-white" : "border-neutral-200 text-black shadow-sm"}`}
+          />
+        </div>
 
-          <button 
-              type="submit" 
-              disabled={pending} 
-              className={`w-full h-14 disabled:opacity-50 transition-all flex items-center justify-center gap-3 text-[10px] uppercase tracking-[0.2em] font-bold rounded-lg ${isDark ? "bg-white text-black hover:bg-zinc-200" : "bg-zinc-900 text-white hover:bg-zinc-800"}`}
-          >
-            {pending ? "Authenticating" : "Enter Dashboard"}
-            {!pending && <ArrowRight className="w-4 h-4" />}
-          </button>
-        </form>
+        <button
+          type="submit"
+          disabled={pending}
+          className={`group mt-4 py-6 overflow-hidden transition-all duration-500 rounded-none border-none flex items-center justify-center gap-4 ${
+            isDark 
+            ? "bg-white text-black hover:bg-neutral-200" 
+            : "bg-black text-white hover:bg-neutral-800"
+          }`}
+        >
+          <span className="text-[11px] font-mono tracking-[0.5em] uppercase">
+            {pending ? "Authenticating..." : "Authorize Access"}
+          </span>
+          {!pending && <ArrowRight className="w-4 h-4" />}
+        </button>
+      </form>
+
+      <div className={`pt-12 border-t transition-all duration-700 ${isDark ? "border-neutral-800/50" : "border-neutral-100"}`}>
+        <div className="flex items-center justify-between mb-6">
+           <div className="flex items-center gap-3 opacity-40">
+              <div className="w-1.5 h-px bg-current" />
+              <span className="text-[9px] font-mono tracking-[0.3em] uppercase">Quick Access</span>
+           </div>
+           <button 
+              onClick={async () => {
+                  setPending(true);
+                  try {
+                      const res = await fetch("/api/seed/staff", { method: "POST" });
+                      if (res.ok) alert("Staff accounts seeded successfully.");
+                      else alert("Seeding failed. Check database connection.");
+                  } catch (e) {
+                      alert("Seeding error. Check network.");
+                  }
+                  setPending(false);
+              }}
+              className={`text-[8px] font-mono uppercase tracking-widest px-3 py-1 border transition-all ${isDark ? "border-amber-500/20 text-amber-500/50 hover:border-amber-500 hover:text-amber-500" : "border-blue-500/20 text-blue-500/50 hover:border-blue-500 hover:text-blue-500"}`}
+           >
+              Initialize Node
+           </button>
+        </div>
+        
+        <div className="grid grid-cols-1 gap-2">
+          {[
+            { role: "General Manager", email: "gm@hotel.local", label: "System Root" },
+            { role: "Dept Head", email: "head.culinarybanquets@hotel.local", label: "Operations" },
+            { role: "Staff", email: "staff.bellman@hotel.local", label: "Service" }
+          ].map((seed) => (
+            <button
+              key={seed.email}
+              type="button"
+              onClick={() => { setEmail(seed.email); setPassword("changeme"); }}
+              className={`group flex items-center justify-between py-4 px-6 border text-left transition-all duration-500 hover:scale-[1.01] ${
+                isDark 
+                ? "border-neutral-800 bg-neutral-900/40 hover:border-neutral-700 hover:bg-neutral-900" 
+                : "border-neutral-100 bg-neutral-50/50 hover:border-neutral-200 hover:bg-white"
+              }`}
+            >
+              <div>
+                <span className={`block text-[8.5px] font-mono tracking-[0.2em] uppercase transition-opacity opacity-40 group-hover:opacity-100 mb-1 ${isDark ? "text-white" : "text-black"}`}>
+                  {seed.role}
+                </span>
+                <span className={`block font-serif italic text-sm ${isDark ? "text-neutral-400" : "text-neutral-600"}`}>
+                  {seed.label}
+                </span>
+              </div>
+              <span className={`text-[9px] font-mono tracking-widest uppercase opacity-0 group-hover:opacity-100 transition-opacity ${isDark ? "text-neutral-500" : "text-neutral-400"}`}>
+                Select
+              </span>
+            </button>
+          ))}
+        </div>
       </div>
     </div>
   );
