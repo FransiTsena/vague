@@ -273,6 +273,20 @@ async function seed() {
         thumbnailUrl: "https://images.unsplash.com/photo-1576013551627-0cc20b96c2a7?q=80&w=1000&auto=format&fit=crop",
         images: [{ imageUrl: "https://images.unsplash.com/photo-1576013551627-0cc20b96c2a7?q=80&w=1000&auto=format&fit=crop" }],
         displayOrder: 2
+      },
+      {
+        titleEn: "Oceanfront Villa Retreat",
+        titleAm: "የውቅያኖስ ፊት ለፊት ቪላ",
+        thumbnailUrl: "https://images.unsplash.com/photo-1499793983690-e29da59ef1c2?q=80&w=1000&auto=format&fit=crop",
+        images: [{ imageUrl: "https://images.unsplash.com/photo-1499793983690-e29da59ef1c2?q=80&w=1000&auto=format&fit=crop" }],
+        displayOrder: 3
+      },
+      {
+        titleEn: "Holistic Wellness Spa",
+        titleAm: "ሁለንተናዊ የጤንነት ስፓ",
+        thumbnailUrl: "https://images.unsplash.com/photo-1544161515-4ab6ce6db874?q=80&w=1000&auto=format&fit=crop",
+        images: [{ imageUrl: "https://images.unsplash.com/photo-1544161515-4ab6ce6db874?q=80&w=1000&auto=format&fit=crop" }],
+        displayOrder: 4
       }
     ]);
 
