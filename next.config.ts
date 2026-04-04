@@ -7,9 +7,10 @@ const nextConfig: NextConfig = {
   assetPrefix: isProd ? "/hackathon/" : "",
 
   allowedDevOrigins: [
-    "http://46.225.89.2:3000",
-    "http://localhost:3000",
-    "http://localhost:3001",
+    "46.225.89.2:3000",
+    "46.225.89.2:3001",
+    "localhost:3000",
+    "localhost:3001"
   ],
 
   devIndicators: {
