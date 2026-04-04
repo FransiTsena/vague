@@ -85,9 +85,11 @@ export async function getSmartStaffingPrediction(
     upcomingBookings: number;
     activeEvents: string[];
     historicalDemand: string;
-    availableStaff: { name: string; id: any; role?: string }[];
+    availableStaff: { name: string; id: any; role?: string; availability?: any; skills?: string[] }[];
+    startDate?: string;
+    endDate?: string;
   }
-): Promise<SmartSchedulePrediction | null> {
+): Promise<any | null> {
   if (!process.env.GROQ_API_KEY) return null;
 
   const cacheKey = getCacheKey("staffing", context);
@@ -97,22 +99,42 @@ export async function getSmartStaffingPrediction(
   }
 
   try {
+    const isMultiDay = !!(context.startDate && context.endDate && context.startDate !== context.endDate);
+
     const completion = await groq.chat.completions.create({
       messages: [
         {
           role: "system",
           content: `You are a hotel workforce optimization AI. Calculate ideal staffing for a given department. 
           Consider occupancy, event intensity, and service standards. 
-          Return ONLY JSON: { 
-            "suggestedStaffCount": number, 
-            "reasoning": "string", 
-            "riskLevel": "low|medium|high",
-            "suggestedShifts": [
-              { "title": "Shift Name", "startTime": "HH:mm", "endTime": "HH:mm", "description": "Quick shift goal", "assignedStaffId": "staff-mongo-id" }
-            ]
-          }.
+
           Available Staff to assign: ${JSON.stringify(context.availableStaff)}.
-          Assign specific staff members to the proposed shifts where it makes sense.`
+          Assign specific staff members (using their "id" as "assignedStaffId") to the proposed shifts where it makes sense, respecting their availability.
+
+          IMPORTANT: If the user provided a startDate (${context.startDate}) and endDate (${context.endDate}), you MUST return a schedule for EACH day in that range.
+
+          Return ONLY JSON in this format:
+          { 
+            "reasoning": "Global reasoning for this roster", 
+            "riskLevel": "high|medium|low",
+            "predictions": [
+              {
+                "date": "YYYY-MM-DD",
+                "suggestedStaffCount": number, 
+                "reasoning": "Specific logic for this day", 
+                "suggestedShifts": [
+                  { 
+                    "title": "Shift Name", 
+                    "startTime": "HH:mm", 
+                    "endTime": "HH:mm", 
+                    "shiftType": "morning|swing|night",
+                    "description": "Quick shift goal", 
+                    "assignedStaffId": "staff-mongo-id" 
+                  }
+                ]
+              }
+            ]
+          }`
         },
         {
           role: "user",
@@ -125,7 +147,7 @@ export async function getSmartStaffingPrediction(
 
     const result = JSON.parse(
       completion.choices[0]?.message?.content || "{}"
-    ) as SmartSchedulePrediction;
+    );
 
     aiCache.set(cacheKey, { value: result, timestamp: Date.now() });
     return result;

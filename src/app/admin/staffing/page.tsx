@@ -49,19 +49,56 @@ export default function StaffingAdminPage() {
   const [selectedCalendarDate, setSelectedCalendarDate] = useState<Date | null>(null);
   const [shiftTitle, setShiftTitle] = useState("");
   const [selectedStaffForShift, setSelectedStaffForShift] = useState("");
+  const [selectedShiftType, setSelectedShiftType] = useState<"morning" | "swing" | "night">("morning");
+  const [isDayOpen, setIsDayOpen] = useState(false);
+  const [dayDetailDate, setDayDetailDate] = useState<Date | null>(null);
+  const [dayItems, setDayItems] = useState<CalendarItem[]>([]);
+  const [startDate, setStartDate] = useState(() => {
+    const d = new Date();
+    return d.toISOString().split('T')[0];
+  });
+  const [endDate, setEndDate] = useState(() => {
+    const d = new Date();
+    d.setDate(d.getDate() + 7);
+    return d.toISOString().split('T')[0];
+  });
+
+  const handleDayClick = (date: Date, items: CalendarItem[]) => {
+    setDayDetailDate(date);
+    setDayItems(items);
+    setIsDayOpen(true);
+  };
 
   const handleAddShift = async () => {
     if (!selectedCalendarDate || !selectedDept || !shiftTitle) return;
     try {
+      const startsAt = new Date(selectedCalendarDate);
+      const endsAt = new Date(selectedCalendarDate);
+
+      if (selectedShiftType === "morning") {
+        startsAt.setHours(7, 0, 0, 0);
+        endsAt.setHours(15, 0, 0, 0);
+      } else if (selectedShiftType === "swing") {
+        startsAt.setHours(15, 0, 0, 0);
+        endsAt.setHours(23, 0, 0, 0);
+      } else {
+        startsAt.setHours(23, 0, 0, 0);
+        endsAt.setDate(endsAt.getDate() + 1);
+        endsAt.setHours(7, 0, 0, 0);
+      }
+
       const res = await fetch("/api/admin/staffing/events", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           title: shiftTitle,
-          startsAt: new Date(selectedCalendarDate.setHours(9, 0)).toISOString(),
-          endsAt: new Date(selectedCalendarDate.setHours(17, 0)).toISOString(),
+          startsAt: startsAt.toISOString(),
+          endsAt: endsAt.toISOString(),
           departmentId: selectedDept,
-          organizerId: selectedStaffForShift || null
+          organizerId: selectedStaffForShift || null,
+          type: "SHIFT",
+          shiftType: selectedShiftType,
+          status: "PUBLISHED"
         })
       });
       if (res.ok) {
@@ -87,6 +124,11 @@ export default function StaffingAdminPage() {
         const eRes = await fetch(`/api/admin/staffing/events?departmentId=${selectedDept}`);
         const data = await eRes.json();
         setItems(data || []);
+        // Also update day items if day detail is open
+        if (dayDetailDate) {
+          const dateStr = dayDetailDate.toISOString().split('T')[0];
+          setDayItems(data.filter((i: any) => i.startsAt.startsWith(dateStr)));
+        }
       }
     } catch (e) {
       console.error(e);
@@ -108,37 +150,55 @@ export default function StaffingAdminPage() {
   };
 
   const handleCommitSchedule = async () => {
-    if (!aiResult?.suggestedShifts || !selectedDept) return;
+    if (!aiResult?.predictions && !aiResult?.suggestedShifts) return;
     setIsCommitting(true);
     try {
-      const today = new Date();
-      const promises = aiResult.suggestedShifts.map((shift: any) => {
-        const [sH, sM] = shift.startTime.split(":");
-        const [eH, eM] = shift.endTime.split(":");
+      const shiftsToCreate: any[] = [];
+      const predictions = aiResult.predictions || [aiResult];
+
+      predictions.forEach((pred: any) => {
+        // AI might return results for multiple days in its predictions array
+        const date = new Date(pred.date || new Date());
         
-        const start = new Date(today);
-        start.setHours(parseInt(sH), parseInt(sM), 0, 0);
-        
-        const end = new Date(today);
-        end.setHours(parseInt(eH), parseInt(eM), 0, 0);
-        
-        return fetch("/api/admin/staffing/events", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            title: shift.title,
-            description: shift.description,
-            startsAt: start.toISOString(),
-            endsAt: end.toISOString(),
-            departmentId: selectedDept,
-            organizerId: shift.assignedStaffId || null
-          })
-        });
+        if (pred.suggestedShifts) {
+          pred.suggestedShifts.forEach((shift: any) => {
+            const [sH, sM] = (shift.startTime || "09:00").split(":");
+            const [eH, eM] = (shift.endTime || "17:00").split(":");
+            
+            const start = new Date(date);
+            start.setHours(parseInt(sH), parseInt(sM), 0, 0);
+            
+            const end = new Date(date);
+            end.setHours(parseInt(eH), parseInt(eM), 0, 0);
+            
+            // Handle overnight shifts (Night Shift)
+            if (end <= start) {
+              end.setDate(end.getDate() + 1);
+            }
+
+            shiftsToCreate.push({
+              title: shift.title || "Allocated Staff",
+              description: pred.reasoning || shift.description,
+              startsAt: start.toISOString(),
+              endsAt: end.toISOString(),
+              departmentId: selectedDept,
+              organizerId: shift.assignedStaffId || null,
+              type: "SHIFT",
+              shiftType: shift.shiftType || "morning",
+              status: "DRAFT"
+            });
+          });
+        }
       });
       
-      await Promise.all(promises);
-      const eRes = await fetch(`/api/admin/staffing/events?departmentId=${selectedDept}`);
-      if (eRes.ok) {
+      const res = await fetch("/api/admin/staffing/events", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(shiftsToCreate)
+      });
+
+      if (res.ok) {
+        const eRes = await fetch(`/api/admin/staffing/events?departmentId=${selectedDept}`);
         const evts = await eRes.json();
         setItems(evts || []);
       }
@@ -174,7 +234,11 @@ export default function StaffingAdminPage() {
     try {
       const res = await fetch("/api/admin/staffing/ai-predict", {
         method: "POST",
-        body: JSON.stringify({ departmentId: selectedDept, date: new Date().toISOString() })
+        body: JSON.stringify({ 
+          departmentId: selectedDept, 
+          date: startDate,
+          endDate: endDate
+        })
       });
       if (res.ok) {
         const data = await res.json();
@@ -273,6 +337,7 @@ export default function StaffingAdminPage() {
                 <div className={`p-1 rounded-[2.5rem] border ${isDark ? "border-white/10" : "border-black/5"}`}>
                     <StaffingCalendar 
                       items={items} 
+                      onDayClick={handleDayClick}
                       onAddEvent={(date) => {
                         setSelectedCalendarDate(date);
                         setIsAddingShift(true);
@@ -285,9 +350,76 @@ export default function StaffingAdminPage() {
 
             {/* AI Control Center */}
             <div className="xl:sticky xl:top-28 space-y-8">
-                <AnimatePresence>
+                <AnimatePresence mode="wait">
+                    {isDayOpen && (
+                        <motion.div
+                          key="day-orchestration"
+                          initial={{ opacity: 0, x: 20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          exit={{ opacity: 0, x: 20 }}
+                          className={`rounded-[3rem] p-10 border relative overflow-hidden ${isDark ? "bg-white/5 border-white/10" : "bg-white border-black/5 shadow-2xl"}`}
+                        >
+                            <button onClick={() => setIsDayOpen(false)} className="absolute top-8 right-8 text-zinc-500 hover:text-white transition-colors"><X className="w-5 h-5" /></button>
+                            <h2 className="text-[10px] font-black uppercase tracking-[0.4em] text-amber-500 mb-2 flex items-center gap-3 italic">
+                                <Calendar className="w-4 h-4" /> Daily Orchestration
+                            </h2>
+                            <p className="text-2xl font-serif italic text-zinc-100 mb-8">{dayDetailDate?.toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' })}</p>
+                            
+                            <div className="space-y-8">
+                                {['morning', 'swing', 'night'].map(type => {
+                                    const shifts = dayItems.filter(i => i.shiftType === type);
+                                    const typeLabel = type.charAt(0).toUpperCase() + type.slice(1);
+                                    const colorClass = type === 'morning' ? 'text-sky-500' : type === 'swing' ? 'text-amber-500' : 'text-indigo-500';
+                                    
+                                    return (
+                                        <div key={type} className="space-y-4">
+                                            <div className="flex items-center justify-between">
+                                                <h3 className={`text-[9px] font-black uppercase tracking-widest ${colorClass}`}>
+                                                    {typeLabel} Shift
+                                                </h3>
+                                                <span className="text-[9px] font-mono opacity-20">{shifts.length} Personnel</span>
+                                            </div>
+                                            <div className="grid grid-cols-1 gap-3">
+                                                {shifts.map((s, idx) => (
+                                                    <div key={s._id || `shift-${idx}`} className="p-4 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-between group/shift transition-colors hover:border-amber-500/20">
+                                                        <div>
+                                                            <p className="text-xs font-bold text-zinc-100 mb-1">{s.organizerId?.name || "Unassigned"}</p>
+                                                            <p className="text-[9px] font-black uppercase tracking-[0.2em] text-zinc-500">{s.title}</p>
+                                                        </div>
+                                                        <button 
+                                                            onClick={() => handleDeleteShift(s)}
+                                                            className="p-2 rounded-full bg-rose-500/10 text-rose-500 opacity-0 group-hover/shift:opacity-100 transition-opacity"
+                                                        >
+                                                            <X className="w-3 h-3" />
+                                                        </button>
+                                                    </div>
+                                                ))}
+                                                {shifts.length === 0 && (
+                                                    <div className="py-4 border border-dashed border-white/5 rounded-2xl text-center text-[9px] font-black uppercase tracking-widest text-zinc-700">
+                                                        No Deployments
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+
+                            <button 
+                                onClick={() => {
+                                    setSelectedCalendarDate(dayDetailDate);
+                                    setIsAddingShift(true);
+                                    setIsDayOpen(false);
+                                }}
+                                className="w-full mt-10 p-5 rounded-2xl bg-amber-500 text-black text-[10px] font-black uppercase tracking-[0.2em] hover:bg-amber-400 transition-colors flex items-center justify-center gap-3"
+                            >
+                                <Plus className="w-4 h-4" /> Add Personnel
+                            </button>
+                        </motion.div>
+                    )}
                     {isAddingShift && (
                         <motion.div 
+                          key="add-manual-shift"
                           initial={{ opacity: 0, scale: 0.95 }}
                           animate={{ opacity: 1, scale: 1 }}
                           exit={{ opacity: 0, scale: 0.95 }}
@@ -306,6 +438,18 @@ export default function StaffingAdminPage() {
                                     onChange={(e) => setShiftTitle(e.target.value)}
                                     className={`w-full px-8 py-5 rounded-[1.5rem] border bg-transparent text-sm font-bold uppercase tracking-widest outline-none transition-all focus:border-amber-500/50 ${isDark ? "border-white/10" : "border-black/10"}`}
                                 />
+                                <div className="space-y-3">
+                                  <label className="text-[9px] font-black uppercase tracking-widest opacity-40 px-2">Shift Period</label>
+                                  <select 
+                                      value={selectedShiftType}
+                                      onChange={(e) => setSelectedShiftType(e.target.value as any)}
+                                      className={`w-full px-8 py-5 rounded-[1.5rem] border bg-transparent text-sm font-bold uppercase tracking-widest outline-none transition-all focus:border-amber-500/50 appearance-none cursor-pointer ${isDark ? "border-white/10" : "border-black/10"}`}
+                                  >
+                                      <option value="morning" className={isDark ? "bg-[#050505]" : "bg-white"}>Morning (07:00 - 15:00)</option>
+                                      <option value="swing" className={isDark ? "bg-[#050505]" : "bg-white"}>Swing (15:00 - 23:00)</option>
+                                      <option value="night" className={isDark ? "bg-[#050505]" : "bg-white"}>Night (23:00 - 07:00)</option>
+                                  </select>
+                                </div>
                                 <div className="space-y-3">
                                   <label className="text-[9px] font-black uppercase tracking-widest opacity-40 px-2">Assign Personnel (Optional)</label>
                                   <select 
@@ -330,9 +474,110 @@ export default function StaffingAdminPage() {
                     )}
                 </AnimatePresence>
 
+                <motion.div 
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className={`rounded-[3rem] p-10 border ${isDark ? "bg-white/5 border-white/10" : "bg-white border-black/5 shadow-2xl shadow-black/5"}`}
+                >
+                    <h2 className="text-[10px] font-black uppercase tracking-[0.4em] text-zinc-500 mb-8 flex items-center gap-3 italic">
+                        <Brain className="w-4 h-4" /> AI Workforce Modulation
+                    </h2>
+
+                    <div className="grid grid-cols-2 gap-4 mb-8">
+                        <div className="space-y-2">
+                            <label className="text-[9px] font-black uppercase tracking-widest text-zinc-500 pl-4">Start Horizon</label>
+                            <input 
+                                type="date" 
+                                value={startDate}
+                                onChange={(e) => setStartDate(e.target.value)}
+                                className={`w-full bg-white/5 border border-white/10 p-4 rounded-2xl text-[10px] uppercase font-black tracking-widest ${isDark ? "text-zinc-100" : "text-zinc-900"}`}
+                            />
+                        </div>
+                        <div className="space-y-2">
+                            <label className="text-[9px] font-black uppercase tracking-widest text-zinc-500 pl-4">End Horizon</label>
+                            <input 
+                                type="date" 
+                                value={endDate}
+                                onChange={(e) => setEndDate(e.target.value)}
+                                className={`w-full bg-white/5 border border-white/10 p-4 rounded-2xl text-[10px] uppercase font-black tracking-widest ${isDark ? "text-zinc-100" : "text-zinc-900"}`}
+                            />
+                        </div>
+                    </div>
+                    
+                    <button 
+                      onClick={handleAiForecast}
+                      disabled={aiLoading}
+                      className="w-full bg-white/5 hover:bg-white/10 border border-white/10 p-8 rounded-[2rem] flex flex-col items-center gap-6 group transition-all relative overflow-hidden disabled:opacity-50 text-left"
+                    >
+                        <div className="absolute inset-0 bg-gradient-to-br from-amber-500/0 via-amber-500/0 to-amber-500/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+                        {aiLoading ? <Loader2 className="w-10 h-10 text-amber-500 animate-spin" /> : <Brain className="w-10 h-10 text-amber-500 group-hover:scale-110 transition-transform" />}
+                        <div className="text-center">
+                            <span className="text-xs font-black uppercase tracking-[0.3em] block mb-1">Generate Optimized Roster</span>
+                            <span className="text-[9px] opacity-40 uppercase tracking-widest">Aggregate Personnel & Occupancy</span>
+                        </div>
+                    </button>
+
+                    <AnimatePresence mode="wait">
+                        {aiResult && (
+                            <motion.div 
+                              key="ai-result-panel"
+                              initial={{ opacity: 0, height: 0 }}
+                              animate={{ opacity: 1, height: "auto" }}
+                              exit={{ opacity: 0, height: 0 }}
+                              className="mt-8 space-y-6 pt-8 border-t border-white/5 overflow-hidden"
+                            >
+                                <RiskBadge level={aiResult.riskLevel || "LOW"} />
+                                
+                                <div className="p-6 rounded-2xl bg-amber-500/10 border border-amber-500/20">
+                                    <div className="flex items-center justify-between mb-4">
+                                        <p className="text-[10px] font-black uppercase tracking-widest text-amber-500">AI Strategy Insight</p>
+                                        <div className="flex items-center gap-2">
+                                            <TrendingUp className="w-3 h-3 text-amber-500" />
+                                            <span className="text-[9px] font-bold text-amber-500">{aiResult.occupancyRate}% Load</span>
+                                        </div>
+                                    </div>
+                                    <p className="text-xs text-amber-500/80 leading-relaxed italic mb-4">{aiResult.reasoning || "Analyzing data..."}</p>
+                                    
+                                    <div className="grid grid-cols-2 gap-2">
+                                        <div className="p-3 rounded-xl bg-amber-500/5 flex flex-col items-center">
+                                            <span className="text-lg font-serif italic text-amber-500">{aiResult.suggestedStaff}</span>
+                                            <span className="text-[7px] uppercase font-black tracking-widest opacity-40">Target</span>
+                                        </div>
+                                        <div className="p-3 rounded-xl bg-amber-500/5 flex flex-col items-center">
+                                            <span className="text-lg font-serif italic text-amber-500">{aiResult.currentStaff}</span>
+                                            <span className="text-[7px] uppercase font-black tracking-widest opacity-40">Existing</span>
+                                        </div>
+                                    </div>
+                                    
+                                    {aiResult.suggestedShifts && (
+                                        <div className="mt-6 pt-4 border-t border-amber-500/10 space-y-2">
+                                            <p className="text-[8px] font-black uppercase tracking-widest text-amber-500/60 mb-2">Block Details</p>
+                                            {aiResult.suggestedShifts.slice(0, 3).map((s: any, i: number) => (
+                                                <div key={i} className="flex items-center justify-between text-[8px] font-mono text-amber-500/40">
+                                                    <span>{s.title}</span>
+                                                    <span>{s.startTime} - {s.endTime}</span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
+
+                                <button 
+                                  onClick={handleCommitSchedule}
+                                  disabled={isCommitting}
+                                  className="w-full p-6 rounded-2xl bg-amber-500 text-black text-[10px] font-black uppercase tracking-[0.2em] hover:bg-amber-400 transition-all flex items-center justify-center gap-3 disabled:opacity-50"
+                                >
+                                    {isCommitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Zap className="w-4 h-4" />}
+                                    Commit & Dispatch Roster
+                                </button>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
+                </motion.div>
+
                 <div className={`p-10 border overflow-hidden relative transition-all duration-700 ${isDark ? "bg-white/5 border-white/10" : "bg-white border-black/5"}`}>
                     <h2 className="text-[10px] font-black uppercase tracking-[0.4em] text-amber-500 mb-10 flex items-center gap-3 italic">
-                        Personnel Predictor
+                        Personnel Registry
                     </h2>
 
                     <div className="space-y-10">
@@ -361,9 +606,10 @@ export default function StaffingAdminPage() {
                                 </button>
                             </div>
 
-                            <AnimatePresence>
+                            <AnimatePresence mode="wait">
                                 {isAddingMember && (
                                     <motion.form 
+                                        key="add-member-form"
                                         initial={{ height: 0, opacity: 0 }} 
                                         animate={{ height: "auto", opacity: 1 }} 
                                         exit={{ height: 0, opacity: 0 }}
@@ -421,75 +667,9 @@ export default function StaffingAdminPage() {
                             Execute Logic Engine
                         </button>
                     </div>
-
-                    <AnimatePresence>
-                        {aiResult && (
-                            <motion.div initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} className="mt-12 space-y-10">
-                                <div className="p-8 rounded-[2rem] bg-amber-500/5 border border-amber-500/10 space-y-6">
-                                    <div className="flex items-center justify-between">
-                                        <div className="flex items-center gap-2">
-                                            <TrendingUp className="w-4 h-4 text-emerald-500" />
-                                            <span className="text-[10px] font-black uppercase tracking-widest text-emerald-500">Live Prediction</span>
-                                        </div>
-                                        <RiskBadge level={aiResult.riskLevel || "LOW"} />
-                                    </div>
-                                    <p className="text-3xl font-serif italic">{aiResult.occupancyRate}% <span className="text-[10px] font-sans not-italic text-zinc-500 font-black uppercase tracking-widest opacity-40">Property Load</span></p>
-                                </div>
-
-                                <div className="space-y-6">
-                                    <div className="flex items-center gap-3">
-                                        <ShieldCheck className="w-4 h-4 text-amber-500" />
-                                        <span className="text-[10px] font-black uppercase tracking-widest italic">Reasoning Logic:</span>
-                                    </div>
-                                    <p className="text-[13px] leading-relaxed font-medium text-neutral-400 border-l border-amber-500/30 pl-6 italic">
-                                        "{aiResult.reasoning}"
-                                    </p>
-                                </div>
-
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div className="p-6 rounded-3xl bg-white/5 border border-white/5">
-                                        <Users className="w-4 h-4 opacity-20 mb-3" />
-                                        <p className="text-2xl font-serif italic">{aiResult.suggestedStaff}</p>
-                                        <p className="text-[9px] uppercase font-black tracking-widest opacity-20">Suggested Force</p>
-                                    </div>
-                                    <div className="p-6 rounded-3xl bg-white/5 border border-white/5 text-right">
-                                        <Building className="w-4 h-4 opacity-20 mb-3 ml-auto" />
-                                        <p className="text-2xl font-serif italic">{aiResult.currentStaff}</p>
-                                        <p className="text-[9px] uppercase font-black tracking-widest opacity-20">Current Shift</p>
-                                    </div>
-                                </div>
-
-                                {aiResult.suggestedShifts && (
-                                    <div className="space-y-6 pt-6 border-t border-white/5">
-                                        <h3 className="text-[10px] font-black uppercase tracking-widest text-zinc-500 italic">Proposed Deployment Blocks</h3>
-                                        <div className="space-y-3">
-                                            {aiResult.suggestedShifts.map((shift: any, idx: number) => (
-                                                <div key={idx} className="p-4 rounded-2xl bg-white/[0.03] border border-white/5 group hover:border-amber-500/20 transition-all">
-                                                    <div className="flex justify-between items-center mb-1">
-                                                        <span className="text-[10px] font-black uppercase tracking-widest">{shift.title}</span>
-                                                        <span className="text-[9px] font-mono text-amber-500/60 uppercase">{shift.startTime} - {shift.endTime}</span>
-                                                    </div>
-                                                    <p className="text-[11px] opacity-40 italic">{shift.description}</p>
-                                                </div>
-                                            ))}
-                                        </div>
-                                        <button 
-                                            onClick={handleCommitSchedule}
-                                            disabled={isCommitting}
-                                            className="w-full py-5 rounded-[1.5rem] bg-emerald-500 text-black text-[10px] font-black uppercase tracking-[0.4em] hover:bg-emerald-400 transition-all flex items-center justify-center gap-3 disabled:opacity-50"
-                                        >
-                                            {isCommitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <ShieldCheck className="w-4 h-4" />}
-                                            Commit To Deployment Map
-                                        </button>
-                                        <p className="text-center text-[8px] uppercase tracking-widest opacity-20 font-medium">Managers can manually adjust entries in the calendar view after commitment.</p>
-                                    </div>
-                                )}
-                            </motion.div>
-                        )}
-                    </AnimatePresence>
                 </div>
 
-                <div className={`p-8 rounded-[2.5rem] bg-indigo-500/5 border border-indigo-500/10 flex items-center justify-between group transition-all duration-500 hover:bg-indigo-500/10`}>
+                <div className={`p-8 bg-indigo-500/5 border border-indigo-500/10 flex items-center justify-between group transition-all duration-500 hover:bg-indigo-500/10 rounded-[2rem]`}>
                     <div className="flex items-center gap-4">
                         <Calendar className="w-5 h-5 text-indigo-400" />
                         <div>

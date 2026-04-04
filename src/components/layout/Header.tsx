@@ -54,10 +54,9 @@ export default function Header() {
 
     const navItems = [
         { key: "nav.story", href: "/#story" },
-        { key: "nav.rooms", href: "/#rooms" },
-        { key: "nav.accommodations", href: "/#accommodations" },
+        { key: "nav.rooms", href: "/rooms" },
         { key: "nav.services", href: "/#services" },
-        { key: "nav.gallery", href: "/#gallery" },
+        { key: "nav.gallery", href: "/gallery" },
         { key: "nav.training", href: "/training" },
         { key: "nav.contact", href: "/#contact" },
     ];

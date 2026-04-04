@@ -6,11 +6,21 @@ import { ChevronLeft, ChevronRight, X, Plus } from "lucide-react";
 
 export type CalendarItem = {
   _id?: string;
-  start: string;
-  end: string;
+  startsAt: string;
+  endsAt: string;
   title: string;
-  subtitle?: string;
-  assignedStaff?: string;
+  type?: "SHIFT" | "EVENT" | "TASK";
+  shiftType?: "morning" | "swing" | "night";
+  status?: "DRAFT" | "PUBLISHED" | "COMPLETED";
+  organizerId?: {
+    _id: string;
+    name: string;
+    email: string;
+  };
+  departmentId?: {
+    _id: string;
+    name: string;
+  };
 };
 
 function localDateKey(d: Date): string {
@@ -31,11 +41,13 @@ export function StaffingCalendar({
   title = "Staffing Schedule",
   onAddEvent,
   onDeleteEvent,
+  onDayClick,
 }: {
   items: CalendarItem[];
   title?: string;
   onAddEvent?: (date: Date) => void;
   onDeleteEvent?: (item: CalendarItem) => void;
+  onDayClick?: (date: Date, items: CalendarItem[]) => void;
 }) {
   const [cursor, setCursor] = useState(() => {
     const n = new Date();
@@ -78,13 +90,13 @@ export function StaffingCalendar({
             onClick={() => setCursor((c) => new Date(c.getFullYear(), c.getMonth() - 1, 1))}
             className="p-3 rounded-full bg-white/5 hover:bg-white/10 border border-white/5 transition-all"
           >
-            <ChevronLeft className="w-4 h-4" />
+            <ChevronLeft className="w-4 h-4 text-zinc-100" />
           </button>
           <button
             onClick={() => setCursor((c) => new Date(c.getFullYear(), c.getMonth() + 1, 1))}
             className="p-3 rounded-full bg-white/5 hover:bg-white/10 border border-white/5 transition-all"
           >
-            <ChevronRight className="w-4 h-4" />
+            <ChevronRight className="w-4 h-4 text-zinc-100" />
           </button>
         </div>
       </div>
@@ -105,8 +117,8 @@ export function StaffingCalendar({
             const isToday = key === todayKey;
             
             const dayItems = Array.isArray(items) ? items.filter(item => {
-                const s = parseISO(item.start || (item as any).startsAt);
-                const e = parseISO(item.end || (item as any).endsAt);
+                const s = parseISO(item.startsAt);
+                const e = parseISO(item.endsAt);
                 const dS = new Date(day.getFullYear(), day.getMonth(), day.getDate(), 0, 0, 0, 0);
                 const dE = new Date(day.getFullYear(), day.getMonth(), day.getDate() + 1, 0, 0, 0, 0);
                 return s < dE && e > dS;
@@ -115,7 +127,8 @@ export function StaffingCalendar({
             return (
               <div
                 key={key}
-                className={`min-h-[140px] p-4 transition-all hover:bg-white/[0.03] relative group ${isToday ? 'bg-amber-500/[0.02]' : 'bg-[#080808]/60'}`}
+                onClick={() => onDayClick?.(day, dayItems)}
+                className={`min-h-[140px] p-4 transition-all hover:bg-white/[0.03] relative group cursor-pointer ${isToday ? 'bg-amber-500/[0.02]' : 'bg-[#080808]/60'}`}
               >
                 <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none border border-amber-500/20 rounded-xl z-10" />
                 <div className="flex items-start justify-between mb-3">
@@ -127,11 +140,14 @@ export function StaffingCalendar({
                 
                 <div className="flex flex-col gap-1.5 relative z-20">
                   {dayItems.slice(0, 3).map((it, idx) => {
-                    const assigned = (it as any).organizerId?.name || (it as any).assignedStaff;
+                    const assigned = it.organizerId?.name;
+                    const shiftColor = it.shiftType === 'morning' ? 'border-sky-500/30' : it.shiftType === 'swing' ? 'border-amber-500/30' : it.shiftType === 'night' ? 'border-indigo-500/30' : 'border-white/5';
+                    const markerColor = it.shiftType === 'morning' ? 'bg-sky-500/40' : it.shiftType === 'swing' ? 'bg-amber-500/40' : it.shiftType === 'night' ? 'bg-indigo-500/40' : 'bg-zinc-500/40';
+
                     return (
                       <div
                         key={idx}
-                        className="px-2 py-1.5 rounded-lg bg-white/5 border border-white/5 text-[9px] font-bold uppercase tracking-widest text-zinc-300 truncate hover:border-amber-500/30 transition-colors cursor-pointer group/item relative overflow-hidden flex flex-col gap-0.5"
+                        className={`px-2 py-1.5 rounded-lg bg-white/5 border ${shiftColor} text-[9px] font-bold uppercase tracking-widest text-zinc-300 truncate transition-colors group/item relative overflow-hidden flex flex-col gap-0.5`}
                         title={it.title}
                       >
                         <div className="flex justify-between items-center relative z-10 w-full">
@@ -147,11 +163,11 @@ export function StaffingCalendar({
                           </button>
                         </div>
                         {assigned && (
-                          <div className="text-[7px] text-amber-500/60 lowercase tracking-tighter truncate opacity-70">
+                          <div className="text-[7px] text-zinc-400 lowercase tracking-tighter truncate opacity-70">
                             {assigned}
                           </div>
                         )}
-                        <div className="absolute left-0 top-0 bottom-0 w-0.5 bg-amber-500/40 opacity-0 group-hover/item:opacity-100 transition-opacity" />
+                        <div className={`absolute left-0 top-0 bottom-0 w-0.5 ${markerColor} transition-opacity`} />
                       </div>
                     );
                   })}
@@ -162,7 +178,10 @@ export function StaffingCalendar({
                   )}
                   {/* Empty state manual trigger */}
                   <button 
-                    onClick={() => onAddEvent?.(day)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onAddEvent?.(day);
+                    }}
                     className="opacity-0 group-hover:opacity-40 hover:!opacity-100 transition-opacity text-[8px] font-black uppercase tracking-widest text-zinc-500 mt-2 border border-dashed border-white/10 py-2 rounded-lg"
                   >
                     + Add Shift

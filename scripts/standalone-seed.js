@@ -121,7 +121,12 @@ async function seed() {
         accessRole: "DEPARTMENT_HEAD",
         passwordHash,
         portalToken: Math.random().toString(36).substring(7),
-        departmentId: d._id
+        departmentId: d._id,
+        skills: ["Management", "Leadership"],
+        availability: [0, 1, 2, 3, 4, 5, 6].map(day => ({
+          dayOfWeek: day,
+          preferredShifts: ["morning", "swing"]
+        }))
       });
       // Scaled Staff
       const volume = (d.name.includes("Culinary") || d.name.includes("Accommodation")) ? 25 : 12;
@@ -132,7 +137,12 @@ async function seed() {
           role: "Associate",
           accessRole: "MEMBER",
           portalToken: Math.random().toString(36).substring(7),
-          departmentId: d._id
+          departmentId: d._id,
+          skills: ["General Operations", "Service"],
+          availability: [0, 1, 2, 3, 4, 5, 6].map(day => ({
+            dayOfWeek: day,
+            preferredShifts: (i % 3 === 0) ? ["morning"] : (i % 3 === 1) ? ["swing"] : ["night"]
+          }))
         });
       }
     }

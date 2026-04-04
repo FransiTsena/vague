@@ -44,7 +44,35 @@ export async function POST(req: NextRequest) {
       return apiError("Invalid JSON body", 400);
     }
 
-    const { title, description, startsAt, endsAt, departmentId, organizerId } = body;
+    // Handle Bulk Operations
+    if (Array.isArray(body)) {
+      const results = [];
+      for (const item of body) {
+        const { title, description, startsAt, endsAt, departmentId, organizerId, type, shiftType, status } = item;
+        
+        if (!title || !departmentId) continue;
+        
+        const start = new Date(startsAt);
+        const end = new Date(endsAt);
+        if (isNaN(start.getTime()) || isNaN(end.getTime()) || end <= start) continue;
+
+        const event = await ScheduleEvent.create({
+          title: title.trim(),
+          description,
+          startsAt: start,
+          endsAt: end,
+          departmentId,
+          organizerId: organizerId || null,
+          type: type || "SHIFT",
+          shiftType: shiftType,
+          status: status || "PUBLISHED"
+        });
+        results.push(event);
+      }
+      return apiJson({ success: true, count: results.length, items: results }, 201);
+    }
+
+    const { title, description, startsAt, endsAt, departmentId, organizerId, type, shiftType, status } = body;
     
     if (!title || !title.trim()) return apiError("title is required", 400);
     if (!departmentId) return apiError("departmentId is required", 400);
@@ -73,6 +101,9 @@ export async function POST(req: NextRequest) {
       endsAt: end,
       departmentId,
       organizerId: organizerId || null,
+      type: type || (shiftType ? "SHIFT" : "EVENT"),
+      shiftType: shiftType,
+      status: status || "PUBLISHED"
     });
 
     const populated = await event.populate([
@@ -83,6 +114,42 @@ export async function POST(req: NextRequest) {
     return apiJson(populated, 201);
   } catch (error: any) {
     return apiError(error.message, 401);
+  }
+}
+
+export async function PATCH(req: NextRequest) {
+  await dbConnect();
+  try {
+    const user = await requireUser(["ADMIN", "DEPARTMENT_HEAD"]);
+    const id = req.nextUrl.searchParams.get("id");
+    if (!id) return apiError("id is required", 400);
+
+    const body = await req.json();
+    const event = await ScheduleEvent.findById(id);
+    if (!event) return apiError("Event not found", 404);
+
+    if (user.accessRole === "DEPARTMENT_HEAD" && event.departmentId.toString() !== user.departmentId) {
+      return apiError("You can only update events for your department", 403);
+    }
+
+    const updateData: any = {};
+    if (body.title) updateData.title = body.title;
+    if (body.description !== undefined) updateData.description = body.description;
+    if (body.startsAt) updateData.startsAt = new Date(body.startsAt);
+    if (body.endsAt) updateData.endsAt = new Date(body.endsAt);
+    if (body.organizerId !== undefined) updateData.organizerId = body.organizerId;
+    if (body.type) updateData.type = body.type;
+    if (body.shiftType) updateData.shiftType = body.shiftType;
+    if (body.status) updateData.status = body.status;
+
+    const updated = await ScheduleEvent.findByIdAndUpdate(id, updateData, { new: true }).populate([
+      { path: "departmentId", select: "name" },
+      { path: "organizerId", select: "name email" }
+    ]);
+
+    return apiJson(updated);
+  } catch (error: any) {
+    return apiError(error.message, 500);
   }
 }
 
