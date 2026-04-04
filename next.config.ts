@@ -1,10 +1,6 @@
 import type { NextConfig } from "next";
 
-
 const nextConfig: NextConfig = {
-  basePath: "/hackathon",
-  assetPrefix: "/hackathon/",
-
   /* config options here */
   // reactCompiler: true,
   devIndicators: {
