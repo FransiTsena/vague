@@ -74,7 +74,7 @@ export default function Hero() {
                 ref={bgRef}
                 className={`absolute inset-0 w-full h-full ${isDark ? "bg-gradient-to-b from-neutral-800 to-black" : "bg-gradient-to-b from-neutral-200 to-white"}`}
             >
-                <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1540541338287-41700207dee6?auto=format&fit=crop&q=100&w=2000')] bg-cover bg-center opacity-80" />
+                <div className="absolute inset-0 bg-[url('/photos/hero-background.webp')] bg-cover bg-center opacity-80" />
             </div>
 
             {/* Overlay for better text readability */}

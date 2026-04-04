@@ -70,6 +70,35 @@ const Room = mongoose.models.Room || mongoose.model("Room", RoomSchema);
 const GalleryProject = mongoose.models.GalleryProject || mongoose.model("GalleryProject", GalleryProjectSchema);
 const Booking = mongoose.models.Booking || mongoose.model("Booking", BookingSchema);
 
+function slugify(value) {
+  return String(value || "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, ".")
+    .replace(/^\.+|\.+$/g, "");
+}
+
+function buildAvailability(pattern = "flex") {
+  const weekday = [1, 2, 3, 4, 5];
+  const weekend = [0, 6];
+
+  const shiftMap = {
+    morning: { weekday: ["morning"], weekend: ["morning", "swing"] },
+    swing: { weekday: ["swing"], weekend: ["swing", "night"] },
+    night: { weekday: ["night"], weekend: ["night"] },
+    flex: { weekday: ["morning", "swing"], weekend: ["morning", "swing", "night"] },
+  };
+
+  const selected = shiftMap[pattern] || shiftMap.flex;
+  return [...weekday, ...weekend].map((dayOfWeek) => ({
+    dayOfWeek,
+    preferredShifts: weekend.includes(dayOfWeek) ? selected.weekend : selected.weekday,
+  }));
+}
+
+function makeName(firstNames, lastNames, idx) {
+  return `${firstNames[idx % firstNames.length]} ${lastNames[Math.floor(idx / firstNames.length) % lastNames.length]}`;
+}
+
 async function seed() {
   try {
     let uri = MONGODB_URI.replace(/"/g, '');
@@ -97,53 +126,88 @@ async function seed() {
     ];
     const savedDepts = await Department.insertMany(depts);
 
-    // 2. Seed Staff (Luxury Workforce)
-    console.log("Seeding Workforce (144+ Staff Profiles)...");
+    // 2. Seed Staff (Role-Realistic Workforce)
+    console.log("Seeding Workforce (role-realistic staff profiles)...");
     const passwordHash = await bcrypt.hash("changeme", 10);
-    
-    // Admin
+
+    const firstNames = [
+      "Liam", "Noah", "Mason", "Lucas", "Elijah", "Ethan", "Ava", "Emma", "Sophia", "Mia",
+      "Charlotte", "Amelia", "Harper", "Isabella", "James", "Benjamin", "Daniel", "Michael", "David", "Leo"
+    ];
+    const lastNames = [
+      "Harrison", "Walker", "Bennett", "Coleman", "Reyes", "Turner", "Cooper", "Gray", "Hughes", "Price",
+      "Cook", "Bailey", "Foster", "Ward", "Brooks", "Murphy", "Parker", "Diaz", "Powell", "Flores"
+    ];
+
+    // Admin root account
     await Member.create({
-      name: "General Manager",
+      name: "Ariana Vale",
       email: "gm@hotel.local",
       role: "General Manager",
       accessRole: "ADMIN",
       passwordHash,
       portalToken: "gm-admin-token",
-      departmentId: savedDepts[0]._id
+      departmentId: savedDepts[0]._id,
+      skills: ["Leadership", "Revenue Management", "Operations"],
+      availability: buildAvailability("flex"),
     });
 
-    for (const d of savedDepts) {
-      // Head
-      await Member.create({
-        name: `${d.name} Head`,
-        email: `head.${d.name.toLowerCase().replace(/[^a-z]/g, '')}@hotel.local`,
-        role: "Head of Operations",
-        accessRole: "DEPARTMENT_HEAD",
-        passwordHash,
-        portalToken: Math.random().toString(36).substring(7),
-        departmentId: d._id,
-        skills: ["Management", "Leadership"],
-        availability: [0, 1, 2, 3, 4, 5, 6].map(day => ({
-          dayOfWeek: day,
-          preferredShifts: ["morning", "swing"]
-        }))
-      });
-      // Scaled Staff
-      const volume = (d.name.includes("Culinary") || d.name.includes("Accommodation")) ? 25 : 12;
-      for (let i = 0; i < volume; i++) {
-        await Member.create({
-          name: `Staff Member ${i+1} (${d.name})`,
-          email: `staff.${d._id.toString().slice(-4)}.${i}@hotel.local`,
-          role: "Associate",
-          accessRole: "MEMBER",
-          portalToken: Math.random().toString(36).substring(7),
-          departmentId: d._id,
-          skills: ["General Operations", "Service"],
-          availability: [0, 1, 2, 3, 4, 5, 6].map(day => ({
-            dayOfWeek: day,
-            preferredShifts: (i % 3 === 0) ? ["morning"] : (i % 3 === 1) ? ["swing"] : ["night"]
-          }))
-        });
+    const departmentBlueprints = {
+      "Executive Leadership": [
+        { role: "Director of Operations", count: 1, accessRole: "DEPARTMENT_HEAD", shiftPattern: "morning", skills: ["Operations", "Compliance", "Leadership"] },
+        { role: "Revenue Manager", count: 2, shiftPattern: "morning", skills: ["Pricing", "Forecasting", "Analytics"] },
+        { role: "HR Coordinator", count: 2, shiftPattern: "morning", skills: ["Recruiting", "Onboarding", "Payroll"] },
+        { role: "Duty Manager", count: 4, shiftPattern: "swing", skills: ["Guest Recovery", "Escalation", "Operations"] },
+      ],
+      "Accommodation Services": [
+        { role: "Housekeeping Supervisor", count: 1, accessRole: "DEPARTMENT_HEAD", shiftPattern: "morning", skills: ["Inspection", "Scheduling", "Quality Assurance"] },
+        { role: "Room Attendant", count: 12, shiftPattern: "morning", skills: ["Room Turnover", "Linen Standards", "Guest Privacy"] },
+        { role: "Public Area Attendant", count: 6, shiftPattern: "swing", skills: ["Lobby Upkeep", "Sanitization", "Guest Assistance"] },
+        { role: "Laundry Attendant", count: 5, shiftPattern: "night", skills: ["Laundry Ops", "Inventory", "Stain Treatment"] },
+      ],
+      "Culinary & Banquets": [
+        { role: "Executive Chef", count: 1, accessRole: "DEPARTMENT_HEAD", shiftPattern: "morning", skills: ["Menu Engineering", "Food Cost", "Kitchen Leadership"] },
+        { role: "Sous Chef", count: 3, shiftPattern: "swing", skills: ["Kitchen Supervision", "Prep Planning", "Plating"] },
+        { role: "Breakfast Cook", count: 4, shiftPattern: "morning", skills: ["Breakfast Service", "Egg Station", "Buffet Prep"] },
+        { role: "Line Cook", count: 8, shiftPattern: "swing", skills: ["Hot Line", "Saute", "Service Pace"] },
+        { role: "Pastry Chef", count: 3, shiftPattern: "morning", skills: ["Pastry", "Dessert Plating", "Baking"] },
+        { role: "Steward", count: 6, shiftPattern: "night", skills: ["Kitchen Sanitation", "Dish Pit", "Closing Duties"] },
+      ],
+      "Front of House": [
+        { role: "Front Office Manager", count: 1, accessRole: "DEPARTMENT_HEAD", shiftPattern: "morning", skills: ["Front Desk Ops", "Guest Experience", "PMS"] },
+        { role: "Front Desk Agent", count: 7, shiftPattern: "morning", skills: ["Check-in", "PMS", "Upselling"] },
+        { role: "Concierge", count: 4, shiftPattern: "swing", skills: ["Local Knowledge", "Reservations", "Guest Requests"] },
+        { role: "Bell Attendant", count: 5, shiftPattern: "swing", skills: ["Luggage Handling", "Escort Service", "Lobby Support"] },
+        { role: "Night Auditor", count: 3, shiftPattern: "night", skills: ["Night Audit", "Cash Reconciliation", "Late Check-in"] },
+      ],
+      "Plant & Facilities": [
+        { role: "Facilities Manager", count: 1, accessRole: "DEPARTMENT_HEAD", shiftPattern: "morning", skills: ["Preventive Maintenance", "Vendor Management", "Safety"] },
+        { role: "Maintenance Technician", count: 5, shiftPattern: "morning", skills: ["Electrical", "Plumbing", "Work Orders"] },
+        { role: "HVAC Technician", count: 3, shiftPattern: "swing", skills: ["HVAC", "Energy Systems", "Troubleshooting"] },
+        { role: "On-Call Engineer", count: 2, shiftPattern: "night", skills: ["Emergency Repair", "Incident Response", "Generator Ops"] },
+        { role: "Security Officer", count: 6, shiftPattern: "night", skills: ["Patrol", "Incident Logging", "Access Control"] },
+      ],
+    };
+
+    let nameCursor = 0;
+    for (const department of savedDepts) {
+      const blueprints = departmentBlueprints[department.name] || [];
+      for (const blueprint of blueprints) {
+        for (let i = 0; i < blueprint.count; i++) {
+          const fullName = makeName(firstNames, lastNames, nameCursor++);
+          const email = `${slugify(fullName)}.${slugify(blueprint.role)}@hotel.local`;
+          await Member.create({
+            name: fullName,
+            email,
+            role: blueprint.role,
+            accessRole: blueprint.accessRole || "MEMBER",
+            passwordHash,
+            portalToken: `${slugify(fullName)}-${Math.random().toString(36).slice(2, 8)}`,
+            departmentId: department._id,
+            skills: blueprint.skills,
+            availability: buildAvailability(blueprint.shiftPattern),
+          });
+        }
       }
     }
 
