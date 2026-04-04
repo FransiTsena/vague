@@ -43,6 +43,28 @@ interface PricingData {
   date: string;
 }
 
+interface PricingOverride {
+  aiMultiplier: number;
+  isActive: boolean;
+}
+
+interface ServicePricingRow {
+  service: string;
+  basePrice: number;
+  dynamicPrice: number;
+  difference: number;
+  differencePercent: number;
+  dynamicMultiplier: number;
+  occupancyRate: number;
+}
+
+interface ServicePricingResponse {
+  date: string;
+  aiMultiplier: number;
+  minPriceFloorPercent: number;
+  services: ServicePricingRow[];
+}
+
 function clamp(value: number, min: number, max: number) {
   return Math.min(max, Math.max(min, value));
 }
@@ -55,27 +77,62 @@ export default function PricingDemo() {
   const { t, language } = useLanguage();
   const { isDark } = useTheme();
   const [pricing, setPricing] = useState<PricingData | null>(null);
+  const [servicePricing, setServicePricing] = useState<ServicePricingRow[]>([]);
   const [loading, setLoading] = useState(false);
   const [seeding, setSeeding] = useState(false);
   const [seedMessage, setSeedMessage] = useState("");
   const [managerOverride, setManagerOverride] = useState<number>(1);
+  const [savedOverride, setSavedOverride] = useState<number | null>(null);
   const [hasSavedOverride, setHasSavedOverride] = useState(false);
   const [isOverrideMode, setIsOverrideMode] = useState(false);
   const [saving, setSaving] = useState(false);
 
-  const fetchPricing = async () => {
-    setLoading(true);
+  const MIN_DYNAMIC_MULTIPLIER = 0.75;
+  const MAX_DYNAMIC_MULTIPLIER = 2.5;
+
+  const applyOverrideState = (override: PricingOverride) => {
+    if (override.isActive) {
+      setSavedOverride(override.aiMultiplier);
+      setManagerOverride(override.aiMultiplier);
+      setHasSavedOverride(true);
+      setIsOverrideMode(false);
+      return;
+    }
+
+    setSavedOverride(null);
     setHasSavedOverride(false);
     setIsOverrideMode(false);
+  };
+
+  const fetchPricing = async () => {
+    setLoading(true);
+    setSeedMessage("");
     try {
       const today = new Date().toISOString().split("T")[0];
-      const res = await fetch(`/api/pricing?roomId=demo-id&date=${today}`);
+      const [res, servicesRes, overrideRes] = await Promise.all([
+        fetch(`/api/pricing?roomId=demo-id&date=${today}`),
+        fetch(`/api/pricing/services?date=${today}`),
+        fetch("/api/pricing/override"),
+      ]);
+
       const data = await res.json();
+      const servicesData = (await servicesRes.json()) as ServicePricingResponse;
+      const overrideData = (await overrideRes.json()) as PricingOverride;
+
       if (data.error && data.error.includes("Cast to ObjectId failed")) {
-          setSeedMessage("Please seed the database first to see dynamic pricing.");
+        setSeedMessage("Please seed the database first to see dynamic pricing.");
       } else {
-          setPricing(data);
+        setPricing(data);
+        applyOverrideState(overrideData);
+        if (!overrideData.isActive) {
           setManagerOverride(data.factors.aiMultiplier || 1);
+        }
+      }
+
+      if (servicesData?.services?.length) {
+        setServicePricing(servicesData.services);
+      } else {
+        setServicePricing([]);
       }
     } catch (err) {
       console.error(err);
@@ -105,19 +162,46 @@ export default function PricingDemo() {
 
   const handleSaveOverride = async () => {
     setSaving(true);
-    // Simulate API call to save manager override
-    await new Promise(resolve => setTimeout(resolve, 800));
-    setHasSavedOverride(true);
-    setIsOverrideMode(false);
-    setSaving(false);
+    try {
+      const res = await fetch("/api/pricing/override", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ aiMultiplier: managerOverride, isActive: true }),
+      });
+
+      const data = await res.json();
+      if (!res.ok || data.error) {
+        setSeedMessage(data.error || "Failed to save manager override.");
+        return;
+      }
+
+      setSavedOverride(data.aiMultiplier);
+      setHasSavedOverride(true);
+      setIsOverrideMode(false);
+      await fetchPricing();
+    } catch {
+      setSeedMessage("Failed to save manager override.");
+    } finally {
+      setSaving(false);
+    }
   };
 
-  const effectiveAiMultiplier = isOverrideMode || hasSavedOverride ? managerOverride : (pricing?.factors.aiMultiplier || 1);
-  const dynamicMultiplier = pricing ? clamp(pricing.factors.ruleMultiplier * effectiveAiMultiplier, 0.65, 2.5) : 1;
+  const effectiveAiMultiplier = isOverrideMode
+    ? managerOverride
+    : (savedOverride ?? pricing?.factors.aiMultiplier ?? 1);
+  const dynamicMultiplier = pricing
+    ? clamp(pricing.factors.ruleMultiplier * effectiveAiMultiplier, MIN_DYNAMIC_MULTIPLIER, MAX_DYNAMIC_MULTIPLIER)
+    : 1;
   const currentDynamicPrice = pricing ? round2(pricing.basePrice * dynamicMultiplier) : 0;
   
   const priceDiff = pricing ? currentDynamicPrice - pricing.basePrice : 0;
   const isPriceUp = priceDiff > 0;
+
+  useEffect(() => {
+    void fetchPricing();
+  }, []);
 
   return (
     <Section id="pricing-demo" className="pb-12 bg-background">
@@ -181,6 +265,33 @@ export default function PricingDemo() {
                     &quot;{pricing.aiInsight || "Target demand aligns with historical booking pace. Stabilizing around parity."}&quot;
                   </div>
                 </div>
+
+                <div className="pt-8 border-t border-neutral-100 dark:border-neutral-800">
+                  <div className="flex justify-between items-end mb-5">
+                    <h4 className="text-[10px] font-mono uppercase tracking-[0.2em] font-bold text-neutral-400 dark:text-neutral-500">
+                      All Service Deltas
+                    </h4>
+                    <span className="text-[10px] uppercase tracking-[0.2em] text-neutral-400">Floor: -25%</span>
+                  </div>
+                  <div className="space-y-3">
+                    {servicePricing.map((service) => {
+                      const isUp = service.difference >= 0;
+                      const label = `${service.service.charAt(0).toUpperCase()}${service.service.slice(1)}`;
+                      return (
+                        <div key={service.service} className="grid grid-cols-12 gap-2 items-center text-xs border-b border-neutral-100 dark:border-neutral-800 pb-2">
+                          <span className="col-span-4 uppercase tracking-wide text-neutral-500">{label}</span>
+                          <span className="col-span-4 font-mono text-neutral-500">${service.basePrice.toFixed(2)}</span>
+                          <span className="col-span-4 font-mono text-right">
+                            <span className="text-foreground">${service.dynamicPrice.toFixed(2)}</span>
+                            <span className={`ml-2 ${isUp ? "text-emerald-500" : "text-amber-500"}`}>
+                              {isUp ? "+" : ""}{service.differencePercent.toFixed(1)}%
+                            </span>
+                          </span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
               </div>
 
               {/* Manager Override Controls */}
@@ -223,10 +334,10 @@ export default function PricingDemo() {
 
                   <button 
                     onClick={handleSaveOverride} 
-                    disabled={saving || (!isOverrideMode && !hasSavedOverride)}
+                    disabled={saving || !isOverrideMode}
                     className={`w-full py-4 text-[10px] tracking-[0.2em] font-bold uppercase transition-all border ${hasSavedOverride ? "bg-foreground text-background border-transparent" : (isOverrideMode ? "bg-foreground text-background border-transparent hover:opacity-90 shadow-xl" : "border-neutral-100 dark:border-neutral-800 text-neutral-400 cursor-not-allowed")}`}
                   >
-                    {saving ? "Publishing..." : (hasSavedOverride ? "Yield Committed" : "Publish Yield Matrix")}
+                    {saving ? "Publishing..." : (isOverrideMode ? "Publish Yield Matrix" : "Yield Committed")}
                   </button>
                 </div>
               </div>

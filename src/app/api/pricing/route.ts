@@ -1,7 +1,10 @@
 import { NextResponse } from "next/server";
 import dbConnect from "@/lib/mongodb";
-import { Room, Calendar, Booking } from "@/lib/models";
+import { Room, Calendar, Booking, PricingControl } from "@/lib/models";
 import { getDynamicPricingPrediction } from "@/lib/groq";
+
+const MIN_DYNAMIC_MULTIPLIER = 0.75;
+const MAX_DYNAMIC_MULTIPLIER = 2.5;
 
 type BookingChannel = "direct" | "ota" | "corporate" | "agent";
 type MealPlan = "room_only" | "breakfast" | "half_board" | "full_board";
@@ -300,7 +303,13 @@ export async function GET(request: Request) {
       }
     }
 
-    const dynamicMultiplier = clamp(ruleMultiplier * aiMultiplier, 0.65, 2.5);
+    const pricingControl = await PricingControl.findOne({ key: "global", isActive: true }).lean();
+    if (pricingControl?.aiMultiplier) {
+      aiMultiplier = clamp(Number(pricingControl.aiMultiplier), 0.5, 2);
+      aiReason = `Manager override committed (${aiMultiplier.toFixed(2)}x). ${aiReason}`;
+    }
+
+    const dynamicMultiplier = clamp(ruleMultiplier * aiMultiplier, MIN_DYNAMIC_MULTIPLIER, MAX_DYNAMIC_MULTIPLIER);
     const dynamicPrice = round2(room.basePrice * dynamicMultiplier);
     const estimatedSubtotal = round2(dynamicPrice * stayNights);
     const taxRate = 0.15;

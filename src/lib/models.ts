@@ -173,6 +173,30 @@ const CalendarSchema = new Schema<ICalendar>(
 
 export const Calendar: Model<ICalendar> = mongoose.models.Calendar || mongoose.model<ICalendar>("Calendar", CalendarSchema);
 
+// --- Pricing Control Model ---
+export interface IPricingControl extends Document {
+  key: string;
+  aiMultiplier: number;
+  isActive: boolean;
+  updatedBy?: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+const PricingControlSchema = new Schema<IPricingControl>(
+  {
+    key: { type: String, required: true, unique: true, trim: true, default: "global" },
+    aiMultiplier: { type: Number, required: true, default: 1, min: 0.5, max: 2 },
+    isActive: { type: Boolean, default: true },
+    updatedBy: { type: String, trim: true },
+  },
+  { timestamps: true }
+);
+
+export const PricingControl: Model<IPricingControl> =
+  mongoose.models.PricingControl ||
+  mongoose.model<IPricingControl>("PricingControl", PricingControlSchema);
+
 // --- Gallery Model ---
 export interface IGalleryImage {
   imageUrl: string;
