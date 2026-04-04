@@ -1,10 +1,9 @@
 import type { NextConfig } from "next";
 
-const isProd = process.env.NODE_ENV === "test";
 
 const nextConfig: NextConfig = {
-  basePath: isProd ? "/hackathon" : "",
-  assetPrefix: isProd ? "/hackathon/" : "",
+  basePath: "/hackathon",
+  assetPrefix: "/hackathon/",
 
   /* config options here */
   // reactCompiler: true,
