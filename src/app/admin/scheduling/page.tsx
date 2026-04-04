@@ -37,6 +37,10 @@ export default function SchedulingAdminPage() {
     async function fetchEvents() {
       try {
         const res = await fetch("/api/admin/staffing/events");
+        if (res.status === 401 || res.status === 403) {
+          window.location.href = "/";
+          return;
+        }
         const data = await res.json();
         setEvents(data || []);
       } catch (e) {
@@ -56,7 +60,7 @@ export default function SchedulingAdminPage() {
   );
 
   return (
-    <main className={`min-h-screen pt-24 pb-20 px-6 sm:px-12 theme-transition ${isDark ? "bg-[#050505] text-white" : "bg-[#fcfcfc] text-neutral-900"}`}>
+    <main className={`min-h-screen pt-6 pb-20 px-6 sm:px-12 theme-transition ${isDark ? "bg-[#050505] text-white" : "bg-[#fcfcfc] text-neutral-900"}`}>
       <div className="max-w-[1400px] mx-auto">
         
         {/* Navigation / Metadata */}
@@ -84,8 +88,8 @@ export default function SchedulingAdminPage() {
             
             <div className="flex flex-col gap-6 lg:items-end">
                 <div className="flex items-center gap-4">
-                    <Link href="/admin/staffing" className={`px-10 py-5 rounded-full text-[11px] font-black uppercase tracking-[0.4em] transition-all flex items-center gap-4 ${isDark ? "bg-white/5 border border-white/10 hover:bg-white/10" : "bg-black text-white hover:bg-neutral-800"}`}>
-                        <Calendar className="w-4 h-4" /> View Deployment Map
+                    <Link href="/admin/staffing" className={`px-10 py-5 rounded-full text-[11px] font-black uppercase tracking-[0.4em] transition-all flex items-center gap-4 ${isDark ? "bg-white/5 border border-white/10 hover:bg-white/10 shadow-2xl shadow-white/5" : "bg-black text-white hover:bg-neutral-800"}`}>
+                        <Calendar className="w-4 h-4 text-amber-500" /> View Deployment Map
                     </Link>
                     <button className={`p-5 rounded-full border ${isDark ? "border-white/10 bg-white/5 hover:bg-white/10" : "border-black/10 bg-white shadow-xl hover:bg-neutral-50"}`}>
                         <Plus className="w-5 h-5" />
@@ -141,7 +145,7 @@ export default function SchedulingAdminPage() {
                         </tr>
                     </thead>
                     <tbody className={`divide-y ${isDark ? "divide-white/5" : "divide-black/5"}`}>
-                        {events.slice(0, 10).map((evt, i) => (
+                        {Array.isArray(events) && events.slice(0, 10).map((evt, i) => (
                             <tr key={i} className={`group transition-colors ${isDark ? "hover:bg-white/[0.02]" : "hover:bg-black/[0.02]"}`}>
                                 <td className="py-8 pr-12">
                                     <div className="flex items-center gap-4">

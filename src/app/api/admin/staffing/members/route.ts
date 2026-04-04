@@ -29,7 +29,7 @@ export async function GET(req: NextRequest) {
 
     return apiJson(members);
   } catch (error: any) {
-    return apiError(error.message, 401);
+    return apiError(error.message, error.message === "Forbidden" ? 403 : 401);
   }
 }
 

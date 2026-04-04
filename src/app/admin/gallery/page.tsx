@@ -50,9 +50,12 @@ export default function GalleryAdminPage() {
   useEffect(() => {
     async function init() {
       try {
-        const res = await fetch("/api/gallery");
+        const res = await fetch("/api/admin/gallery/projects");
+        if (!res.ok) {
+          throw new Error(`Failed to fetch gallery projects: ${res.status}`);
+        }
         const data = await res.json();
-        setItems(data || []);
+        setItems(data.projects || []);
       } catch (e) {
         console.error(e);
       } finally {
@@ -72,7 +75,7 @@ export default function GalleryAdminPage() {
   );
 
   return (
-    <main className="min-h-screen pt-24 pb-20 px-6 sm:px-12 theme-transition ">
+    <main className="min-h-screen pt-6 pb-20 px-6 sm:px-12 theme-transition ">
       <div className="max-w-[1400px] mx-auto">
         
         {/* Navigation / Metadata */}

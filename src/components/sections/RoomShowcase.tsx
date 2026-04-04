@@ -66,7 +66,10 @@ export default function RoomShowcase() {
           for (const room of (data || [])) {
             if (!typeSet.has(room.type)) {
               typeSet.add(room.type);
-              featuredRooms.push(room);
+              featuredRooms.push({
+                ...room,
+                id: room._id || room.id // Normalize ID from MongoDB _id
+              });
             }
           }
           
@@ -126,13 +129,13 @@ export default function RoomShowcase() {
         >
           {featured.map((room) => (
             <motion.article
-              key={room._id || room.id}
+              key={room.id}
               variants={{
                 hidden: { opacity: 0, y: 30 },
                 visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] } },
               }}
               className="group relative flex flex-col cursor-pointer"
-              onClick={() => window.location.href = `/booking?roomId=${room._id || room.id}`}
+              onClick={() => window.location.href = `/booking?roomId=${room.id}`}
             >
               <div className="relative aspect-[4/5] w-full overflow-hidden bg-neutral-100 dark:bg-neutral-900 group">
                 <img
@@ -144,7 +147,7 @@ export default function RoomShowcase() {
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
                 
                 <div className="absolute bottom-0 w-full translate-y-4 p-8 opacity-0 transition-all duration-500 ease-out group-hover:translate-y-0 group-hover:opacity-100">
-                  <Link href={`/booking?roomId=${room._id || room.id}`} className="flex w-full items-center justify-between border-b border-white/40 pb-3 text-white transition-colors hover:border-white">
+                  <Link href={`/booking?roomId=${room.id}`} className="flex w-full items-center justify-between border-b border-white/40 pb-3 text-white transition-colors hover:border-white">
                     <span className="text-[11px] uppercase tracking-widest">Reserve Stay</span>
                     <ArrowRight className="h-4 w-4" />
                   </Link>
@@ -161,7 +164,7 @@ export default function RoomShowcase() {
                     {room.description}
                   </p>
                 )}
-                <Link href={`/booking?roomId=${room._id || room.id}`} className="mt-6 text-[10px] uppercase tracking-widest font-medium border-b border-black/20 dark:border-white/20 pb-1 hover:border-black dark:hover:border-white transition-colors">
+                <Link href={`/booking?roomId=${room.id}`} className="mt-6 text-[10px] uppercase tracking-widest font-medium border-b border-black/20 dark:border-white/20 pb-1 hover:border-black dark:hover:border-white transition-colors">
                   Explore Details
                 </Link>
               </div>

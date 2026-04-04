@@ -241,6 +241,11 @@ export interface IMember extends Document {
   passwordHash?: string;
   portalToken: string;
   departmentId?: mongoose.Types.ObjectId;
+  skills: string[];
+  availability: {
+    dayOfWeek: number; // 0-6
+    preferredShifts: ("morning" | "swing" | "night")[];
+  }[];
   createdAt: Date;
   updatedAt: Date;
 }
@@ -254,6 +259,11 @@ const MemberSchema = new Schema<IMember>(
     passwordHash: { type: String },
     portalToken: { type: String, required: true, unique: true },
     departmentId: { type: Schema.Types.ObjectId, ref: "Department" },
+    skills: [{ type: String }],
+    availability: [{
+      dayOfWeek: { type: Number, min: 0, max: 6 },
+      preferredShifts: [{ type: String, enum: ["morning", "swing", "night"] }]
+    }]
   },
   { timestamps: true }
 );
@@ -268,6 +278,9 @@ export interface IScheduleEvent extends Document {
   endsAt: Date;
   departmentId: mongoose.Types.ObjectId;
   organizerId?: mongoose.Types.ObjectId;
+  type: "SHIFT" | "EVENT" | "TASK";
+  shiftType?: "morning" | "swing" | "night";
+  status: "DRAFT" | "PUBLISHED" | "COMPLETED";
   createdAt: Date;
   updatedAt: Date;
 }
@@ -280,6 +293,9 @@ const ScheduleEventSchema = new Schema<IScheduleEvent>(
     endsAt: { type: Date, required: true },
     departmentId: { type: Schema.Types.ObjectId, ref: "Department", required: true },
     organizerId: { type: Schema.Types.ObjectId, ref: "Member" },
+    type: { type: String, enum: ["SHIFT", "EVENT", "TASK"], default: "EVENT" },
+    shiftType: { type: String, enum: ["morning", "swing", "night"] },
+    status: { type: String, enum: ["DRAFT", "PUBLISHED", "COMPLETED"], default: "PUBLISHED" },
   },
   { timestamps: true }
 );

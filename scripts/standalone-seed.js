@@ -27,6 +27,11 @@ const MemberSchema = new mongoose.Schema({
   passwordHash: { type: String },
   portalToken: { type: String, required: true, unique: true },
   departmentId: { type: mongoose.Schema.Types.ObjectId, ref: "Department" },
+  skills: [{ type: String }],
+  availability: [{
+    dayOfWeek: { type: Number, min: 0, max: 6 },
+    preferredShifts: [{ type: String, enum: ["morning", "swing", "night"] }]
+  }]
 }, { timestamps: true });
 
 const RoomSchema = new mongoose.Schema({

@@ -31,7 +31,7 @@ export async function GET() {
 
     return apiJson(withCounts);
   } catch (error: any) {
-    return apiError(error.message, 401);
+    return apiError(error.message, error.message === "Forbidden" ? 403 : 401);
   }
 }
 

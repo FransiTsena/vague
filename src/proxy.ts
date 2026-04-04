@@ -38,7 +38,7 @@ export default withAuth(
     }
     
     // Dept Head / Admin routes
-    if (req.nextUrl.pathname.startsWith("/admin/staffing") && !["ADMIN", "DEPARTMENT_HEAD"].includes(role)) {
+    if ((req.nextUrl.pathname.startsWith("/admin/staffing") || req.nextUrl.pathname.startsWith("/admin/scheduling")) && !["ADMIN", "DEPARTMENT_HEAD"].includes(role)) {
        return NextResponse.redirect(new URL("/", req.url));
     }
 

@@ -120,83 +120,83 @@ export default function PricingDemo() {
   const isPriceUp = priceDiff > 0;
 
   return (
-    <Section id="pricing-demo" className={`pb-12 ${isDark ? "bg-[#0a0a0a]" : "bg-white"}`}>
+    <Section id="pricing-demo" className="pb-12 bg-background">
       <div className="max-w-6xl mx-auto px-4 md:px-8">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-16 border-b border-neutral-200 dark:border-neutral-800 pb-8 gap-8">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-16 border-b border-neutral-100 dark:border-neutral-800 pb-8 gap-8">
           <div className="space-y-4">
-            <h2 className="font-serif text-3xl text-neutral-900 dark:text-white tracking-wide">
+            <h2 className="font-serif text-3xl text-foreground tracking-tight">
               Revenue Yield Target
             </h2>
-            <p className="text-neutral-500 max-w-lg text-sm leading-relaxed">
+            <p className="text-neutral-500 max-w-lg text-sm leading-relaxed font-light">
               Real-time algorithm yielding dynamic pricing bounds. Recommendations are calibrated on lead time velocity, real-time parity, and unconstrained demand.
             </p>
           </div>
           <div className="flex flex-col gap-3 min-w-[200px]">
-            <Button onClick={fetchPricing} className={`w-full text-xs tracking-widest uppercase transition-all ${loading ? "opacity-50" : ""} bg-neutral-900 text-white hover:bg-neutral-800 dark:bg-white dark:text-black dark:hover:bg-neutral-200`}>
+            <Button onClick={fetchPricing} className={`w-full text-[10px] tracking-[0.2em] font-bold uppercase transition-all ${loading ? "opacity-50" : ""} bg-foreground text-background hover:opacity-90 rounded-none h-12`}>
               {loading ? "Calculating..." : "Query Engine"}
             </Button>
-            <button onClick={handleSeed} className="text-[10px] uppercase tracking-widest text-neutral-400 hover:text-neutral-800 dark:hover:text-white transition-colors text-right">
+            <button onClick={handleSeed} className="text-[9px] uppercase tracking-[0.2em] text-neutral-500 hover:text-foreground transition-colors text-right font-mono">
               {seeding ? "Generating..." : "Seed Baseline Data"}
             </button>
           </div>
         </div>
 
         {seedMessage && (
-          <div className="mb-12 p-4 text-xs tracking-widest font-mono uppercase text-center border-b border-neutral-200 dark:border-neutral-800 text-neutral-500">
+          <div className="mb-12 p-4 text-[10px] tracking-[0.2em] font-mono uppercase text-center border-b border-neutral-100 dark:border-neutral-800 text-neutral-500">
             {seedMessage}
           </div>
         )}
 
         {pricing ? (
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-16">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 lg:gap-24">
             
             {/* Left Column: Output & Controls */}
             <div className="lg:col-span-4 space-y-12">
               {/* Main Price Card */}
-              <div className="space-y-6">
-                <div className="flex justify-between items-baseline border-b border-neutral-200 dark:border-neutral-800 pb-2">
-                  <div className="text-xs font-mono uppercase tracking-widest text-neutral-500">Asset Target</div>
-                  <div className="text-sm font-medium text-neutral-900 dark:text-neutral-100">{pricing.roomType} Rate</div>
+              <div className="space-y-8">
+                <div className="flex justify-between items-baseline border-b border-neutral-100 dark:border-neutral-800 pb-2">
+                  <div className="text-[10px] font-mono uppercase tracking-[0.2em] text-neutral-400 dark:text-neutral-500">Asset Target</div>
+                  <div className="text-xs font-bold text-foreground tracking-wide">{pricing.roomType} Rate</div>
                 </div>
 
-                <div className="flex flex-col space-y-2">
-                  <div className="flex justify-between items-center text-sm text-neutral-600 dark:text-neutral-400">
-                    <span>Base Parity</span> 
-                    <span className="font-mono text-neutral-900 dark:text-neutral-100">${pricing.basePrice.toFixed(2)}</span>
+                <div className="flex flex-col space-y-4">
+                  <div className="flex justify-between items-center text-xs text-neutral-500 dark:text-neutral-400">
+                    <span className="font-light">Base Parity</span> 
+                    <span className="font-mono text-foreground">${pricing.basePrice.toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between items-end pt-4">
-                    <span className="text-[10px] uppercase tracking-widest text-neutral-500 dark:text-neutral-400">Dynamic Yield</span>
-                    <span className="font-serif text-5xl text-neutral-900 dark:text-white tracking-tight">${currentDynamicPrice.toFixed(2)}</span>
+                    <span className="text-[10px] uppercase tracking-[0.2em] font-bold text-neutral-500 dark:text-neutral-400 mb-2">Dynamic Yield</span>
+                    <span className="font-serif text-6xl text-foreground tracking-tighter">${currentDynamicPrice.toFixed(2)}</span>
                   </div>
-                  <div className="flex justify-end pt-1">
-                    <span className={`text-[10px] font-mono tracking-widest uppercase ${isPriceUp ? "text-neutral-500 dark:text-neutral-400" : "text-neutral-600 dark:text-neutral-500"}`}>
+                  <div className="flex justify-end">
+                    <span className={`text-[10px] font-mono tracking-[0.1em] uppercase px-2 py-0.5 ${isPriceUp ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400" : "bg-neutral-100 dark:bg-neutral-800 text-neutral-400"} font-bold`}>
                       {isPriceUp ? "+ " : "- "}${Math.abs(priceDiff).toFixed(2)} {isPriceUp ? "Premium" : "Discount"}
                     </span>
                   </div>
                 </div>
 
-                <div className="pt-6">
-                  <div className="text-[10px] uppercase tracking-widest text-neutral-500 dark:text-neutral-400 mb-2">Engine Rationale</div>
-                  <div className="text-sm text-neutral-700 dark:text-neutral-400 italic leading-relaxed pl-4 border-l border-neutral-300 dark:border-neutral-800">
+                <div className="pt-8">
+                  <div className="text-[10px] uppercase tracking-[0.2em] font-bold text-neutral-400 dark:text-neutral-500 mb-3">Engine Rationale</div>
+                  <div className="text-xs text-neutral-500 dark:text-neutral-400 italic leading-relaxed pl-6 border-l border-neutral-200 dark:border-neutral-800">
                     &quot;{pricing.aiInsight || "Target demand aligns with historical booking pace. Stabilizing around parity."}&quot;
                   </div>
                 </div>
               </div>
 
               {/* Manager Override Controls */}
-              <div className="pt-8 border-t border-neutral-300 dark:border-neutral-800 space-y-8">
+              <div className="pt-12 border-t border-neutral-100 dark:border-neutral-800 space-y-10">
                 <div className="flex justify-between items-end">
-                  <h3 className="text-xs font-mono uppercase tracking-widest text-neutral-500 dark:text-neutral-400">
+                  <h3 className="text-[10px] font-mono uppercase tracking-[0.2em] font-bold text-neutral-400 dark:text-neutral-500">
                     Revenue Control
                   </h3>
-                  {hasSavedOverride && <span className="text-[10px] uppercase tracking-widest text-neutral-900 dark:text-white">Active</span>}
+                  {hasSavedOverride && <span className="text-[10px] uppercase tracking-[0.2em] font-bold text-emerald-500">Live</span>}
                 </div>
 
-                <div className="space-y-6">
+                <div className="space-y-8">
                   <div>
-                    <div className="flex justify-between mb-4 text-xs font-medium">
-                      <span className="text-neutral-700 dark:text-neutral-400">Yield Multiplier Override</span>
-                      <span className="font-mono text-neutral-900 dark:text-white">
+                    <div className="flex justify-between mb-6 text-[10px] tracking-widest uppercase font-bold text-foreground">
+                      <span>Yield Multiplier Override</span>
+                      <span className="font-mono">
                         {managerOverride.toFixed(2)}x
                       </span>
                     </div>
@@ -212,21 +212,21 @@ export default function PricingDemo() {
                         setIsOverrideMode(true);
                         setHasSavedOverride(false);
                       }}
-                      className="w-full h-[1px] bg-neutral-300 dark:bg-neutral-700 appearance-none cursor-pointer outline-none [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:bg-neutral-900 [&::-webkit-slider-thumb]:dark:bg-white [&::-webkit-slider-thumb]:rounded-full"
+                      className="w-full h-[1px] bg-neutral-200 dark:bg-neutral-700 appearance-none cursor-pointer outline-none [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:bg-foreground [&::-webkit-slider-thumb]:rounded-none [&::-webkit-slider-thumb]:ring-4 [&::-webkit-slider-thumb]:ring-background"
                     />
-                    <div className="flex justify-between text-[10px] text-neutral-500 dark:text-neutral-400 mt-4 uppercase tracking-widest">
-                      <span>Floor (0.5x)</span>
-                      <span>Parity (1.0x)</span>
-                      <span>Ceiling (2.0x)</span>
+                    <div className="flex justify-between text-[9px] text-neutral-400 dark:text-neutral-400 mt-6 font-mono uppercase tracking-widest">
+                      <span>Floor</span>
+                      <span>Parity</span>
+                      <span>Ceiling</span>
                     </div>
                   </div>
 
                   <button 
                     onClick={handleSaveOverride} 
                     disabled={saving || (!isOverrideMode && !hasSavedOverride)}
-                    className={`w-full py-3 text-[10px] tracking-widest uppercase transition-all border ${hasSavedOverride ? "border-neutral-900 text-neutral-900 dark:border-white dark:text-white" : (isOverrideMode ? "bg-neutral-100 text-neutral-900 border-transparent dark:bg-neutral-800 dark:text-white hover:bg-neutral-200 dark:hover:bg-neutral-700" : "border-neutral-300 text-neutral-500 dark:border-neutral-800 cursor-not-allowed")}`}
+                    className={`w-full py-4 text-[10px] tracking-[0.2em] font-bold uppercase transition-all border ${hasSavedOverride ? "bg-foreground text-background border-transparent" : (isOverrideMode ? "bg-foreground text-background border-transparent hover:opacity-90 shadow-xl" : "border-neutral-100 dark:border-neutral-800 text-neutral-400 cursor-not-allowed")}`}
                   >
-                    {saving ? "Publishing..." : (hasSavedOverride ? "Yield Deployed" : "Publish Yield")}
+                    {saving ? "Publishing..." : (hasSavedOverride ? "Yield Committed" : "Publish Yield Matrix")}
                   </button>
                 </div>
               </div>
@@ -234,12 +234,12 @@ export default function PricingDemo() {
 
             {/* Right Column: Reasoning / Multipliers breakdown */}
             <div className="lg:col-span-8">
-              <div className="flex justify-between items-baseline mb-12 border-b border-neutral-200 dark:border-neutral-800 pb-2">
-                <h3 className="text-xs font-mono uppercase tracking-widest text-neutral-500">
+              <div className="flex justify-between items-baseline mb-12 border-b border-neutral-100 dark:border-neutral-800 pb-2">
+                <h3 className="text-[10px] font-mono uppercase tracking-[0.2em] font-bold text-neutral-400 dark:text-neutral-500">
                   Matrix Decomposition
                 </h3>
-                <div className="text-[10px] tracking-widest uppercase text-neutral-400">
-                    Base Matrix: <span className="font-mono text-neutral-900 dark:text-white">{pricing.factors.ruleMultiplier.toFixed(3)}x</span>
+                <div className="text-[10px] tracking-[0.2em] uppercase text-neutral-400">
+                    Matrix Base: <span className="font-mono text-foreground font-bold">{pricing.factors.ruleMultiplier.toFixed(3)}x</span>
                 </div>
               </div>
 
@@ -247,46 +247,46 @@ export default function PricingDemo() {
                 
                 {/* Individual Factors List */}
                 <div className="grid grid-cols-12 gap-4 py-4 border-b border-neutral-100 dark:border-neutral-800/50 items-center">
-                  <div className="col-span-4 text-[10px] font-bold text-neutral-400 tracking-wider uppercase">Constraint</div>
-                  <div className="col-span-6 text-xs text-neutral-600 dark:text-neutral-400">Observation</div>
-                  <div className="col-span-2 text-xs font-mono text-right text-neutral-900 dark:text-white">Factor</div>
+                  <div className="col-span-4 text-[10px] font-bold text-neutral-400 tracking-[0.2em] uppercase">Constraint</div>
+                  <div className="col-span-6 text-[10px] font-bold text-neutral-400 tracking-[0.2em] uppercase">Observation</div>
+                  <div className="col-span-2 text-[10px] font-bold text-right text-neutral-400 tracking-[0.2em] uppercase">Factor</div>
                 </div>
 
-                <div className="grid grid-cols-12 gap-4 py-6 border-b border-neutral-100 dark:border-neutral-800/50 group hover:bg-neutral-100 dark:hover:bg-neutral-900/50 transition-colors">
-                  <div className="col-span-4 text-[10px] font-mono text-neutral-500 tracking-wider uppercase">Lead Time</div>
-                  <div className="col-span-6 text-sm text-neutral-800 dark:text-neutral-200">{pricing.factors.leadDays} days to arrival</div>
-                  <div className="col-span-2 text-sm font-mono text-right text-neutral-900 dark:text-white">{pricing.factors.leadTimeMultiplier.toFixed(2)}x</div>
+                <div className="grid grid-cols-12 gap-4 py-8 border-b border-neutral-100 dark:border-neutral-800/50 group hover:bg-neutral-50/50 dark:hover:bg-neutral-900/50 transition-colors">
+                  <div className="col-span-4 text-[10px] font-mono text-neutral-400 dark:text-neutral-500 tracking-widest uppercase">Lead Time</div>
+                  <div className="col-span-6 text-sm text-foreground font-light tracking-wide">{pricing.factors.leadDays} days to arrival</div>
+                  <div className="col-span-2 text-sm font-mono text-right text-foreground font-bold">{pricing.factors.leadTimeMultiplier.toFixed(2)}x</div>
                 </div>
 
-                <div className="grid grid-cols-12 gap-4 py-6 border-b border-neutral-100 dark:border-neutral-800/50 group hover:bg-neutral-100 dark:hover:bg-neutral-900/50 transition-colors">
-                  <div className="col-span-4 text-[10px] font-mono text-neutral-500 tracking-wider uppercase">Velocity Pace</div>
-                  <div className="col-span-6 text-sm text-neutral-800 dark:text-neutral-200">Trajectory deviation vs 30-day unconstrained mean</div>
-                  <div className="col-span-2 text-sm font-mono text-right text-neutral-900 dark:text-white">{pricing.factors.demandTrendMultiplier.toFixed(2)}x</div>
+                <div className="grid grid-cols-12 gap-4 py-8 border-b border-neutral-100 dark:border-neutral-800/50 group hover:bg-neutral-50/50 dark:hover:bg-neutral-900/50 transition-colors">
+                  <div className="col-span-4 text-[10px] font-mono text-neutral-400 dark:text-neutral-500 tracking-widest uppercase">Velocity Pace</div>
+                  <div className="col-span-6 text-sm text-foreground font-light tracking-wide">Trajectory deviation vs unconstrained mean</div>
+                  <div className="col-span-2 text-sm font-mono text-right text-foreground font-bold">{pricing.factors.demandTrendMultiplier.toFixed(2)}x</div>
                 </div>
 
-                <div className="grid grid-cols-12 gap-4 py-6 border-b border-neutral-100 dark:border-neutral-800/50 group hover:bg-neutral-100 dark:hover:bg-neutral-900/50 transition-colors">
-                  <div className="col-span-4 text-[10px] font-mono text-neutral-500 tracking-wider uppercase">Seasonality</div>
-                  <div className="col-span-6 text-sm text-neutral-800 dark:text-neutral-200">Curve profile over target stay dates</div>
-                  <div className="col-span-2 text-sm font-mono text-right text-neutral-900 dark:text-white">{(pricing.factors.seasonalityMultiplier * pricing.factors.weekendMultiplier).toFixed(2)}x</div>
+                <div className="grid grid-cols-12 gap-4 py-8 border-b border-neutral-100 dark:border-neutral-800/50 group hover:bg-neutral-50/50 dark:hover:bg-neutral-900/50 transition-colors">
+                  <div className="col-span-4 text-[10px] font-mono text-neutral-400 dark:text-neutral-500 tracking-widest uppercase">Seasonality</div>
+                  <div className="col-span-6 text-sm text-foreground font-light tracking-wide">Historical curve profile mapping</div>
+                  <div className="col-span-2 text-sm font-mono text-right text-foreground font-bold">{(pricing.factors.seasonalityMultiplier * pricing.factors.weekendMultiplier).toFixed(2)}x</div>
                 </div>
 
-                <div className="grid grid-cols-12 gap-4 py-6 border-b border-neutral-100 dark:border-neutral-800/50 group hover:bg-neutral-100 dark:hover:bg-neutral-900/50 transition-colors">
-                  <div className="col-span-4 text-[10px] font-mono text-neutral-500 tracking-wider uppercase">Event Flag</div>
-                  <div className="col-span-6 text-sm text-neutral-800 dark:text-neutral-200">{pricing.factors.eventName || "Standard Parity"}</div>
-                  <div className="col-span-2 text-sm font-mono text-right text-neutral-900 dark:text-white">{pricing.factors.eventMultiplier.toFixed(2)}x</div>
+                <div className="grid grid-cols-12 gap-4 py-8 border-b border-neutral-100 dark:border-neutral-800/50 group hover:bg-neutral-50/50 dark:hover:bg-neutral-900/50 transition-colors">
+                  <div className="col-span-4 text-[10px] font-mono text-neutral-400 dark:text-neutral-500 tracking-widest uppercase">Event Flag</div>
+                  <div className="col-span-6 text-sm text-foreground font-light tracking-wide truncate">{pricing.factors.eventName || "Standard Parity"}</div>
+                  <div className="col-span-2 text-sm font-mono text-right text-foreground font-bold">{pricing.factors.eventMultiplier.toFixed(2)}x</div>
                 </div>
                 
-                <div className="grid grid-cols-12 gap-4 py-6 border-b border-neutral-100 dark:border-neutral-800/50 group hover:bg-neutral-100 dark:hover:bg-neutral-900/50 transition-colors">
-                  <div className="col-span-4 text-[10px] font-mono text-neutral-500 tracking-wider uppercase">Market Sentiment</div>
-                  <div className="col-span-6 text-sm text-neutral-800 dark:text-neutral-200">Inferred competitor elasticity variance</div>
-                  <div className="col-span-2 text-sm font-mono text-right text-neutral-900 dark:text-white">{pricing.factors.volatilityMultiplier.toFixed(2)}x</div>
+                <div className="grid grid-cols-12 gap-4 py-8 border-b border-neutral-100 dark:border-neutral-800/50 group hover:bg-neutral-50/50 dark:hover:bg-neutral-900/50 transition-colors">
+                  <div className="col-span-4 text-[10px] font-mono text-neutral-400 dark:text-neutral-500 tracking-widest uppercase">Market Sentiment</div>
+                  <div className="col-span-6 text-sm text-foreground font-light tracking-wide">Competitor elasticity variance</div>
+                  <div className="col-span-2 text-sm font-mono text-right text-foreground font-bold">{pricing.factors.volatilityMultiplier.toFixed(2)}x</div>
                 </div>
 
               </div>
               
-              <div className="mt-12">
-                <p className="text-[10px] text-neutral-400 uppercase tracking-widest leading-loose text-justify w-full font-mono">
-                  Engine Architecture: The deterministic ruleset computes a baseline matrix aggregating curve seasonality, unconstrained inventory pressure, and lead-time elasticity. Concurrently, data algorithms parse external market volatility and anomalous demand arrays over the target horizon to define the final coefficient trajectory. Output bounds are strictly clamped at 0.65x — 2.50x to ensure brand consistency.
+              <div className="mt-16">
+                <p className="text-[9px] text-neutral-400 dark:text-neutral-500 uppercase tracking-[0.2em] leading-relaxed w-full font-mono font-light text-center border border-neutral-100 dark:border-neutral-800 p-6 italic">
+                  Deterministic ruleset aggregates seasonality & inventory pressure. Market algorithms parse volatility over target horizon.
                 </p>
               </div>
             </div>

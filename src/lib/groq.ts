@@ -70,6 +70,12 @@ interface SmartSchedulePrediction {
   suggestedStaffCount: number;
   reasoning: string;
   riskLevel: "low" | "medium" | "high";
+  suggestedShifts?: {
+    title: string;
+    startTime: string; // HH:mm
+    endTime: string;   // HH:mm
+    description: string;
+  }[];
 }
 
 export async function getSmartStaffingPrediction(
@@ -79,6 +85,7 @@ export async function getSmartStaffingPrediction(
     upcomingBookings: number;
     activeEvents: string[];
     historicalDemand: string;
+    availableStaff: { name: string; id: any; role?: string }[];
   }
 ): Promise<SmartSchedulePrediction | null> {
   if (!process.env.GROQ_API_KEY) return null;
@@ -96,7 +103,16 @@ export async function getSmartStaffingPrediction(
           role: "system",
           content: `You are a hotel workforce optimization AI. Calculate ideal staffing for a given department. 
           Consider occupancy, event intensity, and service standards. 
-          Return ONLY JSON: { "suggestedStaffCount": number, "reasoning": "string", "riskLevel": "low|medium|high" }.`
+          Return ONLY JSON: { 
+            "suggestedStaffCount": number, 
+            "reasoning": "string", 
+            "riskLevel": "low|medium|high",
+            "suggestedShifts": [
+              { "title": "Shift Name", "startTime": "HH:mm", "endTime": "HH:mm", "description": "Quick shift goal", "assignedStaffId": "staff-mongo-id" }
+            ]
+          }.
+          Available Staff to assign: ${JSON.stringify(context.availableStaff)}.
+          Assign specific staff members to the proposed shifts where it makes sense.`
         },
         {
           role: "user",

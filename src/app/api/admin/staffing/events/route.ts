@@ -85,3 +85,20 @@ export async function POST(req: NextRequest) {
     return apiError(error.message, 401);
   }
 }
+
+export async function DELETE(req: NextRequest) {
+  try {
+    await dbConnect();
+    await requireUser(["ADMIN", "DEPARTMENT_HEAD"]);
+    
+    const id = req.nextUrl.searchParams.get("id");
+    if (!id) return apiError("id is required", 400);
+
+    const result = await ScheduleEvent.findByIdAndDelete(id);
+    if (!result) return apiError("Event not found", 404);
+
+    return apiJson({ success: true });
+  } catch (error: any) {
+    return apiError(error.message, 500);
+  }
+}

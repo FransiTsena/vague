@@ -48,12 +48,15 @@ export async function POST(req: NextRequest) {
     const occupancyRate = totalRooms > 0 ? (bookedRooms / totalRooms) * 100 : 0;
 
     // 2. Call AI Engine (using Groq)
+    const members = await Member.find({ departmentId }).select("name _id role");
+    
     const prediction = await getSmartStaffingPrediction({
       department: department.name,
       occupancyRate,
       upcomingBookings: bookedRooms,
       activeEvents: events.map(e => e.title),
-      historicalDemand: "High Season" // In a real app, this would be computed from history
+      historicalDemand: "High Season",
+      availableStaff: members.map(m => ({ name: m.name, id: m._id, role: m.role }))
     });
 
     if (!prediction) {
@@ -62,7 +65,12 @@ export async function POST(req: NextRequest) {
         suggestedStaffCount: Math.ceil(bookedRooms / 10), 
         reasoning: "Rule-based fallback: 1 staff per 10 booked rooms.",
         riskLevel: "medium",
-        currentStaff: currentAssignments
+        currentStaff: currentAssignments,
+        suggestedShifts: [
+          { title: "Morning Shift", startTime: "07:00", endTime: "15:00", description: "Standard morning coverage" },
+          { title: "Swing Shift", startTime: "15:00", endTime: "23:00", description: "Afternoon/Evening peak" },
+          { title: "Night Shift", startTime: "23:00", endTime: "07:00", description: "Overnight essentials" }
+        ]
       });
     }
 

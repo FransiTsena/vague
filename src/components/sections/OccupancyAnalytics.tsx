@@ -80,26 +80,26 @@ export default function OccupancyAnalytics() {
   if (!data.length) return null;
 
   return (
-    <Section id="ai-analytics" className={`pb-12 ${isDark ? "bg-[#0a0a0a]" : "bg-white"}`}>
+    <Section id="ai-analytics" className="pb-12 bg-background">
       <div className="max-w-6xl mx-auto px-4 md:px-8 relative">
-        <div className="flex flex-col md:flex-row items-baseline justify-between gap-3 mb-12 border-b border-neutral-200 dark:border-neutral-800 pb-8">
+        <div className="flex flex-col md:flex-row items-baseline justify-between gap-3 mb-16 border-b border-neutral-100 dark:border-neutral-800 pb-12">
           <div className="space-y-4">
-            <h2 className="font-serif text-3xl text-neutral-900 dark:text-white tracking-wide">
+            <h2 className="font-serif text-3xl text-foreground tracking-tight">
               Occupancy Projections
             </h2>
-            <p className="text-neutral-500 max-w-lg text-sm leading-relaxed">
-              Seven-day forward forecasting, highlighting velocity adjustments and unconstrained demand pressure. Click any day for deterministic breakdown.
+            <p className="text-neutral-500 max-w-lg text-sm leading-relaxed font-light">
+              Seven-day forward forecasting, highlighting velocity adjustments and unconstrained demand pressure.
             </p>
           </div>
           <div className="hidden md:flex flex-col items-end gap-2">
-            <span className="text-[10px] tracking-widest uppercase text-neutral-400">Horizon Matrix</span>
-            <span className="text-sm font-mono text-neutral-900 dark:text-white flex items-center gap-2">
-              <span className="w-1.5 h-1.5 bg-neutral-900 dark:bg-white rounded-full"></span> Next 7 Days
+            <span className="text-[10px] tracking-[0.2em] uppercase text-neutral-400 font-bold">Horizon Matrix</span>
+            <span className="text-xs font-mono text-foreground flex items-center gap-2 font-bold tracking-widest">
+              <span className="w-1 h-1 bg-emerald-500 rounded-full"></span> 7 DAY RUNWAY
             </span>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-7 gap-6 relative">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-7 gap-10 relative">
           {data.map((day, index) => {
             const date = new Date(day.date);
             const isToday = index === 0;
@@ -110,42 +110,36 @@ export default function OccupancyAnalytics() {
               <div 
                 key={day.date} 
                 onClick={() => setSelectedDay(isSelected ? null : day)}
-                className={`flex flex-col h-full border-b pb-6 transition-all cursor-pointer group
-                  ${isSelected ? "border-neutral-900 dark:border-white scale-[1.02]" : isToday ? "border-neutral-400 dark:border-neutral-600" : "border-neutral-200 dark:border-neutral-800 hover:border-neutral-400 dark:hover:border-neutral-600"}
+                className={`flex flex-col h-full border-b pb-8 transition-all cursor-pointer group
+                  ${isSelected ? "border-foreground" : isToday ? "border-neutral-400 dark:border-neutral-600" : "border-neutral-100 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-600"}
                 `}
               >
-                <div className="flex justify-between items-start mb-8">
-                  <div className={`text-[10px] font-mono tracking-widest uppercase transition-colors ${isSelected ? "text-neutral-900 dark:text-white font-bold" : isToday ? "text-neutral-700 dark:text-neutral-300 font-bold" : "text-neutral-400 group-hover:text-neutral-600 dark:group-hover:text-neutral-300"}`}>
-                    {isToday ? "Today" : date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}
+                <div className="flex justify-between items-start mb-12">
+                  <div className={`text-[10px] font-mono tracking-[0.1em] uppercase transition-colors ${isSelected ? "text-foreground font-bold" : isToday ? "text-foreground font-bold" : "text-neutral-300 dark:text-neutral-500 group-hover:text-foreground"}`}>
+                    {isToday ? "Current" : date.toLocaleDateString('en-US', { weekday: 'short' })}
                   </div>
-                  {isPeak && <span className={`w-1.5 h-1.5 rounded-full ${isSelected ? "bg-neutral-900 dark:bg-white" : "bg-neutral-300 dark:bg-neutral-600"}`}></span>}
+                  {isPeak && <span className={`w-1 h-1 rounded-full ${isSelected ? "bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" : "bg-neutral-200 dark:bg-neutral-700"}`}></span>}
                 </div>
                 
                 {/* Minimalist Occupancy visualization */}
-                <div className="relative h-40 w-[2px] bg-neutral-200 dark:bg-neutral-800 mx-auto mb-8 flex flex-col justify-end">
+                <div className="relative h-48 w-[1px] bg-neutral-100 dark:bg-neutral-800 mx-auto mb-10 flex flex-col justify-end">
                   <div 
-                    className={`w-full transition-all duration-1000 ease-out ${isSelected ? "bg-neutral-900 dark:bg-white" : "bg-neutral-400 dark:bg-neutral-500"}`}
+                    className={`w-full transition-all duration-1000 ease-out shadow-[0_0_15px_rgba(0,0,0,0.05)] ${isSelected ? "bg-foreground scale-x-[3]" : "bg-neutral-300 dark:bg-neutral-600"}`}
                     style={{ height: `${Math.max(5, day.occupancy)}%` }}
                   ></div>
-                  <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 -ml-6 text-xs font-mono transform -rotate-90 transition-colors ${isSelected ? "text-neutral-900 dark:text-white" : "text-neutral-400"}`}>
+                  <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 -ml-8 text-[10px] font-mono transform -rotate-90 transition-colors tracking-widest ${isSelected ? "text-foreground font-bold" : "text-neutral-400 dark:text-neutral-600"}`}>
                     {Math.round(day.occupancy)}%
                   </div>
                 </div>
 
-                <div className="mt-auto space-y-4 pt-4 border-t border-neutral-100 dark:border-neutral-900/50">
-                  <div className="flex justify-between items-center text-[10px] uppercase tracking-widest text-neutral-500 dark:text-neutral-400">
+                <div className="mt-auto space-y-4 pt-6">
+                  <div className="flex justify-between items-center text-[9px] uppercase tracking-[0.2em] text-neutral-400 font-bold">
                     <span>Rooms</span>
-                    <span className={`font-mono ${isSelected ? "text-neutral-900 dark:text-white font-bold" : "text-neutral-700 dark:text-neutral-300"}`}>{day.booked}/{day.total}</span>
+                    <span className={`font-mono ${isSelected ? "text-foreground" : "text-neutral-500"}`}>{day.booked}</span>
                   </div>
-                  <div className="flex justify-between items-center text-[10px] uppercase tracking-widest text-neutral-500 dark:text-neutral-400">
-                    <span>Demand</span>
-                    <span className={`font-mono ${isSelected ? "text-neutral-900 dark:text-white font-bold" : "text-neutral-700 dark:text-neutral-400"}`}>
-                      {day.predictedDemand}
-                    </span>
-                  </div>
-                  <div className="flex justify-between items-center text-[10px] uppercase tracking-widest text-neutral-500 dark:text-neutral-400">
-                    <span>Pace Adj</span>
-                    <span className={`font-mono ${isSelected ? "text-neutral-900 dark:text-white font-bold" : "text-neutral-700 dark:text-neutral-400"}`}>
+                  <div className="flex justify-between items-center text-[9px] uppercase tracking-[0.2em] text-neutral-400 font-bold">
+                    <span>Pace</span>
+                    <span className={`font-mono ${isSelected ? "text-foreground" : day.aiPaceAdjustment! > 0 ? "text-emerald-500" : "text-neutral-500"}`}>
                       {day.aiPaceAdjustment! > 0 ? "+" : ""}{day.aiPaceAdjustment}%
                     </span>
                   </div>
