@@ -84,26 +84,30 @@ export default function OccupancyAnalytics() {
   if (!data.length) return null;
 
   return (
-    <Section id="ai-analytics" className="pb-12 bg-background">
-      <div className="max-w-6xl mx-auto px-4 md:px-8 relative">
-        <div className="flex flex-col md:flex-row items-baseline justify-between gap-3 mb-16 border-b border-neutral-100 dark:border-neutral-800 pb-12">
+    <Section id="ai-analytics" className="pb-12 bg-transparent">
+      <div className="max-w-7xl mx-auto px-4 md:px-8 relative">
+        <div className="flex flex-col md:flex-row items-baseline justify-between gap-6 mb-20 md:mb-24 border-b border-neutral-100 dark:border-white/5 pb-10">
           <div className="space-y-4">
-            <h2 className="font-serif text-3xl text-foreground tracking-tight">
-              Occupancy Projections
+            <div className="flex items-center gap-3 opacity-40">
+              <TrendingUp className="w-3 h-3 text-emerald-500" />
+              <span className="text-[10px] font-bold tracking-[0.4em] uppercase">Yield Performance</span>
+            </div>
+            <h2 className="font-serif text-4xl md:text-5xl font-light text-foreground tracking-tight">
+              Occupancy <span className="italic text-neutral-400 dark:text-neutral-500">Projections</span>
             </h2>
-            <p className="text-neutral-500 max-w-lg text-sm leading-relaxed font-light">
-              Seven-day forward forecasting, highlighting velocity adjustments and unconstrained demand pressure.
+            <p className="text-neutral-500 dark:text-neutral-400 max-w-xl text-sm md:text-base leading-relaxed font-light">
+              Seven-day forward forecasting, highlighting velocity adjustments and unconstrained demand pressure on resort inventory.
             </p>
           </div>
-          <div className="hidden md:flex flex-col items-end gap-2">
-            <span className="text-[10px] tracking-[0.2em] uppercase text-neutral-400 font-bold">Horizon Matrix</span>
-            <span className="text-xs font-mono text-foreground flex items-center gap-2 font-bold tracking-widest">
-              <span className="w-1 h-1 bg-emerald-500 rounded-full"></span> 7 DAY RUNWAY
+          <div className="hidden md:flex flex-col items-end gap-3 grayscale opacity-60">
+            <span className="text-[10px] tracking-[0.3em] uppercase text-neutral-400 font-bold">Horizon Matrix</span>
+            <span className="text-[10px] font-mono text-foreground flex items-center gap-3 font-medium tracking-widest border border-current px-3 py-1">
+              7 DAY RUNWAY
             </span>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-7 gap-10 relative">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-12 md:gap-8 relative">
           {data.map((day, index) => {
             const date = new Date(day.date);
             const isToday = index === 0;
@@ -114,36 +118,36 @@ export default function OccupancyAnalytics() {
               <div 
                 key={day.date} 
                 onClick={() => setSelectedDay(isSelected ? null : day)}
-                className={`flex flex-col h-full border-b pb-8 transition-all cursor-pointer group
-                  ${isSelected ? "border-foreground" : isToday ? "border-neutral-400 dark:border-neutral-600" : "border-neutral-100 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-600"}
+                className={`flex flex-col h-full border-b pb-12 transition-all cursor-pointer group relative
+                  ${isSelected ? "border-foreground" : isToday ? "border-neutral-400 dark:border-white/20" : "border-neutral-100 dark:border-white/5 hover:border-neutral-300 dark:hover:border-white/30"}
                 `}
               >
-                <div className="flex justify-between items-start mb-12">
-                  <div className={`text-[10px] font-mono tracking-[0.1em] uppercase transition-colors ${isSelected ? "text-foreground font-bold" : isToday ? "text-foreground font-bold" : "text-neutral-300 dark:text-neutral-500 group-hover:text-foreground"}`}>
+                <div className="flex justify-between items-start mb-16">
+                  <div className={`text-[11px] font-sans tracking-[0.2em] uppercase transition-colors ${isSelected ? "text-foreground font-bold" : isToday ? "text-foreground font-bold underline underline-offset-8" : "text-neutral-300 dark:text-neutral-500 group-hover:text-foreground"}`}>
                     {isToday ? "Current" : date.toLocaleDateString('en-US', { weekday: 'short' })}
                   </div>
-                  {isPeak && <span className={`w-1 h-1 rounded-full ${isSelected ? "bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" : "bg-neutral-200 dark:bg-neutral-700"}`}></span>}
+                  {isPeak && <span className={`w-1 h-1 rounded-full ${isSelected ? "bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" : "bg-neutral-200 dark:bg-white/10"}`}></span>}
                 </div>
                 
                 {/* Minimalist Occupancy visualization */}
-                <div className="relative h-48 w-2 bg-neutral-100 dark:bg-neutral-800 mx-auto mb-10 flex flex-col justify-end rounded-full overflow-hidden">
+                <div className="relative h-64 w-[1px] bg-neutral-100 dark:bg-white/10 mx-auto mb-12 flex flex-col justify-end overflow-visible">
                   <div 
-                    className={`w-full transition-all duration-1000 ease-out shadow-[0_0_15px_rgba(0,0,0,0.05)] ${isSelected ? "bg-emerald-500" : isPeak ? "bg-amber-500" : "bg-neutral-400 dark:bg-neutral-600"}`}
+                    className={`w-3 -ml-1 transition-all duration-1000 ease-out shadow-[0_0_20px_rgba(0,0,0,0.05)] ${isSelected ? "bg-foreground" : isPeak ? "bg-amber-500" : "bg-neutral-300 dark:bg-white/30"}`}
                     style={{ height: `${Math.max(8, day.occupancy)}%` }}
                   ></div>
-                  <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 -ml-10 text-[10px] font-mono transform -rotate-90 transition-colors tracking-widest ${isSelected ? "text-foreground font-bold" : "text-neutral-400 dark:text-neutral-500"}`}>
+                  <div className={`absolute top-1/2 left-6 text-[10px] font-mono transition-colors tracking-[0.2em] transform -translate-y-1/2 ${isSelected ? "text-foreground font-bold" : "text-neutral-400 dark:text-neutral-600"}`}>
                     {Math.round(day.occupancy)}%
                   </div>
                 </div>
 
-                <div className="mt-auto space-y-4 pt-6">
-                  <div className="flex justify-between items-center text-[9px] uppercase tracking-[0.2em] text-neutral-400 font-bold">
+                <div className="mt-auto space-y-5 pt-8">
+                  <div className="flex justify-between items-center text-[9px] uppercase tracking-[0.3em] text-neutral-400 font-bold">
                     <span>Rooms</span>
-                    <span className={`font-mono ${isSelected ? "text-foreground" : "text-neutral-500"}`}>{day.booked}</span>
+                    <span className={`font-mono transition-colors ${isSelected ? "text-foreground font-black" : "text-neutral-500"}`}>{day.booked}</span>
                   </div>
-                  <div className="flex justify-between items-center text-[9px] uppercase tracking-[0.2em] text-neutral-400 font-bold">
-                    <span>Pace</span>
-                    <span className={`font-mono ${isSelected ? "text-foreground" : day.aiPaceAdjustment! > 0 ? "text-emerald-500" : "text-neutral-500"}`}>
+                  <div className="flex justify-between items-center text-[9px] uppercase tracking-[0.3em] text-neutral-400 font-bold">
+                    <span>Yield</span>
+                    <span className={`font-mono transition-colors ${isSelected ? "text-foreground font-black" : day.aiPaceAdjustment! > 0 ? "text-emerald-500" : "text-neutral-500"}`}>
                       {day.aiPaceAdjustment! > 0 ? "+" : ""}{day.aiPaceAdjustment}%
                     </span>
                   </div>

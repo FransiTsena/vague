@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Section from "@/components/ui/Section";
 import Button from "@/components/ui/Button";
+import { TrendingUp } from "lucide-react";
 
 interface PricingData {
   roomId: string;
@@ -244,23 +245,27 @@ export default function PricingDemo() {
   }, []);
 
   return (
-    <Section id="pricing-demo" className="pb-12 bg-background">
-      <div className="max-w-6xl mx-auto px-4 md:px-8">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-16 border-b border-neutral-100 dark:border-neutral-800 pb-8 gap-8">
-          <div className="space-y-4">
-            <h2 className="font-serif text-3xl text-foreground tracking-tight">
-              Revenue Yield Target
+    <Section id="pricing-demo" className="pb-12 bg-transparent">
+      <div className="max-w-7xl mx-auto px-4 md:px-8">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-20 md:mb-32 border-b border-neutral-100 dark:border-white/10 pb-12 gap-8">
+          <div className="space-y-6">
+            <div className="flex items-center gap-3 opacity-40">
+              <TrendingUp className="w-3 h-3 text-emerald-500" />
+              <span className="text-[10px] font-bold tracking-[0.4em] uppercase">Yield Performance</span>
+            </div>
+            <h2 className="font-serif text-4xl md:text-5xl font-light text-foreground tracking-tight">
+              Revenue <span className="italic text-neutral-400 dark:text-neutral-500">Yield Engine</span>
             </h2>
-            <p className="text-neutral-500 max-w-lg text-sm leading-relaxed font-light">
-              Real-time algorithm yielding dynamic pricing bounds. Recommendations are calibrated on lead time velocity, real-time parity, and unconstrained demand.
+            <p className="text-neutral-500 dark:text-neutral-400 max-w-xl text-sm md:text-base leading-relaxed font-light">
+              Real-time synchronization of room rates and service pricing calibrated on lead time velocity, market parity, and unconstrained demand.
             </p>
           </div>
-          <div className="flex flex-col gap-3 min-w-[200px]">
-            <Button onClick={fetchPricing} className={`w-full text-[10px] tracking-[0.2em] font-bold uppercase transition-all ${loading ? "opacity-50" : ""} bg-foreground text-background hover:opacity-90 rounded-none h-12`}>
-              {loading ? "Calculating..." : "Query Engine"}
+          <div className="flex flex-col gap-4 min-w-[240px]">
+            <Button onClick={fetchPricing} className={`w-full text-[10px] tracking-[0.3em] font-medium uppercase transition-all ${loading ? "opacity-50" : ""} bg-foreground text-background hover:opacity-90 rounded-none h-14 border border-foreground`}>
+              {loading ? "Calculating..." : "Query Intelligence"}
             </Button>
-            <button onClick={handleSeed} className="text-[9px] uppercase tracking-[0.2em] text-neutral-500 hover:text-foreground transition-colors text-right font-mono">
-              {seeding ? "Generating..." : "Seed Baseline Data"}
+            <button onClick={handleSeed} className="text-[9px] uppercase tracking-[0.3em] text-neutral-400 hover:text-foreground transition-colors text-right font-medium">
+              {seeding ? "Generating..." : "Baseline Resync"}
             </button>
           </div>
         </div>
@@ -272,59 +277,59 @@ export default function PricingDemo() {
         )}
 
         {pricing ? (
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 lg:gap-24">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-20 lg:gap-32">
             
             {/* Left Column: Output & Controls */}
-            <div className="lg:col-span-4 space-y-12">
+            <div className="lg:col-span-4 space-y-16">
               {/* Main Price Card */}
-              <div className="space-y-8">
-                <div className="flex justify-between items-baseline border-b border-neutral-100 dark:border-neutral-800 pb-2">
-                  <div className="text-[10px] font-mono uppercase tracking-[0.2em] text-neutral-400 dark:text-neutral-500">Asset Target</div>
-                  <div className="text-xs font-bold text-foreground tracking-wide">{pricing.roomType} Rate</div>
+              <div className="space-y-10">
+                <div className="flex justify-between items-baseline border-b border-neutral-100 dark:border-white/5 pb-4">
+                  <div className="text-[10px] uppercase tracking-[0.4em] text-neutral-400 dark:text-neutral-500 font-bold">Yield Target</div>
+                  <div className="text-[10px] font-bold text-foreground uppercase tracking-[0.2em]">{pricing.roomType} Allocation</div>
                 </div>
 
-                <div className="flex flex-col space-y-4">
-                  <div className="flex justify-between items-center text-xs text-neutral-500 dark:text-neutral-400">
-                    <span className="font-light">Base Parity</span> 
+                <div className="flex flex-col space-y-6">
+                  <div className="flex justify-between items-center text-xs text-neutral-400 dark:text-neutral-500">
+                    <span className="font-light tracking-widest uppercase text-[10px]">Base Parity</span> 
                     <span className="font-mono text-foreground">${pricing.basePrice.toFixed(2)}</span>
                   </div>
-                  <div className="flex justify-between items-end pt-4">
-                    <span className="text-[10px] uppercase tracking-[0.2em] font-bold text-neutral-500 dark:text-neutral-400 mb-2">Dynamic Yield</span>
-                    <span className="font-serif text-6xl text-foreground tracking-tighter">${currentDynamicPrice.toFixed(2)}</span>
+                  <div className="flex justify-between items-end pt-6">
+                    <span className="text-[10px] uppercase tracking-[0.3em] font-bold text-neutral-500 dark:text-neutral-400 mb-3">Neural Rate</span>
+                    <span className="font-serif text-6xl md:text-7xl text-foreground tracking-tighter leading-none">${currentDynamicPrice.toFixed(2)}</span>
                   </div>
                   <div className="flex justify-end">
-                    <span className={`text-[10px] font-mono tracking-[0.1em] uppercase px-2 py-0.5 ${isPriceUp ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400" : "bg-neutral-100 dark:bg-neutral-800 text-neutral-400"} font-bold`}>
-                      {isPriceUp ? "+ " : "- "}${Math.abs(priceDiff).toFixed(2)} {isPriceUp ? "Premium" : "Discount"}
+                    <span className={`text-[10px] font-mono tracking-[0.2em] uppercase px-4 py-2 border ${isPriceUp ? "border-emerald-500/20 text-emerald-600 dark:text-emerald-400" : "border-neutral-100 dark:border-white/10 text-neutral-400"} font-bold`}>
+                      {isPriceUp ? "+ " : "- "}${Math.abs(priceDiff).toFixed(2)} {isPriceUp ? "PREMIUM" : "DISCOUNT"}
                     </span>
                   </div>
                 </div>
 
-                <div className="pt-8">
-                  <div className="text-[10px] uppercase tracking-[0.2em] font-bold text-neutral-400 dark:text-neutral-500 mb-3">Engine Rationale</div>
-                  <div className="text-xs text-neutral-500 dark:text-neutral-400 italic leading-relaxed pl-6 border-l border-neutral-200 dark:border-neutral-800">
+                <div className="pt-10">
+                  <div className="text-[10px] uppercase tracking-[0.3em] font-bold text-neutral-400 dark:text-neutral-500 mb-6">Engine Rationale</div>
+                  <div className="text-sm md:text-base text-neutral-500 dark:text-neutral-400 italic font-light leading-relaxed pl-8 border-l border-neutral-100 dark:border-white/10">
                     &quot;{pricing.aiInsight || "Target demand aligns with historical booking pace. Stabilizing around parity."}&quot;
                   </div>
                 </div>
 
-                <div className="pt-8 border-t border-neutral-100 dark:border-neutral-800">
-                  <div className="flex justify-between items-end mb-5">
-                    <h4 className="text-[10px] font-mono uppercase tracking-[0.2em] font-bold text-neutral-400 dark:text-neutral-500">
-                      All Service Deltas
+                <div className="pt-12 border-t border-neutral-100 dark:border-white/5">
+                  <div className="flex justify-between items-end mb-8">
+                    <h4 className="text-[10px] uppercase tracking-[0.4em] font-bold text-neutral-400 dark:text-neutral-500">
+                      Service Deltas
                     </h4>
-                    <span className="text-[10px] uppercase tracking-[0.2em] text-neutral-400">Floor: -25%</span>
+                    <span className="text-[10px] uppercase tracking-[0.2em] text-neutral-500 opacity-40">Floor: -25%</span>
                   </div>
-                  <div className="space-y-3">
+                  <div className="space-y-4">
                     {servicePricing.map((service) => {
                       const isUp = service.difference >= 0;
                       const label = `${service.service.charAt(0).toUpperCase()}${service.service.slice(1)}`;
                       return (
-                        <div key={service.service} className="grid grid-cols-12 gap-2 items-center text-xs border-b border-neutral-100 dark:border-neutral-800 pb-2">
-                          <span className="col-span-4 uppercase tracking-wide text-neutral-500">{label}</span>
-                          <span className="col-span-4 font-mono text-neutral-500">${service.basePrice.toFixed(2)}</span>
-                          <span className="col-span-4 font-mono text-right">
-                            <span className="text-foreground">${service.dynamicPrice.toFixed(2)}</span>
-                            <span className={`ml-2 ${isUp ? "text-emerald-500" : "text-amber-500"}`}>
-                              {isUp ? "+" : ""}{service.differencePercent.toFixed(1)}%
+                        <div key={service.service} className="grid grid-cols-12 gap-2 items-center text-[10px] border-b border-neutral-100 dark:border-white/5 pb-3">
+                          <span className="col-span-4 uppercase tracking-[0.2em] text-neutral-500 font-bold">{label}</span>
+                          <span className="col-span-4 font-mono text-neutral-400 tracking-tight">${service.basePrice.toFixed(2)}</span>
+                          <span className="col-span-4 font-mono text-right flex items-center justify-end gap-3">
+                            <span className="text-foreground font-black">${service.dynamicPrice.toFixed(2)}</span>
+                            <span className={`${isUp ? "text-emerald-500" : "text-amber-500"} text-[8px] font-black`}>
+                              {isUp ? "▲" : "▼"}{service.differencePercent.toFixed(1)}%
                             </span>
                           </span>
                         </div>
