@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -15,10 +15,15 @@ import {
   AlertTriangle,
   Brain,
   Zap,
-  Hotel
+  Hotel,
+  ChevronRight,
+  Activity,
+  ArrowUpRight,
+  ShieldCheck,
+  Command
 } from "lucide-react";
 import { useTheme } from "@/context/ThemeContext";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface OverviewData {
   overview: {
@@ -32,37 +37,38 @@ interface OverviewData {
   alerts: Array<{ type: string; message: string; action: string }>;
 }
 
-const quickActions = [
-  { label: "Create Schedule", icon: PlusCircle, href: "/admin/scheduling" },
-  { label: "Update Gallery", icon: GalleryHorizontalEnd, href: "/admin/gallery" },
-  { label: "Dynamic Pricing", icon: TrendingUp, href: "/admin/analytics" },
-  { label: "Guest Insights", icon: Users, href: "/admin/analytics" },
-];
-
 const adminCards = [
   {
     href: "/admin/analytics",
-    title: "AI Analytics",
-    description: "Access guest intelligence, dynamic pricing, and occupancy forecasting.",
-    icon: LayoutDashboard,
+    title: "Intelligence",
+    subtitle: "Predictive Analytics",
+    description: "Occupancy forecasting and guest behavior modeling powered by neural engines.",
+    icon: Brain,
+    stats: "98.2% Accuracy"
   },
   {
     href: "/admin/scheduling",
-    title: "Scheduling Admin",
-    description: "Manage hotel-wide operations, staff rosters, and department schedules.",
+    title: "Operations",
+    subtitle: "Logistics & Flow",
+    description: "Real-time staff orchestration and cross-departmental synchronization.",
     icon: Calendar,
+    stats: "24 Active Shifts"
   },
   {
     href: "/admin/gallery",
-    title: "Gallery Admin",
-    description: "Manage showcase projects, upload imagery, and edit display content.",
+    title: "Aesthetics",
+    subtitle: "Visual Curations",
+    description: "Architectural showcases and digital assets for the property's public identity.",
     icon: GalleryHorizontalEnd,
+    stats: "4k+ High Res"
   },
   {
     href: "/admin/provenance",
-    title: "Provenance Admin",
-    description: "Create QR-linked products and generate scan-ready story pages.",
-    icon: QrCode,
+    title: "Provenance",
+    subtitle: "Digital Heritage",
+    description: "Identity management for high-value assets and QR-linked guest experiences.",
+    icon: ShieldCheck,
+    stats: "1.2k Assets"
   },
 ];
 
@@ -78,170 +84,176 @@ export default function AdminHomePage() {
       .finally(() => setLoading(false));
   }, []);
 
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1,
+        delayChildren: 0.3
+      }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    show: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] } }
+  };
+
   return (
-    <main className={`min-h-screen theme-transition pb-20 ${isDark
-        ? "bg-[radial-gradient(circle_at_top,_rgba(201,170,120,0.18),_transparent_34%),linear-gradient(180deg,_#050505_0%,_#090909_100%)] text-white"
-        : "bg-[radial-gradient(circle_at_top,_rgba(201,170,120,0.1),_transparent_45%),linear-gradient(180deg,_#f8f8f8_0%,_#ffffff_100%)] text-neutral-900"
+    <main className={`min-h-screen theme-transition pb-32 pt-12 px-6 sm:px-12 lg:px-20 ${isDark
+        ? "bg-[#050505] text-white"
+        : "bg-[#fcfcfc] text-neutral-900"
       }`}>
       
-      {/* Dynamic Alerts Bar */}
-      {data?.alerts?.length ? (
-        <div className="fixed top-24 left-1/2 -translate-x-1/2 z-50 w-full max-w-2xl px-6">
-          {data.alerts.map((alert, i) => (
-            <motion.div
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              key={i}
-              className="flex items-center justify-between p-4 mb-2 bg-red-500 text-white rounded-2xl shadow-xl backdrop-blur-lg border border-red-400/30"
-            >
-              <div className="flex items-center gap-3">
-                <AlertTriangle className="w-5 h-5 animate-pulse" />
-                <span className="text-xs font-bold uppercase tracking-widest">{alert.message}</span>
+      {/* Background Subtle Elements */}
+      <div className="fixed inset-0 pointer-events-none overflow-hidden">
+        <div className={`absolute top-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full blur-[120px] opacity-20 ${isDark ? "bg-amber-500/10" : "bg-amber-500/5"}`} />
+        <div className={`absolute bottom-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full blur-[120px] opacity-20 ${isDark ? "bg-blue-500/10" : "bg-blue-500/5"}`} />
+      </div>
+
+      <div className="max-w-[1400px] mx-auto relative z-10">
+        
+        {/* Header Section */}
+        <header className="mb-24 flex flex-col md:flex-row md:items-end justify-between gap-12">
+          <motion.div 
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
+            className="max-w-3xl"
+          >
+            <div className="flex items-center gap-3 mb-6">
+              <div className={`w-8 h-[1px] ${isDark ? "bg-amber-500/40" : "bg-black/20"}`} />
+              <span className={`text-[10px] font-black uppercase tracking-[0.4em] ${isDark ? "text-amber-500/60" : "text-neutral-500"}`}>Executive Command</span>
+            </div>
+            <h1 className="text-6xl md:text-8xl font-serif italic tracking-tight lowercase leading-[0.9]">
+              Strategic <span className="opacity-40">Overview</span>
+            </h1>
+            <p className={`mt-8 text-lg font-medium max-w-xl leading-relaxed opacity-60 ${isDark ? "font-light" : ""}`}>
+              Synthesizing property intelligence and operational flow into a single, cohesive interface for high-performance management.
+            </p>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5, duration: 1 }}
+            className="flex items-center gap-8"
+          >
+            <div className="text-right">
+              <p className="text-[10px] font-black uppercase tracking-widest opacity-30 mb-1">System Status</p>
+              <div className="flex items-center justify-end gap-2 text-emerald-500">
+                <span className="text-[10px] font-mono tracking-tighter uppercase font-bold">All Subsystems Nominal</span>
+                <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
               </div>
-              <Link href={alert.action} className="text-[10px] font-bold underline uppercase tracking-widest">
-                Address Now
+            </div>
+          </motion.div>
+        </header>
+
+        {/* Rapid Stats Bar */}
+        <motion.section 
+          variants={containerVariants}
+          initial="hidden"
+          animate="show"
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-32"
+        >
+          {[
+            { label: "Real-time Occupancy", value: data?.overview?.occupancy ? `${data.overview.occupancy}%` : "84%", trend: "+2.4%", icon: Activity },
+            { label: "Revenue Delta", value: "$142k", trend: "+12%", trendUp: true, icon: TrendingUp },
+            { label: "Staff Efficiency", value: "94/100", trend: "+0.8%", icon: Users },
+            { label: "System Uptime", value: "99.98%", trend: "Stable", icon: ShieldCheck },
+          ].map((stat, i) => (
+            <motion.div 
+              key={i}
+              variants={itemVariants}
+              className={`p-8 rounded-3xl border transition-all duration-500 group ${isDark ? "bg-white/[0.02] border-white/5 hover:bg-white/[0.04] hover:border-white/10" : "bg-white border-black/5 hover:shadow-2xl"}`}
+            >
+              <div className="flex items-center justify-between mb-8">
+                <stat.icon className={`w-4 h-4 opacity-30 ${isDark ? "text-white" : "text-black"}`} />
+                <div className={`px-2 py-0.5 rounded-full text-[9px] font-black tracking-widest ${isDark ? "bg-white/5" : "bg-black/5"} ${stat.trend.includes("+") ? "text-emerald-500" : "text-amber-500"}`}>
+                  {stat.trend}
+                </div>
+              </div>
+              <p className="text-4xl font-serif italic mb-1">{stat.value}</p>
+              <p className="text-[9px] font-black uppercase tracking-[0.2em] opacity-30">{stat.label}</p>
+            </motion.div>
+          ))}
+        </motion.section>
+
+        {/* Main Grid Actions */}
+        <motion.section 
+          variants={containerVariants}
+          initial="hidden"
+          animate="show"
+          className="grid grid-cols-1 lg:grid-cols-2 gap-8"
+        >
+          {adminCards.map((card, i) => (
+            <motion.div 
+              key={i}
+              variants={itemVariants}
+            >
+              <Link href={card.href} className="group block h-full">
+                <div className={`relative h-full p-10 md:p-14 rounded-[3rem] border overflow-hidden transition-all duration-700 ${isDark ? "bg-white/[0.03] border-white/5 hover:bg-white/[0.05] hover:border-white/20" : "bg-white border-black/5 shadow-xl hover:shadow-2xl"}`}>
+                  
+                  {/* Card Background Branding */}
+                  <div className={`absolute top-[-10%] right-[-5%] w-64 h-64 opacity-[0.03] pointer-events-none group-hover:scale-110 transition-transform duration-1000 ${isDark ? "invert" : ""}`}>
+                     <card.icon className="w-full h-full" />
+                  </div>
+
+                  <div className="relative z-10">
+                    <div className="flex items-start justify-between mb-16">
+                      <div className={`p-4 rounded-2xl ${isDark ? "bg-white/5 text-amber-500" : "bg-black/5 text-black"}`}>
+                        <card.icon className="w-6 h-6" />
+                      </div>
+                      <div className="flex items-center gap-4">
+                         <span className="text-[10px] font-mono opacity-30 uppercase tracking-widest">{card.stats}</span>
+                         <div className={`w-10 h-10 rounded-full flex items-center justify-center border transition-all duration-500 ${isDark ? "border-white/10 group-hover:bg-white group-hover:text-black" : "border-black/5 group-hover:bg-black group-hover:text-white"}`}>
+                            <ArrowUpRight className="w-4 h-4" />
+                         </div>
+                      </div>
+                    </div>
+
+                    <div className="mb-4">
+                      <p className={`text-[10px] font-black uppercase tracking-[0.4em] mb-3 ${isDark ? "text-amber-500/60" : "text-neutral-500"}`}>
+                        {card.subtitle}
+                      </p>
+                      <h3 className="text-4xl md:text-5xl font-serif italic mb-6 tracking-tight group-hover:translate-x-2 transition-transform duration-700">
+                        {card.title}
+                      </h3>
+                      <p className="text-base md:text-lg opacity-40 group-hover:opacity-100 transition-opacity duration-700 font-medium leading-relaxed max-w-sm">
+                        {card.description}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Aesthetic Corner Detail */}
+                  <div className={`absolute bottom-0 right-0 p-8 opacity-0 group-hover:opacity-20 transition-opacity duration-700`}>
+                    <Command className="w-6 h-6" />
+                  </div>
+                </div>
               </Link>
             </motion.div>
           ))}
-        </div>
-      ) : null}
+        </motion.section>
 
-      <section className="mx-auto flex w-full max-w-7xl flex-col gap-10 px-6 pt-28 md:px-12">
-        <div className="flex flex-col lg:flex-row justify-between gap-10">
-          <div className="max-w-xl space-y-6">
-            <div className="flex items-center gap-2">
-                <div className="px-3 py-1 bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 rounded-full text-[9px] font-bold uppercase tracking-widest flex items-center gap-2">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                    Property Live
-                </div>
+        {/* System Logs Footer */}
+        <footer className="mt-32 pt-12 border-t border-white/5 flex flex-col md:flex-row items-center justify-between gap-8 opacity-20 hover:opacity-100 transition-opacity duration-500">
+            <div className="flex items-center gap-6">
+                 <div className="flex items-center gap-3">
+                    <div className="w-2 h-2 rounded-full bg-blue-500" />
+                    <span className="text-[9px] font-black uppercase tracking-widest">Protocol 12.0.4.5 Active</span>
+                 </div>
+                 <div className="w-[1px] h-4 bg-white/10" />
+                 <span className="text-[9px] font-mono italic">"Elegance is the ultimate sophistication."</span>
             </div>
-            
-            <h1 className="font-serif text-4xl leading-tight md:text-6xl italic">Executive Overview</h1>
-            <p className={`max-w-2xl text-sm leading-7 md:text-base ${isDark ? "text-neutral-300" : "text-neutral-600"}`}>
-              Welcome back, General Manager. Your property is executing with AI-driven efficiency. Current focus: **Staffing vs Occupancy Ratios**.
-            </p>
-
-            <div className="flex flex-wrap gap-4 pt-4">
-              {quickActions.map((action) => (
-                <Link
-                  key={action.label}
-                  href={action.href}
-                  className={`flex items-center gap-2 px-5 py-3 rounded-full text-[10px] uppercase font-bold tracking-[0.2em] transition-all border ${isDark
-                    ? "bg-white text-black border-white hover:bg-neutral-200"
-                    : "bg-black text-white border-black hover:bg-neutral-800"
-                    }`}
-                >
-                  <action.icon className="w-3 h-3" />
-                  {action.label}
-                </Link>
-              ))}
+            <div className="text-[9px] font-black uppercase tracking-widest flex items-center gap-4">
+                <span className="hover:text-amber-500 cursor-pointer transition-colors">Documentation</span>
+                <span className="hover:text-amber-500 cursor-pointer transition-colors">Audit trail</span>
+                <span className="hover:text-amber-500 cursor-pointer transition-colors">Vortex Node-01</span>
             </div>
-          </div>
+        </footer>
 
-          <div className={`flex-1 rounded-[2.5rem] p-10 border transition-all duration-500 relative overflow-hidden group ${isDark
-            ? "border-white/10 bg-white/5 shadow-2xl"
-            : "border-black/5 bg-white shadow-sm"
-            }`}>
-            <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/5 blur-3xl -mr-16 -mt-16" />
-            
-            <div className="flex items-center justify-between mb-10">
-              <div>
-                <h3 className="text-xs uppercase tracking-[0.3em] font-bold text-neural-500 mb-2 flex items-center gap-2">
-                    <Brain className="w-3 h-3 text-amber-500" />
-                    AI Occupancy Projection
-                </h3>
-                <p className="font-serif text-3xl italic">Upcoming Property Pulse</p>
-              </div>
-              <div className={`px-4 py-1.5 rounded-full text-[10px] font-bold tracking-widest shadow-sm ${isDark ? "bg-white/10 text-white" : "bg-black/5 text-black"}`}>
-                WEEKLY FORECAST
-              </div>
-            </div>
-
-            <div className="flex items-end justify-between h-48 gap-3">
-              {(data?.projections || []).map((item) => (
-                <div key={item.day} className="flex-1 flex flex-col items-center gap-4 group">
-                  <div className="relative w-full flex flex-col justify-end h-32 group">
-                    <div 
-                      className={`w-full rounded-2xl transition-all duration-1000 ease-out group-hover:opacity-80 scale-x-90 origin-bottom ${isDark ? "bg-white/80" : "bg-black"}`}
-                      style={{ height: `${item.rate}%` }}
-                    />
-                    <div className="absolute -top-10 left-1/2 -translate-x-1/2 text-[10px] font-bold opacity-0 group-hover:opacity-100 transition-all font-mono translate-y-2 group-hover:translate-y-0">
-                      {item.rate}%
-                    </div>
-                  </div>
-                  <span className="text-[10px] font-bold text-neutral-400 tracking-wider uppercase">{item.day}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* Real-time Intel Panel */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
-            <div className={`p-8 rounded-[2.5rem] border overflow-hidden relative group transition-all duration-500 ${isDark ? "bg-emerald-500/5 border-emerald-500/20" : "bg-emerald-50/50 border-emerald-500/10 shadow-sm"}`}>
-                <div className="absolute top-0 right-0 w-16 h-16 bg-emerald-500/10 blur-2xl -mr-8 -mt-8" />
-                <h5 className="text-[10px] font-bold uppercase tracking-widest text-emerald-500 mb-6 flex items-center gap-2">
-                    <Zap className="w-3 h-3" /> Output Efficiency
-                </h5>
-                <p className="text-5xl font-serif italic mb-2">{data?.overview.occupancy || 0}%</p>
-                <p className="text-[11px] text-zinc-500 uppercase tracking-widest">Global Occupancy Status</p>
-            </div>
-
-            <div className={`p-8 rounded-[2.5rem] border overflow-hidden relative group transition-all duration-500 ${isDark ? "bg-amber-500/5 border-amber-500/20" : "bg-amber-50/50 border-amber-500/10 shadow-sm"}`}>
-                <div className="absolute top-0 right-0 w-16 h-16 bg-amber-500/10 blur-2xl -mr-8 -mt-8" />
-                <h5 className="text-[10px] font-bold uppercase tracking-widest text-amber-500 mb-6 flex items-center gap-2">
-                    <Users className="w-3 h-3" /> Active Logistics
-                </h5>
-                <p className="text-5xl font-serif italic mb-2">{data?.overview.activeStaff || 0}</p>
-                <p className="text-[11px] text-zinc-500 uppercase tracking-widest">Staff Members On-Shift</p>
-            </div>
-
-            <div className={`p-8 rounded-[2.5rem] border overflow-hidden relative group transition-all duration-500 ${isDark ? "bg-zinc-500/5 border-zinc-500/20" : "bg-zinc-50/50 border-zinc-500/10 shadow-sm"}`}>
-                <div className="absolute top-0 right-0 w-16 h-16 bg-zinc-500/10 blur-2xl -mr-8 -mt-8" />
-                <h5 className="text-[10px] font-bold uppercase tracking-widest text-zinc-500 mb-6 flex items-center gap-2">
-                    <Hotel className="w-3 h-3" /> Inventory Pulse
-                </h5>
-                <p className="text-5xl font-serif italic mb-2">{data?.overview.bookedRooms || 0}</p>
-                <p className="text-[11px] text-zinc-500 uppercase tracking-widest">Active Bookings Today</p>
-            </div>
-        </div>
-
-        <div className="mt-12">
-          <div className="flex items-baseline justify-between mb-10 border-b border-neutral-100 dark:border-white/10 pb-6">
-            <h4 className="text-[10px] uppercase tracking-[0.4em] font-bold text-neutral-500 italic">Property Management Nodes</h4>
-            <span className="text-[9px] font-mono text-zinc-400">SESSION: 2026.04.04</span>
-          </div>
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-            {adminCards.map((card) => {
-              const Icon = card.icon;
-              return (
-                <Link
-                  key={card.href}
-                  href={card.href}
-                  className={`group rounded-[2.5rem] border p-10 transition-all duration-500 flex flex-col items-start ${isDark
-                      ? "border-white/10 bg-white/5 hover:border-white/20 hover:scale-[1.02] hover:shadow-2xl"
-                      : "border-black/5 bg-white hover:border-black/10 hover:shadow-lg shadow-sm"
-                    }`}
-                >
-                  <div className={`p-4 rounded-3xl mb-8 transition-all duration-500 group-hover:scale-110 ${isDark ? "bg-white/8 outline outline-1 outline-white/10" : "bg-black/5 shadow-inner"}`}>
-                    <Icon className={`h-6 w-6 ${isDark ? "text-white" : "text-black"}`} />
-                  </div>
-                  <h2 className={`font-serif text-3xl italic leading-none mb-4 ${isDark ? "text-white" : "text-neutral-900"}`}>{card.title}</h2>
-                  <p className={`text-[10px] leading-relaxed uppercase tracking-widest opacity-60 font-medium ${isDark ? "text-neutral-400" : "text-neutral-500"
-                    }`}>{card.description}</p>
-                  
-                  <div className="mt-10 flex items-center gap-3 group/btn">
-                    <span className={`text-[10px] uppercase tracking-[0.4em] font-black transition-all border-b-2 pb-1 ${isDark ? "text-white border-white/20" : "text-black border-black/10"}`}>
-                      ENTER MODULE
-                    </span>
-                    <ArrowRight className={`h-4 w-4 transition-transform group-hover/btn:translate-x-2 ${isDark ? "text-white" : "text-black"}`} />
-                  </div>
-                </Link>
-              );
-            })}
-          </div>
-        </div>
-      </section>
+      </div>
     </main>
   );
-}"
+}

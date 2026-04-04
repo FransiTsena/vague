@@ -113,7 +113,7 @@ export default function BookingFlow({ initialRoomId }: BookingFlowProps) {
     roomId: initialRoomId || "",
     checkIn: toDateInputValue(addDays(new Date(), 7)),
     checkOut: toDateInputValue(addDays(new Date(), 9)),
-    guests: 2,
+    guests: 1,
     mealPlan: "breakfast" as MealPlan,
     channel: "direct" as BookingChannel,
     loyaltyTier: "none" as LoyaltyTier,

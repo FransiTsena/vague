@@ -1,25 +1,38 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useState } from "react";
 import { StaffingCalendar, CalendarItem } from "@/components/StaffingCalendar";
-import Button from "@/components/ui/Button";
-import { Loader2, Brain, AlertTriangle, CheckCircle2 } from "lucide-react";
+import { 
+  Loader2, 
+  Brain, 
+  AlertTriangle, 
+  CheckCircle2, 
+  ArrowLeft,
+  ChevronRight,
+  TrendingUp,
+  Users,
+  Calendar,
+  Zap,
+  ShieldCheck,
+  Building
+} from "lucide-react";
+import { useTheme } from "@/context/ThemeContext";
+import Link from "next/link";
+import { motion, AnimatePresence } from "framer-motion";
 
-const PriorityBadge = ({ level }: { level: string }) => {
+const RiskBadge = ({ level }: { level: string }) => {
   const isHigh = level.toLowerCase() === "high";
-  const isMedium = level.toLowerCase() === "medium";
+  const isMed = level.toLowerCase() === "medium";
   return (
-    <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-tighter ${
-      isHigh ? "bg-red-500/20 text-red-400 border border-red-500/30" : 
-      isMedium ? "bg-amber-500/20 text-amber-400 border border-amber-500/30" : 
-      "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30"
-    }`}>
-      {level} RISK
-    </span>
+    <div className={`px-4 py-2 rounded-2xl text-[9px] font-black uppercase tracking-[0.2em] border flex items-center gap-2 ${isHigh ? "border-rose-500/20 text-rose-500" : isMed ? "border-amber-500/20 text-amber-500" : "border-emerald-500/20 text-emerald-500"}`}>
+      <div className={`w-1.5 h-1.5 rounded-full animate-pulse ${isHigh ? "bg-rose-500" : isMed ? "bg-amber-500" : "bg-emerald-500"}`} />
+      {level} DEPLOYMENT RISK
+    </div>
   );
 };
 
 export default function StaffingAdminPage() {
+  const { isDark } = useTheme();
   const [items, setItems] = useState<CalendarItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [aiLoading, setAiLoading] = useState(false);
@@ -28,10 +41,7 @@ export default function StaffingAdminPage() {
   const [selectedDept, setSelectedDept] = useState("");
 
   const handleAiForecast = async () => {
-    if (!selectedDept) {
-        alert("Please select a department first");
-        return;
-    }
+    if (!selectedDept) return;
     setAiLoading(true);
     try {
       const res = await fetch("/api/admin/staffing/ai-predict", {
@@ -68,248 +78,140 @@ export default function StaffingAdminPage() {
   }, []);
 
   if (isLoading) return (
-    <div className="flex items-center justify-center min-h-[60vh]">
-      <Loader2 className="w-8 h-8 animate-spin text-zinc-500" />
+    <div className="flex flex-col items-center justify-center min-h-screen bg-[#050505]">
+      <Loader2 className="w-10 h-10 animate-spin text-amber-500/20 mb-4" />
+      <span className="text-[10px] font-black uppercase tracking-[0.4em] opacity-20">Synchronizing Logistics...</span>
     </div>
   );
 
   return (
-    <div className="py-8 space-y-12">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 bg-zinc-900 dark:bg-zinc-800/50 p-8 rounded-[2rem] border border-zinc-700/50 shadow-2xl relative overflow-hidden group">
-        <div className="absolute top-0 right-0 w-32 h-32 bg-zinc-700/10 blur-3xl -mr-16 -mt-16 group-hover:bg-zinc-600/20 transition-all duration-700" />
-        <div className="relative z-10">
-          <h1 className="text-3xl font-bold text-white font-playfair tracking-tight">Workforce Intelligence Engine</h1>
-          <p className="text-zinc-400 mt-2 max-w-lg text-sm leading-relaxed">Cross-referencing live booking occupancy with department rosters using Llama-3 neural analysis.</p>
+    <main className={`min-h-screen pt-24 pb-20 px-6 sm:px-12 theme-transition ${isDark ? "bg-[#050505] text-white" : "bg-[#fcfcfc] text-neutral-900"}`}>
+      <div className="max-w-[1400px] mx-auto">
+        
+        {/* Navigation / Metadata */}
+        <div className="flex items-center justify-between mb-12">
+            <Link href="/admin" className="inline-flex items-center gap-2 text-[10px] uppercase font-black tracking-widest opacity-40 hover:opacity-100 transition-opacity">
+                <ArrowLeft className="w-3 h-3" /> Personnel Overview
+            </Link>
+            <div className="flex items-center gap-6">
+                <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 rounded-full bg-emerald-500" />
+                    <span className="text-[9px] font-mono opacity-40 uppercase tracking-widest">Mongo DB Live</span>
+                </div>
+                <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
+                    <span className="text-[9px] font-mono opacity-40 uppercase tracking-widest">Neural Cluster Active</span>
+                </div>
+            </div>
         </div>
-        <div className="flex flex-wrap items-center gap-4 relative z-10 w-full md:w-auto">
-          <select 
-            value={selectedDept}
-            onChange={(e) => setSelectedDept(e.target.value)}
-            className="px-6 py-3 bg-zinc-800 border-zinc-700 text-white rounded-full text-xs font-bold uppercase tracking-widest outline-none focus:ring-2 focus:ring-zinc-500 transition-all"
-          >
-            {departments.map(d => <option key={d._id} value={d._id}>{d.name}</option>)}
-          </select>
-          <button 
-            onClick={handleAiForecast}
-            disabled={aiLoading}
-            className="px-8 py-3 bg-white hover:bg-zinc-200 text-black font-bold rounded-full transition-all flex items-center gap-3 text-xs uppercase tracking-widest shadow-lg active:scale-95 disabled:opacity-50"
-          >
-            {aiLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Brain className="w-4 h-4" />}
-            Generate AI Forecast
-          </button>
-        </div>
-      </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-        {/* Left: AI Context Panel */}
-        <div className="lg:col-span-4 space-y-6">
-          <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 p-8 rounded-[2rem] shadow-sm">
-            <h2 className="text-sm font-bold uppercase tracking-widest text-zinc-500 mb-8 border-b border-zinc-100 dark:border-zinc-800 pb-4">Demand Analysis</h2>
+        <div className="grid grid-cols-1 xl:grid-cols-[1.2fr_0.8fr] gap-12 items-start">
             
-            {aiResult ? (
-              <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="p-4 bg-zinc-50 dark:bg-zinc-800/50 rounded-2xl border border-zinc-100 dark:border-zinc-800/50">
-                    <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mb-1">Occupancy</p>
-                    <p className="text-2xl font-bold font-playfair">{aiResult.occupancyAtTime}</p>
-                  </div>
-                  <div className="p-4 bg-zinc-50 dark:bg-zinc-800/50 rounded-2xl border border-zinc-100 dark:border-zinc-800/50">
-                    <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mb-1">Suggested</p>
-                    <p className="text-2xl font-bold font-playfair">{aiResult.suggestedStaffCount}</p>
-                  </div>
+            {/* Calendar / Schedule Perspective */}
+            <div className="space-y-12">
+                <section>
+                    <h1 className="font-serif text-5xl md:text-7xl italic tracking-tight lowercase mb-6">
+                        Neural <span className="text-zinc-500">Rosters</span>
+                    </h1>
+                    <p className="max-w-xl text-sm md:text-base text-neutral-400 font-medium leading-relaxed">
+                        Execute workforce orchestration by reconciling real-time occupancy data with department availability.
+                    </p>
+                </section>
+
+                <div className={`p-1 rounded-[2.5rem] border ${isDark ? "border-white/10" : "border-black/5"}`}>
+                    <StaffingCalendar items={items} />
+                </div>
+            </div>
+
+            {/* AI Control Center */}
+            <div className="xl:sticky xl:top-28 space-y-8">
+                <div className={`rounded-[3rem] p-10 border overflow-hidden relative transition-all duration-700 ${isDark ? "bg-white/5 border-white/10 shadow-2xl" : "bg-white border-black/5 shadow-xl"}`}>
+                    <div className="absolute top-0 right-0 w-64 h-64 bg-amber-500/5 blur-3xl -mr-32 -mt-32" />
+                    <h2 className="text-[10px] font-black uppercase tracking-[0.4em] text-amber-500 mb-10 flex items-center gap-3 italic">
+                        <Brain className="w-4 h-4" /> Personnel Predictor
+                    </h2>
+
+                    <div className="space-y-10">
+                        <div className="space-y-4">
+                            <label className="text-[9px] uppercase font-black tracking-[0.2em] opacity-40 block">Select Target Department</label>
+                            <div className="relative group">
+                                <select 
+                                    value={selectedDept}
+                                    onChange={(e) => setSelectedDept(e.target.value)}
+                                    className={`w-full px-8 py-5 rounded-[1.5rem] border bg-transparent text-sm font-bold uppercase tracking-widest transition-all outline-none appearance-none hover:bg-white/[0.03] ${isDark ? "border-white/10" : "border-black/10"}`}
+                                >
+                                    {departments.map(d => <option className="bg-neutral-900" key={d._id} value={d._id}>{d.name}</option>)}
+                                </select>
+                                <ChevronRight className="absolute right-6 top-1/2 -translate-y-1/2 w-4 h-4 rotate-90 opacity-20 group-hover:opacity-100 transition-opacity pointer-events-none" />
+                            </div>
+                        </div>
+
+                        <button 
+                            onClick={handleAiForecast}
+                            disabled={aiLoading}
+                            className={`w-full py-6 rounded-[1.5rem] text-[11px] font-black uppercase tracking-[0.4em] transition-all flex items-center justify-center gap-4  disabled:opacity-50 ${isDark ? "bg-amber-500 text-black hover:bg-amber-400" : "bg-black text-white hover:bg-neutral-800"}`}
+                        >
+                            {aiLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Zap className="w-4 h-4" />}
+                            Execute Logic Engine
+                        </button>
+                    </div>
+
+                    <AnimatePresence>
+                        {aiResult && (
+                            <motion.div initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} className="mt-12 space-y-10">
+                                <div className="p-8 rounded-[2rem] bg-amber-500/5 border border-amber-500/10 space-y-6">
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex items-center gap-2">
+                                            <TrendingUp className="w-4 h-4 text-emerald-500" />
+                                            <span className="text-[10px] font-black uppercase tracking-widest text-emerald-500">Live Prediction</span>
+                                        </div>
+                                        <RiskBadge level={aiResult.riskLevel || "LOW"} />
+                                    </div>
+                                    <p className="text-3xl font-serif italic">{aiResult.occupancyRate}% <span className="text-[10px] font-sans not-italic text-zinc-500 font-black uppercase tracking-widest opacity-40">Property Load</span></p>
+                                </div>
+
+                                <div className="space-y-6">
+                                    <div className="flex items-center gap-3">
+                                        <ShieldCheck className="w-4 h-4 text-amber-500" />
+                                        <span className="text-[10px] font-black uppercase tracking-widest italic">Reasoning Logic:</span>
+                                    </div>
+                                    <p className="text-[13px] leading-relaxed font-medium text-neutral-400 border-l border-amber-500/30 pl-6 italic">
+                                        "{aiResult.reasoning}"
+                                    </p>
+                                </div>
+
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div className="p-6 rounded-3xl bg-white/5 border border-white/5">
+                                        <Users className="w-4 h-4 opacity-20 mb-3" />
+                                        <p className="text-2xl font-serif italic">{aiResult.suggestedStaff}</p>
+                                        <p className="text-[9px] uppercase font-black tracking-widest opacity-20">Suggested Force</p>
+                                    </div>
+                                    <div className="p-6 rounded-3xl bg-white/5 border border-white/5 text-right">
+                                        <Building className="w-4 h-4 opacity-20 mb-3 ml-auto" />
+                                        <p className="text-2xl font-serif italic">{aiResult.currentStaff}</p>
+                                        <p className="text-[9px] uppercase font-black tracking-widest opacity-20">Current Shift</p>
+                                    </div>
+                                </div>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
                 </div>
 
-                <div className="space-y-3">
-                    <div className="flex justify-between items-center">
-                        <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest leading-none">Status</p>
-                        <PriorityBadge level={aiResult.riskLevel} />
+                <div className={`p-8 rounded-[2.5rem] bg-indigo-500/5 border border-indigo-500/10 flex items-center justify-between group transition-all duration-500 hover:bg-indigo-500/10`}>
+                    <div className="flex items-center gap-4">
+                        <Calendar className="w-5 h-5 text-indigo-400" />
+                        <div>
+                            <p className="text-[9px] font-black uppercase tracking-widest text-indigo-400">Export Protocol</p>
+                            <p className="text-[11px] font-medium opacity-60 italic">Broadcast roster to staff terminals.</p>
+                        </div>
                     </div>
-                  {aiResult.isUnderstaffed ? (
-                    <div className="flex items-start gap-4 p-4 bg-red-500/5 border border-red-500/20 rounded-2xl">
-                      <AlertTriangle className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />
-                      <div>
-                        <p className="text-xs font-bold text-red-500 uppercase tracking-widest">Action Required</p>
-                        <p className="text-[11px] text-red-400/80 leading-relaxed mt-1">Found gap of {aiResult.suggestedStaffCount - aiResult.currentStaff} staff members for the current occupancy.</p>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="flex items-start gap-4 p-4 bg-emerald-500/5 border border-emerald-500/20 rounded-2xl">
-                      <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0 mt-0.5" />
-                      <div>
-                        <p className="text-xs font-bold text-emerald-500 uppercase tracking-widest">Optimized</p>
-                        <p className="text-[11px] text-emerald-400/80 leading-relaxed mt-1">Staffing levels match luxury service protocols for current guest volume.</p>
-                      </div>
-                    </div>
-                  )}
+                    <button className="p-3 rounded-full bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <ChevronRight className="w-4 h-4" />
+                    </button>
                 </div>
-
-                <div className="pt-6 border-t border-zinc-100 dark:border-zinc-800">
-                  <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mb-3 leading-none">AI Reasoning</p>
-                  <p className="text-sm font-light leading-relaxed italic text-zinc-600 dark:text-zinc-400 font-serif">
-                    "{aiResult.reasoning}"
-                  </p>
-                </div>
-              </div>
-            ) : (
-              <div className="py-20 text-center space-y-4">
-                <div className="w-16 h-16 bg-zinc-50 dark:bg-zinc-800/50 rounded-full flex items-center justify-center mx-auto opacity-50">
-                  <Brain className="w-8 h-8 text-zinc-300" />
-                </div>
-                <p className="text-xs font-medium text-zinc-400 uppercase tracking-widest">Run analysis to see results</p>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Right: Master Schedule (Calendar) */}
-        <div className="lg:col-span-8 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 p-8 rounded-[2rem] shadow-sm">
-          <div className="flex justify-between items-center mb-8 border-b border-zinc-100 dark:border-zinc-800 pb-4">
-             <h2 className="text-sm font-bold uppercase tracking-widest text-zinc-500 leading-none">Property Schedule</h2>
-             <div className="flex gap-2">
-                <span className="w-2 h-2 rounded-full bg-zinc-300 animate-pulse" />
-                <span className="w-2 h-2 rounded-full bg-zinc-200" />
-             </div>
-          </div>
-          <StaffingCalendar items={items} />
+            </div>
         </div>
       </div>
-    </div>
-  );
-}
-          fetch("/api/admin/staffing/departments")
-        ]);
-        
-        if (eRes.ok) {
-          const data = await eRes.json();
-          setItems(data.map((d: any) => ({
-            start: d.startsAt,
-            end: d.endsAt,
-            title: d.title,
-            subtitle: d.departmentId?.name,
-          })));
-        }
-        
-        if (dRes.ok) {
-          const depts = await dRes.json();
-          setDepartments(depts);
-          if (depts.length > 0) setSelectedDept(depts[0]._id);
-        }
-      } catch (error) {
-        console.error("Initialization Failed", error);
-      } finally {
-        setIsLoading(false);
-      }
-    }
-    init();
-  }, []);
-
-  const runAiOptimization = async () => {
-    if (!selectedDept) return;
-    setAiLoading(true);
-    setAiResult(null);
-    try {
-      const res = await fetch("/api/admin/staffing/ai-predict", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ 
-          departmentId: selectedDept, 
-          date: new Date().toISOString() 
-        })
-      });
-      if (res.ok) {
-        const data = await res.json();
-        setAiResult(data);
-      }
-    } catch (err) {
-      console.error("AI Error", err);
-    } finally {
-      setAiLoading(false);
-    }
-  };
-
-  return (
-    <div className="container mx-auto py-8 px-4 max-w-7xl">
-      <div className="mb-8 flex flex-wrap items-center justify-between gap-6 pb-6 border-b border-zinc-100 dark:border-zinc-800">
-        <div>
-           <h1 className="text-4xl font-extrabold text-zinc-900 dark:text-zinc-100 tracking-tight">Workforce Intelligence</h1>
-           <p className="text-zinc-500 mt-2 text-lg">Predictive staffing and automated roster optimization.</p>
-        </div>
-
-        <div className="flex items-center gap-3 p-3 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl shadow-sm">
-           <select 
-             className="bg-transparent text-sm font-medium border-none focus:ring-0 p-2 min-w-[200px]"
-             value={selectedDept}
-             onChange={(e) => setSelectedDept(e.target.value)}
-           >
-             {departments.map(d => <option key={d._id} value={d._id}>{d.name}</option>)}
-           </select>
-           <Button 
-             variant="primary" 
-             onClick={runAiOptimization} 
-             disabled={aiLoading}
-             className="px-6 py-2 rounded-xl flex items-center gap-2 font-semibold shadow-lg shadow-blue-500/20"
-           >
-             {aiLoading ? <Loader2 className="animate-spin h-4 w-4" /> : <Brain className="h-4 w-4" />}
-             {aiLoading ? "Analyzing..." : "AI Optimize"}
-           </Button>
-        </div>
-      </div>
-
-      {aiResult && (
-        <div className={`mb-10 p-6 rounded-[2rem] border-2 flex flex-col md:flex-row gap-6 items-start transition-all shadow-xl animate-in fade-in zoom-in-95 duration-500 ${
-          aiResult.isUnderstaffed 
-            ? "bg-amber-50/50 border-amber-200/50 dark:bg-amber-950/10 dark:border-amber-800/50 shadow-amber-500/5"
-            : "bg-emerald-50/50 border-emerald-200/50 dark:bg-emerald-950/10 dark:border-emerald-800/50 shadow-emerald-500/5"
-        }`}>
-           <div className={`p-4 rounded-2xl ${aiResult.isUnderstaffed ? "bg-amber-100 dark:bg-amber-900/40" : "bg-emerald-100 dark:bg-emerald-900/40"}`}>
-             {aiResult.isUnderstaffed ? <AlertTriangle className="h-8 w-8 text-amber-600 dark:text-amber-400" /> : <CheckCircle2 className="h-8 w-8 text-emerald-600 dark:text-emerald-400" />}
-           </div>
-           <div className="flex-1">
-             <div className="flex items-center gap-2">
-                <h3 className="text-xl font-bold text-zinc-900 dark:text-zinc-100">
-                {aiResult.riskLevel.toUpperCase()} RISK: {aiResult.isUnderstaffed ? "Personnel Deficit" : "Operational Balance"}
-                </h3>
-                <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${aiResult.isUnderstaffed ? "bg-amber-200 dark:bg-amber-800 text-amber-900 dark:text-amber-100" : "bg-emerald-200 dark:bg-emerald-800 text-emerald-900 dark:text-emerald-100"}`}>
-                    AI Predicted
-                </span>
-             </div>
-             <p className="text-zinc-600 dark:text-zinc-400 mt-2 leading-relaxed font-medium">
-               {aiResult.reasoning}
-             </p>
-             <div className="mt-5 grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div className="p-3 bg-white dark:bg-zinc-800 rounded-xl border border-zinc-100 dark:border-zinc-700">
-                    <span className="text-[10px] text-zinc-400 uppercase font-bold tracking-tighter">Occupancy</span>
-                    <div className="text-lg font-bold text-zinc-900 dark:text-zinc-100">{aiResult.occupancyAtTime}</div>
-                </div>
-                <div className="p-3 bg-white dark:bg-zinc-800 rounded-xl border border-zinc-100 dark:border-zinc-700">
-                    <span className="text-[10px] text-zinc-400 uppercase font-bold tracking-tighter">Suggested Staff</span>
-                    <div className="text-lg font-bold text-zinc-900 dark:text-zinc-100">{aiResult.suggestedStaffCount}</div>
-                </div>
-                <div className="p-3 bg-white dark:bg-zinc-800 rounded-xl border border-zinc-100 dark:border-zinc-700">
-                    <span className="text-[10px] text-zinc-400 uppercase font-bold tracking-tighter">On-Duty</span>
-                    <div className="text-lg font-bold text-zinc-900 dark:text-zinc-100">{aiResult.currentStaff}</div>
-                </div>
-                <div className="p-3 bg-white dark:bg-zinc-800 rounded-xl border border-zinc-100 dark:border-zinc-700">
-                    <span className="text-[10px] text-zinc-400 uppercase font-bold tracking-tighter">Status</span>
-                    <div className={`text-lg font-bold ${aiResult.isUnderstaffed ? "text-amber-600" : "text-emerald-600"}`}>
-                        {aiResult.isUnderstaffed ? "RE-ROSTER" : "HEALTHY"}
-                    </div>
-                </div>
-             </div>
-           </div>
-        </div>
-      )}
-      
-      {isLoading ? (
-        <div className="flex flex-col items-center justify-center p-32 gap-4">
-           <Loader2 className="animate-spin h-12 w-12 text-blue-500" />
-           <span className="text-zinc-400 font-medium animate-pulse">Syncing luxury rosters...</span>
-        </div>
-      ) : (
-        <div className="shadow-2xl rounded-[2.5rem] overflow-hidden border border-zinc-200 dark:border-zinc-800">
-            <StaffingCalendar items={items} />
-        </div>
-      )}
-    </div>
+    </main>
   );
 }

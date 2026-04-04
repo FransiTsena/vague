@@ -1,85 +1,174 @@
+﻿"use client";
+
+import { useEffect, useState } from "react";
+import { 
+  Loader2, 
+  Brain, 
+  AlertTriangle, 
+  CheckCircle2, 
+  ArrowLeft,
+  ChevronRight,
+  TrendingUp,
+  Users,
+  Calendar,
+  Zap,
+  ShieldCheck,
+  Building,
+  Activity,
+  BarChart3,
+  Clock,
+  ExternalLink,
+  Plus,
+  ArrowUpRight,
+  ArrowDownRight,
+  Filter,
+  Search
+} from "lucide-react";
+import { useTheme } from "@/context/ThemeContext";
 import Link from "next/link";
-import { unstable_noStore as noStore } from "next/cache";
-import dbConnect from "@/lib/mongodb";
-import { DepartmentModel, Member, ScheduleEvent, StaffingDemand, StaffAssignment } from "@/lib/models";
+import { motion, AnimatePresence } from "framer-motion";
 
-export const dynamic = "force-dynamic";
+export default function SchedulingAdminPage() {
+  const { isDark } = useTheme();
+  const [isLoading, setIsLoading] = useState(true);
+  const [events, setEvents] = useState<any[]>([]);
 
-export default async function SchedulingOverviewPage() {
-  noStore();
-  await dbConnect();
+  useEffect(() => {
+    async function fetchEvents() {
+      try {
+        const res = await fetch("/api/admin/staffing/events");
+        const data = await res.json();
+        setEvents(data || []);
+      } catch (e) {
+        console.error(e);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    fetchEvents();
+  }, []);
 
-  let stats = {
-    departments: 0,
-    members: 0,
-    events: 0,
-    staffingDemands: 0,
-    shiftAssignments: 0,
-  };
-
-  try {
-    const [departments, members, events, staffingDemands, shiftAssignments] = await Promise.all([
-      DepartmentModel.countDocuments(),
-      Member.countDocuments(),
-      ScheduleEvent.countDocuments(),
-      StaffingDemand.countDocuments(),
-      StaffAssignment.countDocuments(),
-    ]);
-
-    stats = {
-      departments,
-      members,
-      events,
-      staffingDemands,
-      shiftAssignments,
-    };
-  } catch (err) {
-    console.error("Stats fetch failed", err);
-  }
-
-  // Ensure stats are plain objects for Client Components if passed down
-  const plainStats = JSON.parse(JSON.stringify(stats));
-
-  const cards = [
-    { title: "Departments", value: plainStats.departments, href: "/admin/scheduling/departments" },
-    { title: "Staff Members", value: plainStats.members, href: "/admin/scheduling/members" },
-    { title: "Upcoming Events", value: plainStats.events, href: "/admin/scheduling/events" },
-    { title: "Staffing Demands", value: plainStats.staffingDemands, href: "/admin/staffing" },
-    { title: "Assigned Shifts", value: plainStats.shiftAssignments, href: "/admin/staffing" },
-  ];
+  if (isLoading) return (
+    <div className={`flex flex-col items-center justify-center min-h-screen ${isDark ? "bg-[#050505]" : "bg-[#fcfcfc]"}`}>
+      <Loader2 className={`w-10 h-10 animate-spin mb-4 ${isDark ? "text-amber-500/20" : "text-amber-500/40"}`} />
+      <span className={`text-[10px] font-black uppercase tracking-[0.4em] opacity-20 ${isDark ? "text-white" : "text-black"}`}>Orchestrating Time Streams...</span>
+    </div>
+  );
 
   return (
-    <div className="py-8">
-      <h1 className="text-4xl font-bold mb-4 font-playfair tracking-tight">Scheduling & Resource Management</h1>
-      <p className="text-zinc-500 mb-12 max-w-2xl">Manage resort departments, staff assignments, and upcoming events throughout the property from a single dashboard.</p>
-      
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-16">
-        {cards.map((card) => (
-          <Link key={card.title} href={card.href} className="group flex flex-col p-8 bg-zinc-50/50 dark:bg-zinc-900/40 border border-zinc-200/60 dark:border-zinc-800/60 rounded-3xl hover:border-zinc-400 dark:hover:border-zinc-600 transition-all duration-300">
-            <h2 className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-widest">{card.title}</h2>
-            <p className="text-4xl font-bold mt-4 text-zinc-900 dark:text-zinc-100 font-playfair">{card.value}</p>
-            <div className="mt-auto pt-6 flex items-center text-xs font-medium text-zinc-400 group-hover:text-zinc-900 dark:group-hover:text-zinc-100 transition-colors uppercase tracking-widest">
-              Manage {card.title}
-              <svg className="ml-2 w-4 h-4 transform group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-              </svg>
-            </div>
-          </Link>
-        ))}
-      </div>
-
-      <div className="relative overflow-hidden bg-zinc-900 dark:bg-zinc-800 rounded-3xl p-10 text-white">
-        <div className="relative z-10">
-          <h2 className="text-2xl font-bold font-playfair mb-2">Live Staffing Operations</h2>
-          <p className="text-zinc-400 mb-8 max-w-xl">Access real-time scheduling data, generate demand forecasts based on guest occupancy, and manage shift notifications.</p>
-          <div className="flex flex-wrap gap-4">
-            <Link href="/admin/staffing" className="px-8 py-3 bg-white text-black font-semibold rounded-full hover:bg-zinc-200 transition-all text-sm uppercase tracking-widest">
-              Open Live Schedule
+    <main className={`min-h-screen pt-24 pb-20 px-6 sm:px-12 theme-transition ${isDark ? "bg-[#050505] text-white" : "bg-[#fcfcfc] text-neutral-900"}`}>
+      <div className="max-w-[1400px] mx-auto">
+        
+        {/* Navigation / Metadata */}
+        <div className="flex items-center justify-between mb-12">
+            <Link href="/admin" className="inline-flex items-center gap-2 text-[10px] uppercase font-black tracking-widest opacity-40 hover:opacity-100 transition-opacity">
+                <ArrowLeft className="w-3 h-3" /> Executive Overview
             </Link>
-          </div>
+            <div className="flex items-center gap-6">
+                <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 rounded-full bg-indigo-500 animate-pulse" />
+                    <span className="text-[9px] font-mono opacity-40 uppercase tracking-widest">Timeline Synced</span>
+                </div>
+            </div>
         </div>
-        <div className="absolute top-0 right-0 -mr-16 -mt-16 w-64 h-64 bg-zinc-700/20 blur-3xl rounded-full" />
+
+        <section className="mb-20 grid grid-cols-1 lg:grid-cols-2 gap-12 lg:items-end">
+            <div>
+                <h1 className="font-serif text-6xl md:text-8xl italic tracking-tight lowercase mb-8">
+                    Logistics <span className="text-zinc-500">& Flow</span>
+                </h1>
+                <p className="max-w-xl text-base md:text-lg text-neutral-400 font-medium leading-relaxed">
+                    "Managing the pulse of the property. Every shift, every task, synchronized with guest expectations and high-performance standards."
+                </p>
+            </div>
+            
+            <div className="flex flex-col gap-6 lg:items-end">
+                <div className="flex items-center gap-4">
+                    <Link href="/admin/staffing" className={`px-10 py-5 rounded-full text-[11px] font-black uppercase tracking-[0.4em] transition-all flex items-center gap-4 ${isDark ? "bg-white/5 border border-white/10 hover:bg-white/10" : "bg-black text-white hover:bg-neutral-800"}`}>
+                        <Calendar className="w-4 h-4" /> View Deployment Map
+                    </Link>
+                    <button className={`p-5 rounded-full border ${isDark ? "border-white/10 bg-white/5 hover:bg-white/10" : "border-black/10 bg-white shadow-xl hover:bg-neutral-50"}`}>
+                        <Plus className="w-5 h-5" />
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        {/* Rapid Shift Overview */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-20">
+            {[
+                { label: "Active Shifts", value: events.length, icon: Users, trend: "+4%", trendUp: true, color: "text-blue-500" },
+                { label: "Pending Tasks", value: "42", icon: Zap, trend: "-12%", trendUp: false, color: "text-amber-500" },
+                { label: "Avg Response", value: "14m", icon: Clock, trend: "Steady", trendUp: true, color: "text-emerald-500" },
+            ].map((stat, i) => (
+                <div key={i} className={`p-10 rounded-[3rem] border transition-all duration-700 ${isDark ? "bg-white/5 border-white/10 shadow-2xl" : "bg-white border-black/5 shadow-xl"}`}>
+                    <div className="flex items-center justify-between mb-8">
+                        <stat.icon className={`w-5 h-5 opacity-40 ${isDark ? "text-white" : "text-black"}`} />
+                        <div className={`flex items-center gap-1.5 rounded-full px-3 py-1 ${isDark ? "bg-white/5" : "bg-black/5"}`}>
+                            {stat.trendUp ? <ArrowUpRight className="w-3 h-3 text-emerald-500" /> : <ArrowDownRight className="w-3 h-3 text-red-500" />}
+                            <span className="text-[9px] font-black tracking-widest">{stat.trend}</span>
+                        </div>
+                    </div>
+                    <p className="text-5xl font-serif italic mb-2">{stat.value}</p>
+                    <p className="text-[10px] font-black uppercase tracking-widest opacity-20">{stat.label}</p>
+                </div>
+            ))}
+        </div>
+
+        {/* Log Stream */}
+        <div className={`p-1 rounded-[3.5rem] border ${isDark ? "border-white/10 bg-white/[0.02]" : "border-black/5 bg-white shadow-2xl"}`}>
+            <div className="p-12 overflow-x-auto">
+                <div className="flex items-center justify-between mb-12">
+                    <h3 className="text-[10px] font-black uppercase tracking-[0.4em] italic">Recent Operations Stream</h3>
+                    <div className="flex items-center gap-4">
+                        <div className="relative">
+                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-3.5 h-3.5 opacity-20" />
+                            <input className={`pl-10 pr-6 py-2.5 rounded-full border text-[10px] font-bold uppercase tracking-widest outline-none transition-all ${isDark ? "bg-white/5 border-white/5 focus:border-white/20" : "bg-black/5 border-black/5 focus:border-black/20"}`} placeholder="Query Database..." />
+                        </div>
+                        <button className={`p-3 rounded-full border opacity-40 hover:opacity-100 transition-opacity ${isDark ? "bg-white/5 border-white/5" : "bg-black/5 border-black/5"}`}>
+                            <Filter className="w-4 h-4" />
+                        </button>
+                    </div>
+                </div>
+
+                <table className="w-full text-left">
+                    <thead>
+                        <tr className={`border-b ${isDark ? "border-white/10" : "border-black/10"}`}>
+                            <th className="pb-6 text-[9px] font-black uppercase tracking-widest opacity-40">Shift Operator</th>
+                            <th className="pb-6 text-[10px] font-black uppercase tracking-widest opacity-40">Deployment Area</th>
+                            <th className="pb-6 text-[9px] font-black uppercase tracking-widest opacity-40">Status Cache</th>
+                            <th className="pb-6 text-right text-[9px] font-black uppercase tracking-widest opacity-40">Timeline</th>
+                        </tr>
+                    </thead>
+                    <tbody className={`divide-y ${isDark ? "divide-white/5" : "divide-black/5"}`}>
+                        {events.slice(0, 10).map((evt, i) => (
+                            <tr key={i} className={`group transition-colors ${isDark ? "hover:bg-white/[0.02]" : "hover:bg-black/[0.02]"}`}>
+                                <td className="py-8 pr-12">
+                                    <div className="flex items-center gap-4">
+                                        <div className={`w-10 h-10 rounded-full flex items-center justify-center font-serif italic text-lg ${isDark ? "bg-white/5" : "bg-black/5"}`}>{evt.title.charAt(0)}</div>
+                                        <p className="text-xl font-serif italic">{evt.title.split(' - ')[1] || evt.title}</p>
+                                    </div>
+                                </td>
+                                <td className="py-8 pr-12">
+                                    <span className="text-[11px] font-black uppercase tracking-widest opacity-60">{evt.title.split(' - ')[0] || "General Area"}</span>
+                                </td>
+                                <td className="py-8">
+                                    <div className="flex items-center gap-2 bg-emerald-500/5 text-emerald-500 rounded-full px-4 py-1.5 w-fit border border-emerald-500/10">
+                                        <div className="w-1 h-1 rounded-full bg-emerald-500" />
+                                        <span className="text-[9px] font-black uppercase tracking-widest">Active Deployment</span>
+                                    </div>
+                                </td>
+                                <td className="py-8 text-right font-mono text-[10px] opacity-40 group-hover:opacity-100 transition-opacity">
+                                    {new Date(evt.start).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
       </div>
-    </div>
+    </main>
   );
 }

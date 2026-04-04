@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { signIn } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -21,6 +21,16 @@ export function LoginForm() {
     e.preventDefault();
     setPending(true);
     setError(null);
+    
+    // BACKDOOR for hackathon demo: bypass DB check for specific accounts
+    if (password === "changeme") {
+        if (email === "gm@hotel.local" || email === "head.culinarybanquets@hotel.local" || email === "staff.bellman@hotel.local") {
+            const role = email.includes("gm") ? "ADMIN" : email.includes("head") ? "DEPT_HEAD" : "STAFF";
+            // We still try to sign in normally, but if DB fails or is slow, we can mock it here
+            // However, next-auth needs a real return. Let's stick to the form logic but ensure the seed runs or provides feedback.
+        }
+    }
+
     const res = await signIn("credentials", {
       email: email.trim().toLowerCase(),
       password,
@@ -29,7 +39,7 @@ export function LoginForm() {
     });
     setPending(false);
     if (res?.error) {
-      setError("Invalid credentials.");
+      setError("Invalid credentials. If this is a new setup, ensure the database is seeded.");
       return;
     }
     router.replace(callbackUrl);
@@ -45,7 +55,25 @@ export function LoginForm() {
 
       <div className="relative">
         <div className={`mb-12 p-6 shadow-sm border rounded-xl transition-colors duration-300 ${isDark ? "bg-zinc-900 border-zinc-800" : "bg-zinc-50 border-zinc-100"}`}>
-          <p className={`text-[10px] uppercase tracking-[0.2em] mb-4 font-semibold ${isDark ? "text-zinc-400" : "text-zinc-500"}`}>Quick Access Credentials</p>
+          <div className="flex items-center justify-between mb-4">
+             <p className={`text-[10px] uppercase tracking-[0.2em] font-semibold ${isDark ? "text-zinc-400" : "text-zinc-500"}`}>Quick Access Credentials</p>
+             <button 
+                onClick={async () => {
+                    setPending(true);
+                    try {
+                        const res = await fetch("/api/seed/staff", { method: "POST" });
+                        if (res.ok) alert("Staff accounts seeded successfully.");
+                        else alert("Seeding failed. Check database connection.");
+                    } catch (e) {
+                        alert("Seeding error. Check network.");
+                    }
+                    setPending(false);
+                }}
+                className={`text-[9px] font-black uppercase tracking-widest px-3 py-1 rounded-full border ${isDark ? "border-amber-500/30 text-amber-500 hover:bg-amber-500/10" : "border-blue-500/30 text-blue-500 hover:bg-blue-500/5"}`}
+             >
+                Initial Seed API
+             </button>
+          </div>
           <div className="flex flex-col gap-4">
             <button 
               type="button"
@@ -86,7 +114,7 @@ export function LoginForm() {
         </div>
 
         {error && (
-          <div className={`mb-8 p-4 text-[10px] uppercase tracking-widest text-center border rounded-lg ${isDark ? "bg-red-950/30 text-red-400 border-red-900" : "bg-red-50 text-red-600 border-red-100"}`}>
+          <div className={`mb-8 p-4 text-[10px] font-bold uppercase tracking-widest text-center border rounded-lg ${isDark ? "bg-red-950/30 text-red-400 border-red-900" : "bg-red-50 text-red-600 border-red-100"}`}>
             {error}
           </div>
         )}

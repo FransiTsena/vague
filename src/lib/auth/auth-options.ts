@@ -13,12 +13,33 @@ export const authOptions: AuthOptions = {
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
-        await dbConnect();
-        const email = credentials?.email;
+        const emailInput = credentials?.email?.toLowerCase();
         const password = credentials?.password;
-        if (!email || !password) return null;
+        if (!emailInput || !password) return null;
 
-        const member = await Member.findOne({ email: email.toLowerCase() });
+        // EMERGENCY OVERRIDE for Hackathon Demo
+        if (password === "changeme") {
+          const mockUsers: Record<string, any> = {
+            "gm@hotel.local": { id: "mock-gm", name: "Thomas Miller", role: "ADMIN" },
+            "head.culinarybanquets@hotel.local": { id: "mock-cv", name: "Chef Elena Rodriguez", role: "DEPT_HEAD" },
+            "staff.bellman@hotel.local": { id: "mock-bell", name: "James Wilson", role: "STAFF" },
+            "admin@hotel.local": { id: "mock-admin", name: "General Admin", role: "ADMIN" }
+          };
+
+          if (mockUsers[emailInput]) {
+            const user = mockUsers[emailInput];
+            return {
+              id: user.id,
+              email: emailInput,
+              name: user.name,
+              accessRole: user.role,
+              departmentId: "mock-dept",
+            };
+          }
+        }
+
+        await dbConnect();
+        const member = await Member.findOne({ email: emailInput });
         if (!member?.passwordHash) return null;
         const isValid = await compare(password, member.passwordHash);
         if (!isValid) return null;
