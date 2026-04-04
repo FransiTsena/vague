@@ -26,8 +26,8 @@ const RiskBadge = ({ level }: { level: string }) => {
   const isHigh = level.toLowerCase() === "high";
   const isMed = level.toLowerCase() === "medium";
   return (
-    <div className={`px-4 py-2 rounded-2xl text-[9px] font-black uppercase tracking-[0.2em] border flex items-center gap-2 ${isHigh ? "border-rose-500/20 text-rose-500" : isMed ? "border-amber-500/20 text-amber-500" : "border-emerald-500/20 text-emerald-500"}`}>
-      <div className={`w-1.5 h-1.5 rounded-full animate-pulse ${isHigh ? "bg-rose-500" : isMed ? "bg-amber-500" : "bg-emerald-500"}`} />
+    <div className={`px-4 py-2 text-[9px] font-black uppercase tracking-[0.2em] border flex items-center gap-2 ${isHigh ? "border-rose-500/20 text-rose-500" : isMed ? "border-amber-500/20 text-amber-500" : "border-emerald-500/20 text-emerald-500"}`}>
+      <div className={`w-1.5 h-1.5 animate-pulse ${isHigh ? "bg-rose-500" : isMed ? "bg-amber-500" : "bg-emerald-500"}`} />
       {level} DEPLOYMENT RISK
     </div>
   );
@@ -415,10 +415,10 @@ export default function StaffingAdminPage() {
   if (isLoading) return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-[#050505] p-12">
       <div className="max-w-[1400px] w-full mx-auto space-y-12">
-        <div className="h-20 w-1/3 bg-white/5 animate-pulse rounded-[2rem]" />
+        <div className="h-20 w-1/3 bg-white/5 animate-pulse" />
         <div className="grid grid-cols-[1.2fr_0.8fr] gap-12">
-            <div className="h-[600px] bg-white/5 animate-pulse rounded-[3rem]" />
-            <div className="h-[600px] bg-white/5 animate-pulse rounded-[3rem]" />
+            <div className="h-[600px] bg-white/5 animate-pulse" />
+            <div className="h-[600px] bg-white/5 animate-pulse" />
         </div>
       </div>
     </div>
@@ -435,7 +435,7 @@ export default function StaffingAdminPage() {
             </Link>
             <div className="flex items-center gap-6">
                 <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
+                    <div className="w-2 h-2 bg-amber-500 animate-pulse" />
                     <span className="text-[9px] font-mono opacity-40 uppercase tracking-widest">Neural Cluster Active</span>
                 </div>
             </div>
@@ -454,7 +454,7 @@ export default function StaffingAdminPage() {
                     </p>
                 </section>
 
-                <div className={`p-1 rounded-[2.5rem] border ${isDark ? "border-white/10" : "border-black/5"}`}>
+                <div className={`p-1 border ${isDark ? "border-white/10" : "border-black/5"}`}>
                     <StaffingCalendar 
                       items={items} 
                       onDayClick={handleDayClick}
@@ -473,7 +473,7 @@ export default function StaffingAdminPage() {
                 <motion.div 
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className={`rounded-[3rem] p-10 border ${isDark ? "bg-white/5 border-white/10" : "bg-white border-black/5 shadow-2xl shadow-black/5"}`}
+                  className={`p-10 border ${isDark ? "bg-white/5 border-white/10" : "bg-white border-black/5 shadow-2xl shadow-black/5"}`}
                 >
                     <h2 className="text-[10px] font-black uppercase tracking-[0.4em] text-zinc-500 mb-8 flex items-center gap-3 italic">
                         <Brain className="w-4 h-4" /> AI Workforce Modulation
@@ -486,7 +486,7 @@ export default function StaffingAdminPage() {
                                 type="date" 
                                 value={startDate}
                                 onChange={(e) => setStartDate(e.target.value)}
-                                className={`w-full bg-white/5 border border-white/10 p-4 rounded-2xl text-[10px] uppercase font-black tracking-widest ${isDark ? "text-zinc-100" : "text-zinc-900"}`}
+                                className={`w-full bg-white/5 border border-white/10 p-4 text-[10px] uppercase font-black tracking-widest ${isDark ? "text-zinc-100" : "text-zinc-900"}`}
                             />
                         </div>
                         <div className="space-y-2">
@@ -495,7 +495,7 @@ export default function StaffingAdminPage() {
                                 type="date" 
                                 value={endDate}
                                 onChange={(e) => setEndDate(e.target.value)}
-                                className={`w-full bg-white/5 border border-white/10 p-4 rounded-2xl text-[10px] uppercase font-black tracking-widest ${isDark ? "text-zinc-100" : "text-zinc-900"}`}
+                                className={`w-full bg-white/5 border border-white/10 p-4 text-[10px] uppercase font-black tracking-widest ${isDark ? "text-zinc-100" : "text-zinc-900"}`}
                             />
                         </div>
                     </div>
@@ -503,7 +503,7 @@ export default function StaffingAdminPage() {
                     <button 
                       onClick={handleAiForecast}
                       disabled={aiLoading}
-                      className="w-full bg-white/5 hover:bg-white/10 border border-white/10 p-8 rounded-[2rem] flex flex-col items-center gap-6 group transition-all relative overflow-hidden disabled:opacity-50 text-left"
+                      className="w-full bg-white/5 hover:bg-white/10 border border-white/10 p-8 flex flex-col items-center gap-6 group transition-all relative overflow-hidden disabled:opacity-50 text-left"
                     >
                         <div className="absolute inset-0 bg-gradient-to-br from-amber-500/0 via-amber-500/0 to-amber-500/5 opacity-0 group-hover:opacity-100 transition-opacity" />
                         {aiLoading ? <Loader2 className="w-10 h-10 text-amber-500 animate-spin" /> : <Brain className="w-10 h-10 text-amber-500 group-hover:scale-110 transition-transform" />}
@@ -524,7 +524,7 @@ export default function StaffingAdminPage() {
                             >
                                 <RiskBadge level={aiResult.riskLevel || "LOW"} />
                                 
-                                <div className="p-6 rounded-2xl bg-amber-500/10 border border-amber-500/20">
+                                <div className="p-6 bg-amber-500/10 border border-amber-500/20">
                                     <div className="flex items-center justify-between mb-4">
                                         <p className="text-[10px] font-black uppercase tracking-widest text-amber-500">AI Strategy Insight</p>
                                         <div className="flex items-center gap-2">
@@ -535,11 +535,11 @@ export default function StaffingAdminPage() {
                                     <p className="text-xs text-amber-500/80 leading-relaxed italic mb-4">{aiResult.reasoning || "Analyzing data..."}</p>
                                     
                                     <div className="grid grid-cols-2 gap-2">
-                                        <div className="p-3 rounded-xl bg-amber-500/5 flex flex-col items-center">
+                                        <div className="p-3 bg-amber-500/5 flex flex-col items-center">
                                             <span className="text-lg font-serif italic text-amber-500">{aiResult.suggestedStaff}</span>
                                             <span className="text-[7px] uppercase font-black tracking-widest opacity-40">Target</span>
                                         </div>
-                                        <div className="p-3 rounded-xl bg-amber-500/5 flex flex-col items-center">
+                                        <div className="p-3 bg-amber-500/5 flex flex-col items-center">
                                             <span className="text-lg font-serif italic text-amber-500">{aiResult.currentStaff}</span>
                                             <span className="text-[7px] uppercase font-black tracking-widest opacity-40">Existing</span>
                                         </div>
@@ -561,7 +561,7 @@ export default function StaffingAdminPage() {
                                 <button 
                                   onClick={handleCommitSchedule}
                                   disabled={isCommitting}
-                                  className="w-full p-6 rounded-2xl bg-amber-500 text-black text-[10px] font-black uppercase tracking-[0.2em] hover:bg-amber-400 transition-all flex items-center justify-center gap-3 disabled:opacity-50"
+                                  className="w-full p-6 bg-amber-500 text-black text-[10px] font-black uppercase tracking-[0.2em] hover:bg-amber-400 transition-all flex items-center justify-center gap-3 disabled:opacity-50"
                                 >
                                     {isCommitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Zap className="w-4 h-4" />}
                                     Commit & Dispatch Roster
@@ -580,7 +580,7 @@ export default function StaffingAdminPage() {
                   </p>
                   <button
                     onClick={() => setIsStaffModalOpen(true)}
-                    className="w-full py-4 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all text-[10px] font-black uppercase tracking-[0.25em] flex items-center justify-center gap-3"
+                    className="w-full py-4 bg-white/5 border border-white/10 hover:bg-white/10 transition-all text-[10px] font-black uppercase tracking-[0.25em] flex items-center justify-center gap-3"
                   >
                     <Users className="w-4 h-4" /> Manage Staff
                   </button>
@@ -603,7 +603,7 @@ export default function StaffingAdminPage() {
                         initial={{ opacity: 0, scale: 0.95, y: 20 }}
                         animate={{ opacity: 1, scale: 1, y: 0 }}
                         exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                        className={`relative w-full max-w-2xl max-h-[85vh] overflow-y-auto custom-scrollbar rounded-[3rem] p-10 border shadow-2xl ${
+                        className={`relative w-full max-w-2xl max-h-[85vh] overflow-y-auto custom-scrollbar p-10 border shadow-2xl ${
                             isDark ? "bg-[#050505] border-white/10" : "bg-white border-black/10 text-neutral-900"
                         }`}
                     >
@@ -631,7 +631,7 @@ export default function StaffingAdminPage() {
                                         </div>
                                         <div className="grid grid-cols-1 gap-3">
                                             {shifts.map((s, idx) => (
-                                                <div key={s._id || `shift-${idx}`} className={`p-4 rounded-2xl border flex items-center justify-between group/shift transition-colors shadow-sm ${
+                                                <div key={s._id || `shift-${idx}`} className={`p-4 border flex items-center justify-between group/shift transition-colors shadow-sm ${
                                                     isDark ? "bg-white/5 border-white/10 hover:border-amber-500/20" : "bg-zinc-50 border-black/5 hover:border-amber-500/20"
                                                 }`}>
                                                     <div className="w-full">
@@ -642,7 +642,7 @@ export default function StaffingAdminPage() {
                                                             <select
                                                                 value={getOrganizerId(s)}
                                                                 onChange={(e) => handleAssignShift(s, e.target.value)}
-                                                                className={`flex-1 px-3 py-2 rounded-xl border bg-transparent text-[9px] font-bold uppercase tracking-widest outline-none transition-all ${
+                                                                className={`flex-1 px-3 py-2 border bg-transparent text-[9px] font-bold uppercase tracking-widest outline-none transition-all ${
                                                                     isDark ? "border-white/10 text-white" : "border-black/10 text-black"
                                                                 }`}
                                                             >
@@ -656,14 +656,14 @@ export default function StaffingAdminPage() {
                                                     </div>
                                                     <button 
                                                         onClick={() => handleDeleteShift(s)}
-                                                        className="p-2 rounded-full bg-rose-500/10 text-rose-500 opacity-0 group-hover/shift:opacity-100 transition-opacity ml-3 hover:bg-rose-500/20"
+                                                        className="p-2 bg-rose-500/10 text-rose-500 opacity-0 group-hover/shift:opacity-100 transition-opacity ml-3 hover:bg-rose-500/20"
                                                     >
                                                         <X className="w-3 h-3" />
                                                     </button>
                                                 </div>
                                             ))}
                                             {shifts.length === 0 && (
-                                                <div className={`py-4 border border-dashed rounded-2xl text-center text-[9px] font-black uppercase tracking-widest ${
+                                                <div className={`py-4 border border-dashed text-center text-[9px] font-black uppercase tracking-widest ${
                                                     isDark ? "border-white/5 text-zinc-700" : "border-black/5 text-zinc-400"
                                                 }`}>
                                                     No Deployments
@@ -681,7 +681,7 @@ export default function StaffingAdminPage() {
                                 setIsAddingShift(true);
                                 setIsDayOpen(false);
                             }}
-                            className="w-full mt-10 p-5 rounded-2xl bg-amber-500 text-black text-[10px] font-black uppercase tracking-[0.2em] hover:bg-amber-400 transition-colors flex items-center justify-center gap-3 shadow-lg shadow-amber-500/20"
+                            className="w-full mt-10 p-5 bg-amber-500 text-black text-[10px] font-black uppercase tracking-[0.2em] hover:bg-amber-400 transition-colors flex items-center justify-center gap-3 shadow-lg shadow-amber-500/20"
                         >
                             <Plus className="w-4 h-4" /> Add Personnel
                         </button>
@@ -703,7 +703,7 @@ export default function StaffingAdminPage() {
                         initial={{ opacity: 0, scale: 0.95 }}
                         animate={{ opacity: 1, scale: 1 }}
                         exit={{ opacity: 0, scale: 0.95 }}
-                        className={`relative w-full max-w-xl rounded-[3rem] p-10 border shadow-2xl overflow-hidden ${
+                        className={`relative w-full max-w-xl p-10 border shadow-2xl overflow-hidden ${
                             isDark ? "bg-[#050505] border-amber-500/20" : "bg-white border-amber-500/10 shadow-amber-500/5 text-neutral-900"
                         }`}
                     >
@@ -718,7 +718,7 @@ export default function StaffingAdminPage() {
                                 placeholder="Enter Shift Name (e.g. Morning Shift)"
                                 value={shiftTitle}
                                 onChange={(e) => setShiftTitle(e.target.value)}
-                                className={`w-full px-8 py-5 rounded-[1.5rem] border bg-transparent text-sm font-bold uppercase tracking-widest outline-none transition-all focus:border-amber-500/50 ${
+                                className={`w-full px-8 py-5 border bg-transparent text-sm font-bold uppercase tracking-widest outline-none transition-all focus:border-amber-500/50 ${
                                     isDark ? "border-white/10 text-white placeholder:text-zinc-600" : "border-black/10 text-black placeholder:text-zinc-400"
                                 }`}
                             />
@@ -727,7 +727,7 @@ export default function StaffingAdminPage() {
                               <select 
                                   value={selectedShiftType}
                                   onChange={(e) => setSelectedShiftType(e.target.value as any)}
-                                  className={`w-full px-8 py-5 rounded-[1.5rem] border bg-transparent text-sm font-bold uppercase tracking-widest outline-none transition-all focus:border-amber-500/50 appearance-none cursor-pointer ${
+                                  className={`w-full px-8 py-5 border bg-transparent text-sm font-bold uppercase tracking-widest outline-none transition-all focus:border-amber-500/50 appearance-none cursor-pointer ${
                                       isDark ? "border-white/10 text-white" : "border-black/10 text-black"
                                   }`}
                               >
@@ -741,7 +741,7 @@ export default function StaffingAdminPage() {
                               <select 
                                   value={selectedStaffForShift}
                                   onChange={(e) => setSelectedStaffForShift(e.target.value)}
-                                  className={`w-full px-8 py-5 rounded-[1.5rem] border bg-transparent text-sm font-bold uppercase tracking-widest outline-none transition-all focus:border-amber-500/50 appearance-none cursor-pointer ${
+                                  className={`w-full px-8 py-5 border bg-transparent text-sm font-bold uppercase tracking-widest outline-none transition-all focus:border-amber-500/50 appearance-none cursor-pointer ${
                                       isDark ? "border-white/10 text-white" : "border-black/10 text-black"
                                   }`}
                               >
@@ -753,7 +753,7 @@ export default function StaffingAdminPage() {
                             </div>
                             <button 
                               onClick={handleAddShift}
-                              className="w-full py-5 rounded-[1.5rem] bg-amber-500 text-black text-[10px] font-black uppercase tracking-[0.4em] hover:bg-amber-400 transition-all font-sans shadow-lg shadow-amber-500/20"
+                              className="w-full py-5 bg-amber-500 text-black text-[10px] font-black uppercase tracking-[0.4em] hover:bg-amber-400 transition-all font-sans shadow-lg shadow-amber-500/20"
                             >
                               Deploy Shift
                             </button>
@@ -775,13 +775,13 @@ export default function StaffingAdminPage() {
                         initial={{ opacity: 0, scale: 0.95, y: 20 }}
                         animate={{ opacity: 1, scale: 1, y: 0 }}
                         exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                        className={`relative w-full max-w-5xl max-h-[85vh] overflow-hidden rounded-[3rem] border shadow-2xl flex flex-col ${
+                        className={`relative w-full max-w-5xl max-h-[85vh] overflow-hidden border shadow-2xl flex flex-col ${
                             isDark ? "bg-[#050505] border-white/10" : "bg-white border-black/10 text-neutral-900"
                         }`}
                     >
                         <div className="p-8 border-b border-white/5 flex items-center justify-between shrink-0">
                             <div className="flex items-center gap-6">
-                                <div className="p-4 rounded-3xl bg-amber-500/10 text-amber-500">
+                                <div className="p-4 bg-amber-500/10 text-amber-500">
                                     <Users className="w-6 h-6" />
                                 </div>
                                 <div>
@@ -793,7 +793,7 @@ export default function StaffingAdminPage() {
                             </div>
                             <button 
                                 onClick={() => setIsStaffModalOpen(false)}
-                                className="p-4 rounded-full bg-white/5 hover:bg-white/10 text-zinc-500 hover:text-white transition-all border border-transparent hover:border-white/10"
+                                className="p-4 bg-white/5 hover:bg-white/10 text-zinc-500 hover:text-white transition-all border border-transparent hover:border-white/10"
                             >
                                 <X className="w-5 h-5" />
                             </button>
@@ -808,7 +808,7 @@ export default function StaffingAdminPage() {
                                             <select
                                                 value={selectedDept}
                                                 onChange={(e) => handleDeptChange(e.target.value)}
-                                                className={`w-full px-6 py-4 rounded-2xl border bg-transparent text-[11px] font-black uppercase tracking-widest transition-all outline-none appearance-none hover:bg-white/[0.03] ${
+                                                className={`w-full px-6 py-4 border bg-transparent text-[11px] font-black uppercase tracking-widest transition-all outline-none appearance-none hover:bg-white/[0.03] ${
                                                     isDark ? "border-white/10 text-white" : "border-black/10 text-black"
                                                 }`}
                                             >
@@ -818,7 +818,7 @@ export default function StaffingAdminPage() {
                                         </div>
                                     </div>
 
-                                    <div className={`p-8 rounded-[2.5rem] border ${isDark ? "bg-white/5 border-white/10" : "bg-zinc-50 border-black/5"}`}>
+                                    <div className={`p-8 border ${isDark ? "bg-white/5 border-white/10" : "bg-zinc-50 border-black/5"}`}>
                                         <form className="space-y-5" onSubmit={handleAddMember}>
                                             <input 
                                                 placeholder="FULL NAME" 
@@ -844,7 +844,7 @@ export default function StaffingAdminPage() {
                                                 value={newMember.role} 
                                                 onChange={e => setNewMember({...newMember, role: e.target.value})} 
                                             />
-                                            <button type="submit" className="w-full mt-4 py-4 rounded-2xl bg-amber-500 text-black text-[9px] font-black uppercase tracking-widest hover:bg-amber-400 transition-all shadow-lg shadow-amber-500/10">Authorize Enrollment</button>
+                                            <button type="submit" className="w-full mt-4 py-4 bg-amber-500 text-black text-[9px] font-black uppercase tracking-widest hover:bg-amber-400 transition-all shadow-lg shadow-amber-500/10">Authorize Enrollment</button>
                                         </form>
                                     </div>
                                 </div>
@@ -857,17 +857,17 @@ export default function StaffingAdminPage() {
                                     
                                     <div className="space-y-3">
                                         {members.length === 0 ? (
-                                            <div className={`h-64 flex flex-col items-center justify-center border-2 border-dashed rounded-[3rem] ${isDark ? "border-white/5" : "border-black/5"}`}>
+                                            <div className={`h-64 flex flex-col items-center justify-center border-2 border-dashed ${isDark ? "border-white/5" : "border-black/5"}`}>
                                                 <Users className="w-10 h-10 text-zinc-800 mb-6 opacity-20" />
                                                 <p className="text-[10px] font-black uppercase tracking-widest text-zinc-700">No personnel detected in sector</p>
                                             </div>
                                         ) : (
                                             members.map((m) => (
-                                                <div key={m._id} className={`p-6 rounded-[2rem] border flex items-center justify-between group hover:border-amber-500/20 transition-all ${
+                                                <div key={m._id} className={`p-6 border flex items-center justify-between group hover:border-amber-500/20 transition-all ${
                                                     isDark ? "bg-white/5 border-white/10" : "bg-white border-black/5 shadow-sm"
                                                 }`}>
                                                     <div className="flex items-center gap-6">
-                                                        <div className="w-12 h-12 rounded-[1.25rem] bg-gradient-to-br from-amber-500 to-amber-600 flex items-center justify-center shadow-lg shadow-amber-500/20">
+                                                        <div className="w-12 h-12 bg-gradient-to-br from-amber-500 to-amber-600 flex items-center justify-center shadow-lg shadow-amber-500/20">
                                                             <span className="text-[11px] font-black text-black uppercase tracking-tighter">{m.name.substring(0, 2)}</span>
                                                         </div>
                                                         <div>
@@ -879,11 +879,11 @@ export default function StaffingAdminPage() {
                                                         <div className="text-right hidden md:block">
                                                             <p className="text-[10px] font-mono text-zinc-500 mb-1">{m.email}</p>
                                                             <div className="flex items-center justify-end gap-2">
-                                                                <div className="w-1 h-1 rounded-full bg-emerald-500 animate-pulse" />
+                                                                <div className="w-1 h-1 bg-emerald-500 animate-pulse" />
                                                                 <span className="text-[8px] uppercase font-black text-emerald-500/60 tracking-widest">Available</span>
                                                             </div>
                                                         </div>
-                                                        <button className="p-3 rounded-xl bg-rose-500/10 text-rose-500 opacity-0 group-hover:opacity-100 transition-all hover:bg-rose-500/20">
+                                                        <button className="p-3 bg-rose-500/10 text-rose-500 opacity-0 group-hover:opacity-100 transition-all hover:bg-rose-500/20">
                                                             <X className="w-4 h-4" />
                                                         </button>
                                                     </div>
