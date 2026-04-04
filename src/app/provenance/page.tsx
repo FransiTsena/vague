@@ -6,8 +6,8 @@ import { ProvenanceProduct as ProvenanceProductModel } from "@/lib/models";
 
 async function getAllProducts(): Promise<ProvenanceProduct[]> {
   // Start with hardcoded demo products
-  const allProducts = [...provenanceProducts];
-  const existingSlugs = new Set(allProducts.map((p) => p.slug));
+  const allProducts: ProvenanceProduct[] = [];
+  const existingSlugs = new Set();
 
   // Fetch DB products
   try {

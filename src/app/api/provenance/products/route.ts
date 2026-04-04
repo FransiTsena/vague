@@ -104,3 +104,38 @@ export async function POST(request: Request) {
         );
     }
 }
+
+export async function DELETE(request: Request) {
+    try {
+        await dbConnect();
+        const { searchParams } = new URL(request.url);
+        const slug = searchParams.get("slug");
+
+        if (!slug) {
+            return NextResponse.json(
+                { success: false, error: "Missing required field: slug" },
+                { status: 400 }
+            );
+        }
+
+        const deletedProduct = await ProvenanceProduct.findOneAndDelete({ slug });
+
+        if (!deletedProduct) {
+            return NextResponse.json(
+                { success: false, error: `Product with slug "${slug}" not found` },
+                { status: 404 }
+            );
+        }
+
+        return NextResponse.json({
+            success: true,
+            message: `Product "${deletedProduct.title}" deleted successfully`,
+        });
+    } catch (error) {
+        console.error("Failed to delete provenance product:", error);
+        return NextResponse.json(
+            { success: false, error: "Failed to delete product" },
+            { status: 500 }
+        );
+    }
+}

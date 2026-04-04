@@ -287,15 +287,24 @@ export default function ProvenanceAdminPage() {
         qrDataUrl,
       };
 
+      // Sync with DB
+      const response = await fetch("/api/provenance/products", {
+        method: "POST", // POST handles upsert in this API
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(updatedItem),
+      });
+
+      if (!response.ok) throw new Error("Failed to sync updates to database");
+
       setItems((current) =>
         current.map((item) => (item.slug === editingSlug ? updatedItem : item))
       );
 
       setEditingSlug(null);
       setEditDraft(null);
-      setMessage("Product updated and QR code refreshed.");
+      setMessage("Product updated and synced with database.");
     } catch (saveError) {
-      setError("Failed to update product.");
+      setError(saveError instanceof Error ? saveError.message : "Failed to update product.");
     } finally {
       setSaving(false);
     }
@@ -314,9 +323,24 @@ export default function ProvenanceAdminPage() {
     anchor.click();
   };
 
-  const handleDelete = (slug: string) => {
-    setItems((current) => current.filter((item) => item.slug !== slug));
-    setMessage(`Deleted ${slug}.`);
+  const handleDelete = async (slug: string) => {
+    try {
+      setSaving(true);
+      const response = await fetch(`/api/provenance/products?slug=${slug}`, {
+        method: "DELETE",
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to delete from database.");
+      }
+
+      setItems((current) => current.filter((item) => item.slug !== slug));
+      setMessage(`Deleted ${slug} from dashboard and database.`);
+    } catch (saveError) {
+      setError(saveError instanceof Error ? saveError.message : "Failed to delete product.");
+    } finally {
+      setSaving(false);
+    }
   };
 
   const clearAll = () => {
