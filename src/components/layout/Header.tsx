@@ -114,8 +114,9 @@ export default function Header() {
                     {session ? (
                         <>
                             <Link href="/admin">
-                                <Button variant="outline" className="p-2 aspect-square flex items-center justify-center" title="Dashboard">
+                                <Button variant="outline" className="flex items-center gap-2 px-3 py-2 h-auto" title="Dashboard">
                                     <Settings className="w-4 h-4" />
+                                    <span className="text-[10px] uppercase tracking-widest font-medium">Dashboard</span>
                                 </Button>
                             </Link>
                             <Button 
@@ -139,8 +140,9 @@ export default function Header() {
                         </>
                     ) : (
                         <Link href="/admin">
-                            <Button variant="outline" className="p-2 aspect-square flex items-center justify-center" aria-label="Admin Login">
+                            <Button variant="outline" className="flex items-center gap-2 px-3 py-2 h-auto" aria-label="Admin Login">
                                 <Settings className="w-4 h-4" />
+                                <span className="text-[10px] uppercase tracking-widest font-medium">Login</span>
                             </Button>
                         </Link>
                     )}
