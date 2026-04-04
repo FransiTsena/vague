@@ -3,6 +3,7 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   /* config options here */
   // reactCompiler: true,
+  allowedDevOrigins: ["46.225.89.2"],
   devIndicators: {
     appIsrStatus: false,
   },
@@ -11,9 +12,6 @@ const nextConfig: NextConfig = {
     fetches: {
       fullUrl: true,
     },
-  },
-  experimental: {
-    allowedDevOrigins: ["46.225.89.2", "localhost:3000", "localhost:3001"],
   },
   images: {
     qualities: [75, 100],
