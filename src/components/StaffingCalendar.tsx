@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { Button } from "@/components/ui/index";
 import { ChevronLeft, ChevronRight, X, Plus } from "lucide-react";
+import { useTheme } from "@/context/ThemeContext";
 
 export type CalendarItem = {
   _id?: string;
@@ -49,6 +50,7 @@ export function StaffingCalendar({
   onDeleteEvent?: (item: CalendarItem) => void;
   onDayClick?: (date: Date, items: CalendarItem[]) => void;
 }) {
+  const { isDark } = useTheme();
   const [cursor, setCursor] = useState(() => {
     const n = new Date();
     return new Date(n.getFullYear(), n.getMonth(), 1);
@@ -82,36 +84,36 @@ export function StaffingCalendar({
     <div className="bg-transparent overflow-hidden">
       <div className="flex items-center justify-between mb-8 px-4">
         <div>
-          <h3 className="text-[10px] font-black uppercase tracking-[0.4em] text-zinc-500 mb-1">{title}</h3>
-          <p className="text-xl font-serif italic text-zinc-100">{monthLabel}</p>
+          <h3 className={`text-[10px] font-black uppercase tracking-[0.4em] mb-1 ${isDark ? "text-zinc-500" : "text-zinc-400"}`}>{title}</h3>
+          <p className={`text-xl font-serif italic ${isDark ? "text-zinc-100" : "text-black"}`}>{monthLabel}</p>
         </div>
         <div className="flex items-center gap-3">
           <button
             onClick={() => setCursor((c) => new Date(c.getFullYear(), c.getMonth() - 1, 1))}
-            className="p-3 bg-white/5 hover:bg-white/10 border border-white/5 transition-all"
+            className={`p-3 border transition-all ${isDark ? "bg-white/5 hover:bg-white/10 border-white/5" : "bg-white hover:bg-zinc-50 border-black/5 shadow-md shadow-black/5"}`}
           >
-            <ChevronLeft className="w-4 h-4 text-zinc-100" />
+            <ChevronLeft className={`w-4 h-4 ${isDark ? "text-zinc-100" : "text-black"}`} />
           </button>
           <button
             onClick={() => setCursor((c) => new Date(c.getFullYear(), c.getMonth() + 1, 1))}
-            className="p-3 bg-white/5 hover:bg-white/10 border border-white/5 transition-all"
+            className={`p-3 border transition-all ${isDark ? "bg-white/5 hover:bg-white/10 border-white/5" : "bg-white hover:bg-zinc-50 border-black/5 shadow-md shadow-black/5"}`}
           >
-            <ChevronRight className="w-4 h-4 text-zinc-100" />
+            <ChevronRight className={`w-4 h-4 ${isDark ? "text-zinc-100" : "text-black"}`} />
           </button>
         </div>
       </div>
 
-      <div className="grid grid-cols-7 gap-px bg-white/5 overflow-hidden border border-white/5 shadow-2xl">
+      <div className={`grid grid-cols-7 gap-px overflow-hidden border shadow-2xl ${isDark ? "bg-white/5 border-white/5" : "bg-zinc-200 border-black/5 shadow-black/5"}`}>
         {WEEKDAYS.map((w) => (
           <div
             key={w}
-            className="bg-white/5 px-2 py-4 text-center text-[9px] uppercase tracking-[0.3em] font-black text-zinc-500"
+            className={`px-2 py-4 text-center text-[9px] uppercase tracking-[0.3em] font-black ${isDark ? "bg-white/5 text-zinc-500" : "bg-zinc-50 text-zinc-400"}`}
           >
             {w}
           </div>
         ))}
         {weeks.flat().map((day, i) => {
-            if (!day) return <div key={`empty-${i}`} className="min-h-[140px] bg-[#080808]/40" />;
+            if (!day) return <div key={`empty-${i}`} className={`min-h-[140px] ${isDark ? "bg-[#080808]/40" : "bg-zinc-100/50"}`} />;
             
             const key = localDateKey(day);
             const isToday = key === todayKey;
@@ -128,11 +130,15 @@ export function StaffingCalendar({
               <div
                 key={key}
                 onClick={() => onDayClick?.(day, dayItems)}
-                className={`min-h-[140px] p-4 transition-all hover:bg-white/[0.03] relative group cursor-pointer ${isToday ? 'bg-amber-500/[0.02]' : 'bg-[#080808]/60'}`}
+                className={`min-h-[140px] p-4 transition-all relative group cursor-pointer ${
+                  isDark 
+                    ? (isToday ? 'bg-amber-500/[0.02]' : 'bg-[#080808]/60 hover:bg-white/[0.03]') 
+                    : (isToday ? 'bg-amber-50/50' : 'bg-white hover:bg-zinc-50')
+                }`}
               >
-                <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none border border-amber-500/20 z-10" />
+                <div className={`absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none border z-10 ${isDark ? "border-amber-500/20" : "border-amber-500/30 shadow-inner"}`} />
                 <div className="flex items-start justify-between mb-3">
-                  <span className={`text-[11px] font-black tracking-widest ${isToday ? 'text-amber-500' : 'opacity-20'}`}>
+                  <span className={`text-[11px] font-black tracking-widest ${isToday ? 'text-amber-500' : isDark ? 'opacity-20' : 'text-black opacity-30'}`}>
                     {day.getDate().toString().padStart(2, '0')}
                   </span>
                   {isToday && <div className="w-1 h-1 bg-amber-500 animate-ping" />}
@@ -147,7 +153,9 @@ export function StaffingCalendar({
                     return (
                       <div
                         key={idx}
-                        className={`px-2 py-1.5 bg-white/5 border ${shiftColor} text-[9px] font-bold uppercase tracking-widest text-zinc-300 truncate transition-colors group/item relative overflow-hidden flex flex-col gap-0.5`}
+                        className={`px-2 py-1.5 border ${shiftColor} text-[9px] font-bold uppercase tracking-widest truncate transition-colors group/item relative overflow-hidden flex flex-col gap-0.5 shadow-sm hover:shadow-md ${
+                          isDark ? "bg-white/5 text-zinc-300" : "bg-white text-black shadow-black/5"
+                        }`}
                         title={it.title}
                       >
                         <div className="flex justify-between items-center relative z-10 w-full">
@@ -182,7 +190,9 @@ export function StaffingCalendar({
                       e.stopPropagation();
                       onAddEvent?.(day);
                     }}
-                    className="opacity-0 group-hover:opacity-40 hover:!opacity-100 transition-opacity text-[8px] font-black uppercase tracking-widest text-zinc-500 mt-2 border border-dashed border-white/10 py-2"
+                    className={`opacity-0 group-hover:opacity-40 hover:!opacity-100 transition-opacity text-[8px] font-black uppercase tracking-widest mt-2 border border-dashed py-2 ${
+                      isDark ? "text-zinc-500 border-white/10" : "text-zinc-400 border-black/10"
+                    }`}
                   >
                     + Add Shift
                   </button>

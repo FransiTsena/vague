@@ -22,13 +22,18 @@ import { useTheme } from "@/context/ThemeContext";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 
-const RiskBadge = ({ level }: { level: string }) => {
+const RiskBadge = ({ level, isDark }: { level: string, isDark: boolean }) => {
   const isHigh = level.toLowerCase() === "high";
   const isMed = level.toLowerCase() === "medium";
+  const colorClass = isHigh ? "text-rose-500 border-rose-500/20" : isMed ? "text-amber-500 border-amber-500/20" : "text-emerald-500 border-emerald-500/20";
+  const dotClass = isHigh ? "bg-rose-500" : isMed ? "bg-amber-500" : "bg-emerald-500";
+  
   return (
-    <div className={`px-4 py-2 text-[9px] font-black uppercase tracking-[0.2em] border flex items-center gap-2 ${isHigh ? "border-rose-500/20 text-rose-500" : isMed ? "border-amber-500/20 text-amber-500" : "border-emerald-500/20 text-emerald-500"}`}>
-      <div className={`w-1.5 h-1.5 animate-pulse ${isHigh ? "bg-rose-500" : isMed ? "bg-amber-500" : "bg-emerald-500"}`} />
-      {level} DEPLOYMENT RISK
+    <div className={`px-4 py-4 text-[9px] font-black uppercase tracking-[0.2em] border flex items-center gap-3 shadow-md ${
+      isDark ? "bg-white/5 border-white/10 text-white" : "bg-white border-black/10 text-black"
+    }`}>
+      <div className={`w-2 h-2 animate-pulse ${dotClass}`} />
+      <span className={isDark ? "" : colorClass.split(' ')[0]}>{level} DEPLOYMENT RISK</span>
     </div>
   );
 };
@@ -425,7 +430,7 @@ export default function StaffingAdminPage() {
   );
 
   return (
-    <main className={`min-h-screen pt-6 pb-20 px-6 sm:px-12 theme-transition ${isDark ? "bg-[#050505] text-white" : "bg-[#fcfcfc] text-neutral-900"}`}>
+    <main className={`min-h-screen pt-6 pb-20 px-6 sm:px-12 theme-transition ${isDark ? "bg-[#050505] text-white" : "bg-white text-black"}`}>
       <div className="max-w-[1400px] mx-auto">
         
         {/* Navigation / Metadata */}
@@ -449,12 +454,12 @@ export default function StaffingAdminPage() {
                     <h1 className="font-serif text-5xl md:text-7xl italic tracking-tight lowercase mb-6">
                         Neural <span className="text-zinc-500">Rosters</span>
                     </h1>
-                    <p className="max-w-xl text-sm md:text-base text-neutral-400 font-medium leading-relaxed">
+                    <p className={`max-w-xl text-sm md:text-base font-medium leading-relaxed ${isDark ? "text-neutral-400" : "text-black/60"}`}>
                         Execute workforce orchestration by reconciling real-time occupancy data with department availability.
                     </p>
                 </section>
 
-                <div className={`p-1 border ${isDark ? "border-white/10" : "border-black/5"}`}>
+                <div className={`p-1 border ${isDark ? "border-white/10" : "border-black/5 shadow-2xl shadow-black/10"}`}>
                     <StaffingCalendar 
                       items={items} 
                       onDayClick={handleDayClick}
@@ -473,15 +478,15 @@ export default function StaffingAdminPage() {
                 <motion.div 
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className={`p-10 border ${isDark ? "bg-white/5 border-white/10" : "bg-white border-black/5 shadow-2xl shadow-black/5"}`}
+                  className={`p-10 border ${isDark ? "bg-white/5 border-white/10 shadow-[0_32px_64px_-16px_rgba(0,0,0,0.5)]" : "bg-white border-black/5 shadow-2xl shadow-black/10"}`}
                 >
-                    <h2 className="text-[10px] font-black uppercase tracking-[0.4em] text-zinc-500 mb-8 flex items-center gap-3 italic">
+                    <h2 className={`text-[10px] font-black uppercase tracking-[0.4em] mb-8 flex items-center gap-3 italic ${isDark ? "text-zinc-500" : "text-black"}`}>
                         <Brain className="w-4 h-4" /> AI Workforce Modulation
                     </h2>
 
                     <div className="grid grid-cols-2 gap-4 mb-8">
                         <div className="space-y-2">
-                            <label className="text-[9px] font-black uppercase tracking-widest text-zinc-500 pl-4">Start Horizon</label>
+                            <label className={`text-[9px] font-black uppercase tracking-widest pl-4 ${isDark ? "text-zinc-500" : "text-black/40"}`}>Start Horizon</label>
                             <input 
                                 type="date" 
                                 value={startDate}
@@ -490,7 +495,7 @@ export default function StaffingAdminPage() {
                             />
                         </div>
                         <div className="space-y-2">
-                            <label className="text-[9px] font-black uppercase tracking-widest text-zinc-500 pl-4">End Horizon</label>
+                            <label className={`text-[9px] font-black uppercase tracking-widest pl-4 ${isDark ? "text-zinc-500" : "text-black/40"}`}>End Horizon</label>
                             <input 
                                 type="date" 
                                 value={endDate}
@@ -503,13 +508,17 @@ export default function StaffingAdminPage() {
                     <button 
                       onClick={handleAiForecast}
                       disabled={aiLoading}
-                      className="w-full bg-white/5 hover:bg-white/10 border border-white/10 p-8 flex flex-col items-center gap-6 group transition-all relative overflow-hidden disabled:opacity-50 text-left"
+                      className={`w-full p-8 flex flex-col items-center gap-6 group transition-all relative overflow-hidden disabled:opacity-50 text-left border-2 ${
+                        isDark 
+                          ? "bg-white/5 hover:bg-white/10 border-white/10 shadow-xl" 
+                          : "bg-white hover:bg-zinc-50 border-black text-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] hover:translate-x-1 hover:translate-y-1 hover:shadow-none"
+                      }`}
                     >
                         <div className="absolute inset-0 bg-gradient-to-br from-amber-500/0 via-amber-500/0 to-amber-500/5 opacity-0 group-hover:opacity-100 transition-opacity" />
                         {aiLoading ? <Loader2 className="w-10 h-10 text-amber-500 animate-spin" /> : <Brain className="w-10 h-10 text-amber-500 group-hover:scale-110 transition-transform" />}
                         <div className="text-center">
-                            <span className="text-xs font-black uppercase tracking-[0.3em] block mb-1">Generate Optimized Roster</span>
-                            <span className="text-[9px] opacity-40 uppercase tracking-widest">Aggregate Personnel & Occupancy</span>
+                            <span className="text-sm font-black uppercase tracking-[0.3em] block mb-1">Generate Optimized Roster</span>
+                            <span className={`text-[9px] uppercase tracking-widest ${isDark ? "opacity-40" : "text-black/40 font-bold"}`}>Aggregate Personnel & Occupancy</span>
                         </div>
                     </button>
 
@@ -522,26 +531,26 @@ export default function StaffingAdminPage() {
                               exit={{ opacity: 0, height: 0 }}
                               className="mt-8 space-y-6 pt-8 border-t border-white/5 overflow-hidden"
                             >
-                                <RiskBadge level={aiResult.riskLevel || "LOW"} />
+                                <RiskBadge level={aiResult.riskLevel || "LOW"} isDark={isDark} />
                                 
-                                <div className="p-6 bg-amber-500/10 border border-amber-500/20">
-                                    <div className="flex items-center justify-between mb-4">
-                                        <p className="text-[10px] font-black uppercase tracking-widest text-amber-500">AI Strategy Insight</p>
-                                        <div className="flex items-center gap-2">
+                                <div className={`p-8 border ${isDark ? "bg-amber-500/10 border-amber-500/20 shadow-lg" : "bg-white border-black shadow-md"}`}>
+                                    <div className="flex items-center justify-between mb-6">
+                                        <p className={`text-[10px] font-black uppercase tracking-widest ${isDark ? "text-amber-500" : "text-black"}`}>AI Strategy Insight</p>
+                                        <div className={`flex items-center gap-2 px-3 py-1 border ${isDark ? "border-amber-500/20" : "border-black/10 bg-zinc-50"}`}>
                                             <TrendingUp className="w-3 h-3 text-amber-500" />
-                                        <span className="text-[9px] font-bold text-amber-500">{aiResult.occupancyAtTime || "N/A"} Load</span>
+                                            <span className={`text-[9px] font-bold ${isDark ? "text-amber-500" : "text-black"}`}>{aiResult.occupancyAtTime || "N/A"} Load</span>
                                         </div>
                                     </div>
-                                    <p className="text-xs text-amber-500/80 leading-relaxed italic mb-4">{aiResult.reasoning || "Analyzing data..."}</p>
+                                    <p className={`text-xs leading-relaxed italic mb-8 ${isDark ? "text-amber-500/80" : "text-black/60"}`}>{aiResult.reasoning || "Analyzing data..."}</p>
                                     
-                                    <div className="grid grid-cols-2 gap-2">
-                                        <div className="p-3 bg-amber-500/5 flex flex-col items-center">
-                                            <span className="text-lg font-serif italic text-amber-500">{aiResult.suggestedStaff}</span>
-                                            <span className="text-[7px] uppercase font-black tracking-widest opacity-40">Target</span>
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div className={`p-5 border flex flex-col items-center justify-center transition-all ${isDark ? "bg-amber-500/5 border-amber-500/20" : "bg-white border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"}`}>
+                                            <span className={`text-xl font-serif italic mb-1 ${isDark ? "text-amber-500" : "text-black"}`}>{aiResult.suggestedStaff}</span>
+                                            <span className={`text-[8px] uppercase font-black tracking-[0.2em] ${isDark ? "opacity-40" : "text-black/40"}`}>Target Units</span>
                                         </div>
-                                        <div className="p-3 bg-amber-500/5 flex flex-col items-center">
-                                            <span className="text-lg font-serif italic text-amber-500">{aiResult.currentStaff}</span>
-                                            <span className="text-[7px] uppercase font-black tracking-widest opacity-40">Existing</span>
+                                        <div className={`p-5 border flex flex-col items-center justify-center transition-all ${isDark ? "bg-amber-500/5 border-amber-500/20" : "bg-white border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"}`}>
+                                            <span className={`text-xl font-serif italic mb-1 ${isDark ? "text-amber-500" : "text-black"}`}>{aiResult.currentStaff}</span>
+                                            <span className={`text-[8px] uppercase font-black tracking-[0.2em] ${isDark ? "opacity-40" : "text-black/40"}`}>Existing Units</span>
                                         </div>
                                     </div>
                                     
@@ -561,7 +570,7 @@ export default function StaffingAdminPage() {
                                 <button 
                                   onClick={handleCommitSchedule}
                                   disabled={isCommitting}
-                                  className="w-full p-6 bg-amber-500 text-black text-[10px] font-black uppercase tracking-[0.2em] hover:bg-amber-400 transition-all flex items-center justify-center gap-3 disabled:opacity-50"
+                                  className="w-full p-6 bg-amber-500 text-black text-[10px] font-black uppercase tracking-[0.2em] hover:bg-amber-400 transition-all flex items-center justify-center gap-3 disabled:opacity-50 shadow-xl shadow-amber-500/20"
                                 >
                                     {isCommitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Zap className="w-4 h-4" />}
                                     Commit & Dispatch Roster
@@ -571,16 +580,16 @@ export default function StaffingAdminPage() {
                     </AnimatePresence>
                 </motion.div>
 
-                <div className={`p-8 border transition-all duration-700 ${isDark ? "bg-white/5 border-white/10" : "bg-white border-black/5"}`}>
-                  <h2 className="text-[10px] font-black uppercase tracking-[0.4em] text-amber-500 mb-5 flex items-center gap-3 italic">
+                <div className={`p-8 border transition-all duration-700 ${isDark ? "bg-white/5 border-white/10 shadow-xl" : "bg-white border-black/5 shadow-xl shadow-black/10"}`}>
+                  <h2 className={`text-[10px] font-black uppercase tracking-[0.4em] mb-5 flex items-center gap-3 italic ${isDark ? "text-amber-500" : "text-black"}`}>
                     Staff Command
                   </h2>
-                  <p className="text-[11px] text-zinc-500 mb-6 leading-relaxed">
+                  <p className={`text-[11px] mb-6 leading-relaxed ${isDark ? "text-zinc-500" : "text-black/60 font-medium"}`}>
                     Open Manage Staff to onboard, view, and maintain personnel assignments for the selected department.
                   </p>
                   <button
                     onClick={() => setIsStaffModalOpen(true)}
-                    className="w-full py-4 bg-white/5 border border-white/10 hover:bg-white/10 transition-all text-[10px] font-black uppercase tracking-[0.25em] flex items-center justify-center gap-3"
+                    className="w-full py-4 bg-white/5 border border-white/10 hover:bg-white/10 transition-all text-[10px] font-black uppercase tracking-[0.25em] flex items-center justify-center gap-3 shadow-lg"
                   >
                     <Users className="w-4 h-4" /> Manage Staff
                   </button>
@@ -611,7 +620,7 @@ export default function StaffingAdminPage() {
                         <h2 className="text-[10px] font-black uppercase tracking-[0.4em] text-amber-500 mb-2 flex items-center gap-3 italic">
                             <Calendar className="w-4 h-4" /> Daily Orchestration
                         </h2>
-                        <p className={`text-2xl font-serif italic mb-8 ${isDark ? "text-zinc-100" : "text-zinc-800"}`}>
+                        <p className={`text-2xl font-serif italic mb-8 ${isDark ? "text-zinc-100" : "text-black"}`}>
                             {dayDetailDate?.toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' })}
                         </p>
                         
@@ -631,12 +640,12 @@ export default function StaffingAdminPage() {
                                         </div>
                                         <div className="grid grid-cols-1 gap-3">
                                             {shifts.map((s, idx) => (
-                                                <div key={s._id || `shift-${idx}`} className={`p-4 border flex items-center justify-between group/shift transition-colors shadow-sm ${
-                                                    isDark ? "bg-white/5 border-white/10 hover:border-amber-500/20" : "bg-zinc-50 border-black/5 hover:border-amber-500/20"
+                                                <div key={s._id || `shift-${idx}`} className={`p-4 border flex items-center justify-between group/shift transition-colors shadow-lg ${
+                                                    isDark ? "bg-white/5 border-white/10 hover:border-amber-500/20 shadow-black/40" : "bg-zinc-50 border-black/5 hover:border-amber-500/20 shadow-black/5"
                                                 }`}>
                                                     <div className="w-full">
-                                                        <p className={`text-xs font-bold mb-1 ${isDark ? "text-zinc-100" : "text-zinc-800"}`}>{getOrganizerName(s)}</p>
-                                                        <p className="text-[9px] font-black uppercase tracking-[0.2em] text-zinc-500">{s.title}</p>
+                                                        <p className={`text-xs font-bold mb-1 ${isDark ? "text-zinc-100" : "text-black"}`}>{getOrganizerName(s)}</p>
+                                                        <p className={`text-[9px] font-black uppercase tracking-[0.2em] ${isDark ? "text-zinc-500" : "text-black/40"}`}>{s.title}</p>
 
                                                         <div className="mt-3 flex items-center gap-2">
                                                             <select
@@ -785,15 +794,15 @@ export default function StaffingAdminPage() {
                                     <Users className="w-6 h-6" />
                                 </div>
                                 <div>
-                                    <h2 className="text-[10px] font-black uppercase tracking-[0.4em] text-amber-500 mb-1 italic">
+                                    <h2 className={`text-[10px] font-black uppercase tracking-[0.4em] mb-1 italic ${isDark ? "text-amber-500" : "text-black"}`}>
                                         Personnel Registry
                                     </h2>
-                                    <p className={`text-2xl font-serif italic ${isDark ? "text-zinc-100" : "text-zinc-800"}`}>Service Command</p>
+                                    <p className={`text-2xl font-serif italic ${isDark ? "text-zinc-100" : "text-black"}`}>Service Command</p>
                                 </div>
                             </div>
                             <button 
                                 onClick={() => setIsStaffModalOpen(false)}
-                                className="p-4 bg-white/5 hover:bg-white/10 text-zinc-500 hover:text-white transition-all border border-transparent hover:border-white/10"
+                                className={`p-4 bg-white/5 hover:bg-white/10 transition-all border border-transparent hover:border-white/10 ${isDark ? "text-zinc-500 hover:text-white" : "text-black/30 hover:text-black"}`}
                             >
                                 <X className="w-5 h-5" />
                             </button>
@@ -863,8 +872,8 @@ export default function StaffingAdminPage() {
                                             </div>
                                         ) : (
                                             members.map((m) => (
-                                                <div key={m._id} className={`p-6 border flex items-center justify-between group hover:border-amber-500/20 transition-all ${
-                                                    isDark ? "bg-white/5 border-white/10" : "bg-white border-black/5 shadow-sm"
+                                                <div key={m._id} className={`p-6 border flex items-center justify-between group hover:border-amber-500/20 transition-all shadow-lg ${
+                                                    isDark ? "bg-white/5 border-white/10 shadow-black/40" : "bg-white border-black/5 shadow-black/5"
                                                 }`}>
                                                     <div className="flex items-center gap-6">
                                                         <div className="w-12 h-12 bg-gradient-to-br from-amber-500 to-amber-600 flex items-center justify-center shadow-lg shadow-amber-500/20">
