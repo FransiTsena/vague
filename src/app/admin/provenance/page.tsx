@@ -52,6 +52,8 @@ export default function ProvenanceAdminPage() {
   const [aiError, setAiError] = useState<string | null>(null);
   const [aiDescription, setAiDescription] = useState("");
   const [generatingAi, setGeneratingAi] = useState(false);
+  const [generatingImage, setGeneratingImage] = useState(false);
+  const [showManualForm, setShowManualForm] = useState(false);
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
@@ -276,26 +278,53 @@ export default function ProvenanceAdminPage() {
             </div>
 
             <form className="mt-8 grid gap-4 md:grid-cols-2" onSubmit={handleCreate}>
-              <label className="space-y-2 md:col-span-1">
-                <span className="text-xs uppercase tracking-[0.28em] text-neutral-400">Slug</span>
-                <input
-                  value={draft.slug}
-                  onChange={(event) => updateDraft("slug", slugify(event.target.value))}
-                  className={`w-full rounded-2xl border px-4 py-3 text-sm outline-none transition ${isDark ? "border-white/10 bg-black/40 focus:border-white/30" : "border-black/10 bg-white focus:border-black/30"}`}
-                  placeholder="sidamo-coffee"
-                  required
-                />
-              </label>
-              <label className="space-y-2 md:col-span-1">
-                <span className="text-xs uppercase tracking-[0.28em] text-neutral-400">Item type</span>
-                <input
-                  value={draft.itemType}
-                  onChange={(event) => updateDraft("itemType", event.target.value)}
-                  className={`w-full rounded-2xl border px-4 py-3 text-sm outline-none transition ${isDark ? "border-white/10 bg-black/40 focus:border-white/30" : "border-black/10 bg-white focus:border-black/30"}`}
-                  placeholder="Coffee"
-                  required
-                />
-              </label>
+              {!showManualForm ? (
+                <div className="md:col-span-2">
+                  <button
+                    type="button"
+                    onClick={() => setShowManualForm(true)}
+                    className={`flex items-center gap-2 text-xs uppercase tracking-[0.2em] transition ${isDark ? "text-neutral-500 hover:text-neutral-300" : "text-neutral-400 hover:text-neutral-600"}`}
+                  >
+                    <Plus className="h-3 w-3" />
+                    Fill manual fields instead
+                  </button>
+                </div>
+              ) : (
+                <div className="md:col-span-2">
+                  <button
+                    type="button"
+                    onClick={() => setShowManualForm(false)}
+                    className={`flex items-center gap-2 text-xs uppercase tracking-[0.2em] transition ${isDark ? "text-neutral-500 hover:text-neutral-300" : "text-neutral-400 hover:text-neutral-600"}`}
+                  >
+                    <Sparkles className="h-3 w-3" />
+                    Focus on AI generation
+                  </button>
+                </div>
+              )}
+
+              {(showManualForm || draft.title !== defaultProvenanceDraft.title) && (
+                <>
+                  <label className="space-y-2 md:col-span-1">
+                    <span className="text-xs uppercase tracking-[0.28em] text-neutral-400">Slug</span>
+                    <input
+                      value={draft.slug}
+                      onChange={(event) => updateDraft("slug", slugify(event.target.value))}
+                      className={`w-full rounded-2xl border px-4 py-3 text-sm outline-none transition ${isDark ? "border-white/10 bg-black/40 focus:border-white/30" : "border-black/10 bg-white focus:border-black/30"}`}
+                      placeholder="sidamo-coffee"
+                      required
+                    />
+                  </label>
+                  <label className="space-y-2 md:col-span-1">
+                    <span className="text-xs uppercase tracking-[0.28em] text-neutral-400">Item type</span>
+                    <input
+                      value={draft.itemType}
+                      onChange={(event) => updateDraft("itemType", event.target.value)}
+                      className={`w-full rounded-2xl border px-4 py-3 text-sm outline-none transition ${isDark ? "border-white/10 bg-black/40 focus:border-white/30" : "border-black/10 bg-white focus:border-black/30"}`}
+                      placeholder="Coffee"
+                      required
+                    />
+                  </label>
+
               <label className="space-y-2 md:col-span-2">
                 <span className="text-xs uppercase tracking-[0.28em] text-neutral-400">Title</span>
                 <input
@@ -380,15 +409,17 @@ export default function ProvenanceAdminPage() {
                   required
                 />
               </label>
-              <label className="space-y-2 md:col-span-2">
-                <span className="text-xs uppercase tracking-[0.28em] text-neutral-400">Tip text</span>
-                <input
-                  value={draft.tipText}
-                  onChange={(event) => updateDraft("tipText", event.target.value)}
-                  className={`w-full rounded-2xl border px-4 py-3 text-sm outline-none transition ${isDark ? "border-white/10 bg-black/40 focus:border-white/30" : "border-black/10 bg-white focus:border-black/30"}`}
-                  required
-                />
-              </label>
+                  <label className="space-y-2 md:col-span-2">
+                    <span className="text-xs uppercase tracking-[0.28em] text-neutral-400">Tip text</span>
+                    <input
+                      value={draft.tipText}
+                      onChange={(event) => updateDraft("tipText", event.target.value)}
+                      className={`w-full rounded-2xl border px-4 py-3 text-sm outline-none transition ${isDark ? "border-white/10 bg-black/40 focus:border-white/30" : "border-black/10 bg-white focus:border-black/30"}`}
+                      required
+                    />
+                  </label>
+                </>
+              )}
 
               <div className="md:col-span-2">
                 <Button variant="primary" className="inline-flex gap-2 text-xs" type="submit" disabled={saving}>
@@ -408,31 +439,6 @@ export default function ProvenanceAdminPage() {
             <div className="relative">
               <p className={`text-xs uppercase tracking-[0.35em] ${isDark ? "text-neutral-400" : "text-neutral-600"}`}>Chapter two</p>
               <h3 className="mt-2 font-serif text-2xl leading-tight md:text-3xl">Live QR preview</h3>
-              <p className={`mt-2 text-sm ${isDark ? "text-neutral-300" : "text-neutral-700"}`}>{activeScanUrl}</p>
-              <div className="mt-4 grid grid-cols-2 gap-3">
-                <label className="space-y-2">
-                  <span className={`text-[10px] uppercase tracking-[0.3em] ${isDark ? "text-neutral-400" : "text-neutral-600"}`}>QR size</span>
-                  <input
-                    type="number"
-                    min={180}
-                    max={600}
-                    value={settings.size}
-                    onChange={(event) => setSettings((current) => ({ ...current, size: Number(event.target.value) || 320 }))}
-                    className={`w-full rounded-xl border px-3 py-2 text-sm outline-none ${isDark ? "border-white/10 bg-black/40" : "border-black/10 bg-white"}`}
-                  />
-                </label>
-                <label className="space-y-2">
-                  <span className={`text-[10px] uppercase tracking-[0.3em] ${isDark ? "text-neutral-400" : "text-neutral-600"}`}>Margin</span>
-                  <input
-                    type="number"
-                    min={0}
-                    max={8}
-                    value={settings.margin}
-                    onChange={(event) => setSettings((current) => ({ ...current, margin: Number(event.target.value) || 0 }))}
-                    className={`w-full rounded-xl border px-3 py-2 text-sm outline-none ${isDark ? "border-white/10 bg-black/40" : "border-black/10 bg-white"}`}
-                  />
-                </label>
-              </div>
               <div className={`mt-5 overflow-hidden rounded-3xl border p-4 ${isDark ? "border-white/10 bg-white" : "border-black/10 bg-white"}`}>
                 {qrPreview ? (
                   <Image src={qrPreview} alt="QR code preview" width={settings.size} height={settings.size} className="h-auto w-full" unoptimized />
