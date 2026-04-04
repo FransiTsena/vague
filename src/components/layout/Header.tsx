@@ -4,16 +4,18 @@ import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useState, useEffect, useRef } from "react";
+import { useSession, signOut } from "next-auth/react";
 import { cn } from "@/lib/utils";
 import Button from "@/components/ui/Button";
 import ThemeToggle from "@/components/ui/ThemeToggle";
 import { useLanguage } from "@/context/LanguageContext";
 import { useTheme } from "@/context/ThemeContext";
-import { Menu, X, Settings } from "lucide-react";
+import { Menu, X, Settings, LogOut, User } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function Header() {
     const router = useRouter();
+    const { data: session } = useSession();
     const [scrolled, setScrolled] = useState(false);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const { t, language } = useLanguage();
@@ -52,6 +54,8 @@ export default function Header() {
 
     const navItems = [
         { key: "nav.story", href: "/#story" },
+        { key: "nav.rooms", href: "/#rooms" },
+        { key: "nav.accommodations", href: "/#accommodations" },
         { key: "nav.services", href: "/#services" },
         { key: "nav.gallery", href: "/#gallery" },
         { key: "nav.training", href: "/training" },
@@ -107,11 +111,39 @@ export default function Header() {
 
                 {/* Desktop Controls */}
                 <div className="hidden md:flex items-center gap-3">
-                    <Link href="/admin">
-                        <Button variant="outline" className="p-2 aspect-square flex items-center justify-center" aria-label="Admin Dashboard">
-                            <Settings className="w-4 h-4" />
-                        </Button>
-                    </Link>
+                    {session ? (
+                        <>
+                            <Link href="/admin">
+                                <Button variant="outline" className="p-2 aspect-square flex items-center justify-center" title="Dashboard">
+                                    <Settings className="w-4 h-4" />
+                                </Button>
+                            </Link>
+                            <Button 
+                                variant="outline" 
+                                className="p-2 aspect-square flex items-center justify-center group relative cursor-pointer" 
+                                title={`Logged in as ${session.user?.name}`}
+                            >
+                                <User className="w-4 h-4" />
+                                <span className="absolute -bottom-8 right-0 bg-black text-white text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
+                                    {session.user?.name}
+                                </span>
+                            </Button>
+                            <Button 
+                                variant="outline" 
+                                className="p-2 aspect-square flex items-center justify-center text-red-500 border-red-200 hover:bg-red-50 dark:hover:bg-red-950/20" 
+                                onClick={() => signOut({ callbackUrl: "/" })}
+                                title="Sign Out"
+                            >
+                                <LogOut className="w-4 h-4" />
+                            </Button>
+                        </>
+                    ) : (
+                        <Link href="/admin">
+                            <Button variant="outline" className="p-2 aspect-square flex items-center justify-center" aria-label="Admin Login">
+                                <Settings className="w-4 h-4" />
+                            </Button>
+                        </Link>
+                    )}
                     <ThemeToggle />
                     <Button variant="primary" className="px-6 py-2 text-xs" onClick={handleBookClick}>
                         {t("cta.book")}
@@ -151,11 +183,31 @@ export default function Header() {
                                 </Link>
                             ))}
                             <div className={`flex flex-col gap-4 pt-4 border-t ${isDark ? "border-white/10" : "border-black/10"}`}>
-                                <Link href="/admin" onClick={() => setMobileMenuOpen(false)} className={`flex items-center gap-2 text-lg font-medium transition-colors ${isDark ? "text-neutral-300 hover:text-white" : "text-neutral-600 hover:text-black"}`}>
-                                    <Settings className="w-5 h-5" />
-                                    Admin Dashboard
-                                </Link>
-                                <div className="flex items-center gap-4">
+                                {session ? (
+                                    <>
+                                        <div className="px-2 py-2 mb-2 rounded-xl bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800">
+                                            <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest leading-none mb-1">Authenticated Personnel</p>
+                                            <p className="text-sm font-bold text-zinc-900 dark:text-zinc-50 truncate">{session.user?.name}</p>
+                                        </div>
+                                        <Link href="/admin" onClick={() => setMobileMenuOpen(false)} className={`flex items-center gap-3 text-lg font-medium transition-colors ${isDark ? "text-neutral-300 hover:text-white" : "text-neutral-600 hover:text-black"}`}>
+                                            <Settings className="w-5 h-5 opacity-60" />
+                                            Admin Dashboard
+                                        </Link>
+                                        <button 
+                                            onClick={() => signOut({ callbackUrl: "/" })}
+                                            className="flex items-center gap-3 text-lg font-medium text-red-500 hover:text-red-600 transition-colors py-2 text-left"
+                                        >
+                                            <LogOut className="w-5 h-5 opacity-60" />
+                                            Sign Out
+                                        </button>
+                                    </>
+                                ) : (
+                                    <Link href="/login" onClick={() => setMobileMenuOpen(false)} className={`flex items-center gap-3 text-lg font-medium transition-colors ${isDark ? "text-neutral-300 hover:text-white" : "text-neutral-600 hover:text-black"}`}>
+                                        <Settings className="w-5 h-5 opacity-60" />
+                                        Personnel Portal
+                                    </Link>
+                                )}
+                                <div className="flex items-center gap-4 pt-4">
                                     <ThemeToggle />
                                 </div>
                             </div>

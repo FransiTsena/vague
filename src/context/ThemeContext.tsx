@@ -18,15 +18,23 @@ function emitChange() {
     listeners.forEach((l) => l());
 }
 
+function getSystemTheme(): Theme {
+    if (typeof window !== "undefined" && window.matchMedia("(prefers-color-scheme: light)").matches) {
+        return "light";
+    }
+    return "dark";
+}
+
 function subscribe(callback: () => void) {
     listeners.add(callback);
     return () => { listeners.delete(callback); };
 }
 
 function getSnapshot(): Theme {
+    if (typeof window === "undefined") return "dark";
     const saved = localStorage.getItem("vague-theme");
     if (saved === "dark" || saved === "light") return saved;
-    return "dark";
+    return getSystemTheme();
 }
 
 function getServerSnapshot(): Theme {
@@ -37,14 +45,28 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     const theme = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
 
     useEffect(() => {
+        const root = document.documentElement;
         if (theme === "dark") {
-            document.documentElement.classList.add("dark");
-            document.documentElement.classList.remove("light");
+            root.classList.add("dark");
+            root.classList.remove("light");
+            root.style.colorScheme = "dark";
         } else {
-            document.documentElement.classList.add("light");
-            document.documentElement.classList.remove("dark");
+            root.classList.add("light");
+            root.classList.remove("dark");
+            root.style.colorScheme = "light";
         }
     }, [theme]);
+
+    useEffect(() => {
+        const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+        const handleChange = () => {
+            if (!localStorage.getItem("vague-theme")) {
+                emitChange();
+            }
+        };
+        mediaQuery.addEventListener("change", handleChange);
+        return () => mediaQuery.removeEventListener("change", handleChange);
+    }, []);
 
     const toggleTheme = useCallback(() => {
         const next = theme === "dark" ? "light" : "dark";

@@ -66,6 +66,59 @@ export async function getDynamicPricingPrediction(
   }
 }
 
+interface SmartSchedulePrediction {
+  suggestedStaffCount: number;
+  reasoning: string;
+  riskLevel: "low" | "medium" | "high";
+}
+
+export async function getSmartStaffingPrediction(
+  context: {
+    department: string;
+    occupancyRate: number;
+    upcomingBookings: number;
+    activeEvents: string[];
+    historicalDemand: string;
+  }
+): Promise<SmartSchedulePrediction | null> {
+  if (!process.env.GROQ_API_KEY) return null;
+
+  const cacheKey = getCacheKey("staffing", context);
+  const cached = aiCache.get(cacheKey);
+  if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
+    return cached.value;
+  }
+
+  try {
+    const completion = await groq.chat.completions.create({
+      messages: [
+        {
+          role: "system",
+          content: `You are a hotel workforce optimization AI. Calculate ideal staffing for a given department. 
+          Consider occupancy, event intensity, and service standards. 
+          Return ONLY JSON: { "suggestedStaffCount": number, "reasoning": "string", "riskLevel": "low|medium|high" }.`
+        },
+        {
+          role: "user",
+          content: JSON.stringify(context),
+        },
+      ],
+      model: "llama-3.1-8b-instant",
+      response_format: { type: "json_object" },
+    });
+
+    const result = JSON.parse(
+      completion.choices[0]?.message?.content || "{}"
+    ) as SmartSchedulePrediction;
+
+    aiCache.set(cacheKey, { value: result, timestamp: Date.now() });
+    return result;
+  } catch (error) {
+    console.error("Smart Staffing AI Error:", error);
+    return null;
+  }
+}
+
 export async function predictGuestSegment(
   guestData: Record<string, unknown>,
 ): Promise<GuestSegmentPrediction | null> {

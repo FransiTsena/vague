@@ -4,6 +4,7 @@ import "./globals.css";
 import Header from "@/components/layout/Header";
 import { LanguageProvider } from "@/context/LanguageContext";
 import { ThemeProvider } from "@/context/ThemeContext";
+import { AuthProvider } from "@/components/layout/AuthProvider";
 import ChatBot from "@/components/ui/ChatBot";
 
 const geistSans = Geist({
@@ -39,17 +40,19 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning>
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${playfair.variable} ${notoEthiopic.variable} antialiased bg-background text-foreground selection:bg-foreground selection:text-background`}
       >
-        <ThemeProvider>
-          <LanguageProvider>
-            <Header />
-            <main>{children}</main>
-            <ChatBot />
-          </LanguageProvider>
-        </ThemeProvider>
+        <AuthProvider>
+          <ThemeProvider>
+            <LanguageProvider>
+              <Header />
+              <main>{children}</main>
+              <ChatBot />
+            </LanguageProvider>
+          </ThemeProvider>
+        </AuthProvider>
       </body>
     </html>
   );

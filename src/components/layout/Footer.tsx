@@ -85,9 +85,7 @@ export default function Footer() {
                     <p className="text-sm text-neutral-500" lang={language}>
                         © {new Date().getFullYear()} VAGUE Resort. {t("footer.rights")}
                     </p>
-                    <p className={`text-xs ${isDark ? "text-neutral-600" : "text-neutral-500"}`}>
-                        Crafted with ❤️ in Ethiopia
-                    </p>
+                  
                 </div>
             </div>
         </footer>

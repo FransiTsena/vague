@@ -1,0 +1,55 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: hms-app
+    ports:
+      - "2001:2001"
+    environment:
+      - DATABASE_URL=postgresql://johndoe:randompassword@postgres:5432/mydb?schema=public
+      - MONGODB_URI=mongodb://mongodb:27017/hrm
+      - GROQ_API_KEY=${GROQ_API_KEY}
+      - COMMAND_CENTER_API_KEY=${COMMAND_CENTER_API_KEY}
+      - NEXT_PUBLIC_COMMAND_CENTER_API_KEY=${NEXT_PUBLIC_COMMAND_CENTER_API_KEY}
+    depends_on:
+      - postgres
+      - mongodb
+    networks:
+      - hms-network
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: hms-postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: randompassword
+      POSTGRES_DB: mydb
+    ports:
+      - "5432:5432"
+    volumes:
+      - hms-db-data:/var/lib/postgresql/data
+    networks:
+      - hms-network
+
+  mongodb:
+    image: mongo:latest
+    container_name: hms-mongodb
+    command: ["--replSet", "rs0", "--bind_ip_all"]
+    environment:
+      MONGO_INITDB_DATABASE: hrm
+    ports:
+      - "27017:27017"
+    volumes:
+      - hms-mongo-data:/data/db
+    networks:
+      - hms-network
+
+networks:
+  hms-network:
+    driver: bridge
+
+volumes:
+  hms-db-data:
+  hms-mongo-data:
+

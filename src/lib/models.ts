@@ -210,3 +210,151 @@ const GalleryProjectSchema = new Schema<IGalleryProject>(
 
 export const GalleryProject: Model<IGalleryProject> =
   mongoose.models.GalleryProject || mongoose.model<IGalleryProject>("GalleryProject", GalleryProjectSchema);
+
+// --- Scheduling & Staffing Models ---
+
+export interface IDepartment extends Document {
+  name: string;
+  description?: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+const DepartmentSchema = new Schema<IDepartment>(
+  {
+    name: { type: String, required: true, trim: true },
+    description: { type: String, trim: true },
+  },
+  { timestamps: true }
+);
+
+export const DepartmentModel: Model<IDepartment> = 
+  mongoose.models.Department || mongoose.model<IDepartment>("Department", DepartmentSchema);
+
+export type AccessRole = "ADMIN" | "DEPARTMENT_HEAD" | "MEMBER";
+
+export interface IMember extends Document {
+  email: string;
+  name: string;
+  role?: string;
+  accessRole: AccessRole;
+  passwordHash?: string;
+  portalToken: string;
+  departmentId?: mongoose.Types.ObjectId;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+const MemberSchema = new Schema<IMember>(
+  {
+    email: { type: String, required: true, unique: true, lowercase: true, trim: true },
+    name: { type: String, required: true, trim: true },
+    role: { type: String, trim: true },
+    accessRole: { type: String, enum: ["ADMIN", "DEPARTMENT_HEAD", "MEMBER"], default: "MEMBER" },
+    passwordHash: { type: String },
+    portalToken: { type: String, required: true, unique: true },
+    departmentId: { type: Schema.Types.ObjectId, ref: "Department" },
+  },
+  { timestamps: true }
+);
+
+export const Member: Model<IMember> = 
+  mongoose.models.Member || mongoose.model<IMember>("Member", MemberSchema);
+
+export interface IScheduleEvent extends Document {
+  title: string;
+  description?: string;
+  startsAt: Date;
+  endsAt: Date;
+  departmentId: mongoose.Types.ObjectId;
+  organizerId?: mongoose.Types.ObjectId;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+const ScheduleEventSchema = new Schema<IScheduleEvent>(
+  {
+    title: { type: String, required: true, trim: true },
+    description: { type: String, trim: true },
+    startsAt: { type: Date, required: true },
+    endsAt: { type: Date, required: true },
+    departmentId: { type: Schema.Types.ObjectId, ref: "Department", required: true },
+    organizerId: { type: Schema.Types.ObjectId, ref: "Member" },
+  },
+  { timestamps: true }
+);
+
+export const ScheduleEvent: Model<IScheduleEvent> = 
+  mongoose.models.ScheduleEvent || mongoose.model<IScheduleEvent>("ScheduleEvent", ScheduleEventSchema);
+
+export type DemandStatus = "SCHEDULED" | "PARTIAL";
+
+export interface IStaffingDemand extends Document {
+  referenceId?: string;
+  startsAt: Date;
+  endsAt: Date;
+  status: DemandStatus;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+const StaffingDemandSchema = new Schema<IStaffingDemand>(
+  {
+    referenceId: { type: String, unique: true, sparse: true },
+    startsAt: { type: Date, required: true },
+    endsAt: { type: Date, required: true },
+    status: { type: String, enum: ["SCHEDULED", "PARTIAL"], default: "PARTIAL" },
+  },
+  { timestamps: true }
+);
+
+export const StaffingDemand: Model<IStaffingDemand> = 
+  mongoose.models.StaffingDemand || mongoose.model<IStaffingDemand>("StaffingDemand", StaffingDemandSchema);
+
+export interface IStaffingRequirement extends Document {
+  demandId: mongoose.Types.ObjectId;
+  departmentId: mongoose.Types.ObjectId;
+  requiredCount: number;
+  roleName?: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+const StaffingRequirementSchema = new Schema<IStaffingRequirement>(
+  {
+    demandId: { type: Schema.Types.ObjectId, ref: "StaffingDemand", required: true },
+    departmentId: { type: Schema.Types.ObjectId, ref: "Department", required: true },
+    requiredCount: { type: Number, required: true, min: 0 },
+    roleName: { type: String, trim: true },
+  },
+  { timestamps: true }
+);
+
+export const StaffingRequirement: Model<IStaffingRequirement> = 
+  mongoose.models.StaffingRequirement || mongoose.model<IStaffingRequirement>("StaffingRequirement", StaffingRequirementSchema);
+
+export interface IStaffAssignment extends Document {
+  demandId: mongoose.Types.ObjectId;
+  memberId: mongoose.Types.ObjectId;
+  departmentId: mongoose.Types.ObjectId;
+  startsAt: Date;
+  endsAt: Date;
+  note?: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+const StaffAssignmentSchema = new Schema<IStaffAssignment>(
+  {
+    demandId: { type: Schema.Types.ObjectId, ref: "StaffingDemand", required: true },
+    memberId: { type: Schema.Types.ObjectId, ref: "Member", required: true },
+    departmentId: { type: Schema.Types.ObjectId, ref: "Department", required: true },
+    startsAt: { type: Date, required: true },
+    endsAt: { type: Date, required: true },
+    note: { type: String, trim: true },
+  },
+  { timestamps: true }
+);
+
+export const StaffAssignment: Model<IStaffAssignment> = 
+  mongoose.models.StaffAssignment || mongoose.model<IStaffAssignment>("StaffAssignment", StaffAssignmentSchema);
