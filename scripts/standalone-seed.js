@@ -102,9 +102,16 @@ function makeName(firstNames, lastNames, idx) {
 async function seed() {
   try {
     let uri = MONGODB_URI.replace(/"/g, '');
-    if (uri.includes('127.0.0.1') || uri.includes('localhost')) { uri = uri.split('?')[0]; }
-    console.log("Connecting to:", uri);
-    await mongoose.connect(uri, { serverSelectionTimeoutMS: 15000 });
+    console.log("Connecting to:", uri.replace(/:([^@]+)@/, ":****@")); // Mask password in logs
+    
+    // Auto-detect auth requirements based on the URI
+    const options = { serverSelectionTimeoutMS: 15000 };
+    if (uri.includes('@')) {
+      // If URI contains credentials, ensure it checks against admin for auth
+      options.authSource = "admin";
+    }
+
+    await mongoose.connect(uri, options);
 
     console.log("Cleaning existing database collections...");
     await Promise.all([
