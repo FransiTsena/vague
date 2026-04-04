@@ -252,7 +252,7 @@ const DepartmentSchema = new Schema<IDepartment>(
   { timestamps: true }
 );
 
-export const DepartmentModel: Model<IDepartment> = 
+export const DepartmentModel: Model<IDepartment> =
   mongoose.models.Department || mongoose.model<IDepartment>("Department", DepartmentSchema);
 
 export type AccessRole = "ADMIN" | "DEPARTMENT_HEAD" | "MEMBER";
@@ -292,7 +292,7 @@ const MemberSchema = new Schema<IMember>(
   { timestamps: true }
 );
 
-export const Member: Model<IMember> = 
+export const Member: Model<IMember> =
   mongoose.models.Member || mongoose.model<IMember>("Member", MemberSchema);
 
 export interface IScheduleEvent extends Document {
@@ -324,7 +324,7 @@ const ScheduleEventSchema = new Schema<IScheduleEvent>(
   { timestamps: true }
 );
 
-export const ScheduleEvent: Model<IScheduleEvent> = 
+export const ScheduleEvent: Model<IScheduleEvent> =
   mongoose.models.ScheduleEvent || mongoose.model<IScheduleEvent>("ScheduleEvent", ScheduleEventSchema);
 
 export type DemandStatus = "SCHEDULED" | "PARTIAL";
@@ -348,7 +348,7 @@ const StaffingDemandSchema = new Schema<IStaffingDemand>(
   { timestamps: true }
 );
 
-export const StaffingDemand: Model<IStaffingDemand> = 
+export const StaffingDemand: Model<IStaffingDemand> =
   mongoose.models.StaffingDemand || mongoose.model<IStaffingDemand>("StaffingDemand", StaffingDemandSchema);
 
 export interface IStaffingRequirement extends Document {
@@ -370,7 +370,7 @@ const StaffingRequirementSchema = new Schema<IStaffingRequirement>(
   { timestamps: true }
 );
 
-export const StaffingRequirement: Model<IStaffingRequirement> = 
+export const StaffingRequirement: Model<IStaffingRequirement> =
   mongoose.models.StaffingRequirement || mongoose.model<IStaffingRequirement>("StaffingRequirement", StaffingRequirementSchema);
 
 export interface IStaffAssignment extends Document {
@@ -396,5 +396,52 @@ const StaffAssignmentSchema = new Schema<IStaffAssignment>(
   { timestamps: true }
 );
 
-export const StaffAssignment: Model<IStaffAssignment> = 
+export const StaffAssignment: Model<IStaffAssignment> =
   mongoose.models.StaffAssignment || mongoose.model<IStaffAssignment>("StaffAssignment", StaffAssignmentSchema);
+
+// --- Provenance Product Model ---
+export interface IProvenanceProduct extends Document {
+  slug: string;
+  itemType: string;
+  title: string;
+  hotelName: string;
+  creatorName: string;
+  creatorRole: string;
+  creatorLocation: string;
+  origin: string;
+  materials: string[];
+  story: string;
+  details: string[];
+  impact: string;
+  imageUrl: string;
+  imageDirection?: string;
+  tipHint: string;
+  isPublished: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+const ProvenanceProductSchema = new Schema<IProvenanceProduct>(
+  {
+    slug: { type: String, required: true, unique: true, trim: true, lowercase: true },
+    itemType: { type: String, required: true, trim: true },
+    title: { type: String, required: true, trim: true },
+    hotelName: { type: String, default: "VAGUE Resort", trim: true },
+    creatorName: { type: String, required: true, trim: true },
+    creatorRole: { type: String, required: true, trim: true },
+    creatorLocation: { type: String, required: true, trim: true },
+    origin: { type: String, required: true, trim: true },
+    materials: [{ type: String }],
+    story: { type: String, required: true },
+    details: [{ type: String }],
+    impact: { type: String, default: "" },
+    imageUrl: { type: String, required: true, trim: true },
+    imageDirection: { type: String, trim: true },
+    tipHint: { type: String, default: "" },
+    isPublished: { type: Boolean, default: true },
+  },
+  { timestamps: true }
+);
+
+export const ProvenanceProduct: Model<IProvenanceProduct> =
+  mongoose.models.ProvenanceProduct || mongoose.model<IProvenanceProduct>("ProvenanceProduct", ProvenanceProductSchema);
