@@ -31,7 +31,6 @@
     "tailwind-merge": "^3.4.0"
   },
   "devDependencies": {
-    "@next/swc-win32-x64-msvc": "^16.2.2",
     "@playwright/test": "^1.59.1",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
