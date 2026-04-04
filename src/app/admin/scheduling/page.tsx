@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useEffect, useState } from "react";
 import { 
@@ -78,7 +78,7 @@ export default function SchedulingAdminPage() {
 
         <section className="mb-20 grid grid-cols-1 lg:grid-cols-2 gap-12 lg:items-end">
             <div>
-                <h1 className="font-serif text-6xl md:text-8xl italic tracking-tight lowercase mb-8">
+                <h1 className="font-serif text-5xl md:text-7xl tracking-tight mb-8">
                     Logistics <span className="text-zinc-500">& Flow</span>
                 </h1>
                 <p className="max-w-xl text-base md:text-lg text-neutral-400 font-medium leading-relaxed">
@@ -101,69 +101,66 @@ export default function SchedulingAdminPage() {
         {/* Rapid Shift Overview */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-20">
             {[
-                { label: "Active Shifts", value: events.length, icon: Users, trend: "+4%", trendUp: true, color: "text-blue-500" },
-                { label: "Pending Tasks", value: "42", icon: Zap, trend: "-12%", trendUp: false, color: "text-amber-500" },
-                { label: "Avg Response", value: "14m", icon: Clock, trend: "Steady", trendUp: true, color: "text-emerald-500" },
+                { label: "Active Shifts", value: events.length, icon: Users, trend: "+4%", trendUp: true },
+                { label: "Pending Tasks", value: "42", icon: Zap, trend: "-12%", trendUp: false },
+                { label: "Avg Response", value: "14m", icon: Clock, trend: "Steady", trendUp: true },
             ].map((stat, i) => (
-                <div key={i} className={`p-10 rounded-[3rem] border transition-all duration-700 ${isDark ? "bg-white/5 border-white/10 shadow-2xl" : "bg-white border-black/5 shadow-xl"}`}>
+                <div key={i} className={`p-10 rounded-none border-none transition-all duration-300 hover:-translate-y-1 ${isDark ? "bg-[#0a0a0a] shadow-[0_0_20px_rgba(255,255,255,0.07)] hover:shadow-[0_0_35px_rgba(255,255,255,0.12)]" : "bg-black shadow-[0_10px_30px_rgba(0,0,0,0.2)] hover:shadow-[0_20px_50px_rgba(0,0,0,0.35)]"}`}>
                     <div className="flex items-center justify-between mb-8">
-                        <stat.icon className={`w-5 h-5 opacity-40 ${isDark ? "text-white" : "text-black"}`} />
-                        <div className={`flex items-center gap-1.5 rounded-full px-3 py-1 ${isDark ? "bg-white/5" : "bg-black/5"}`}>
-                            {stat.trendUp ? <ArrowUpRight className="w-3 h-3 text-emerald-500" /> : <ArrowDownRight className="w-3 h-3 text-red-500" />}
-                            <span className="text-[9px] font-black tracking-widest">{stat.trend}</span>
+                        <stat.icon className="w-5 h-5 text-white/50" />
+                        <div className="flex items-center gap-1.5 rounded-none px-3 py-1 bg-white/10 text-white shadow-sm border border-white/5">
+                            {stat.trendUp ? <ArrowUpRight className="w-3 h-3 text-white" /> : <ArrowDownRight className="w-3 h-3 text-white" />}
+                            <span className="text-[9px] font-bold tracking-widest">{stat.trend}</span>
                         </div>
                     </div>
-                    <p className="text-5xl font-serif italic mb-2">{stat.value}</p>
-                    <p className="text-[10px] font-black uppercase tracking-widest opacity-20">{stat.label}</p>
+                    <p className="text-5xl font-serif mb-2 text-white">{stat.value}</p>
+                    <p className="text-[10px] font-bold uppercase tracking-widest opacity-40 text-white">{stat.label}</p>
                 </div>
             ))}
         </div>
 
         {/* Log Stream */}
-        <div className={`p-1 rounded-[3.5rem] border ${isDark ? "border-white/10 bg-white/[0.02]" : "border-black/5 bg-white shadow-2xl"}`}>
-            <div className="p-12 overflow-x-auto">
-                <div className="flex items-center justify-between mb-12">
-                    <h3 className="text-[10px] font-black uppercase tracking-[0.4em] italic">Recent Operations Stream</h3>
-                    <div className="flex items-center gap-4">
-                        <div className="relative">
-                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-3.5 h-3.5 opacity-20" />
-                            <input className={`pl-10 pr-6 py-2.5 rounded-full border text-[10px] font-bold uppercase tracking-widest outline-none transition-all ${isDark ? "bg-white/5 border-white/5 focus:border-white/20" : "bg-black/5 border-black/5 focus:border-black/20"}`} placeholder="Query Database..." />
-                        </div>
-                        <button className={`p-3 rounded-full border opacity-40 hover:opacity-100 transition-opacity ${isDark ? "bg-white/5 border-white/5" : "bg-black/5 border-black/5"}`}>
-                            <Filter className="w-4 h-4" />
-                        </button>
+        <div className={`rounded-xl border shadow-[0_4px_24px_rgba(0,0,0,0.1)] overflow-hidden ${isDark ? "border-white/10 bg-[#0a0a0a] shadow-white/5" : "border-black/5 bg-white shadow-black/5"}`}>
+            <div className={`p-8 border-b flex justify-between items-center ${isDark ? 'border-white/10' : 'border-black/10'}`}>
+                <h3 className="text-xs font-bold uppercase tracking-widest">Recent Operations Stream</h3>
+                <div className="flex items-center gap-4">
+                    <div className="relative">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 opacity-40" />
+                        <input className={`pl-9 pr-4 py-2 rounded-lg text-xs font-medium border outline-none transition-all ${isDark ? "bg-white/5 border-white/10 focus:border-white/20" : "bg-black/5 border-black/10 focus:border-black/20"}`} placeholder="Search logs..." />
                     </div>
                 </div>
+            </div>
 
-                <table className="w-full text-left">
-                    <thead>
-                        <tr className={`border-b ${isDark ? "border-white/10" : "border-black/10"}`}>
-                            <th className="pb-6 text-[9px] font-black uppercase tracking-widest opacity-40">Shift Operator</th>
-                            <th className="pb-6 text-[10px] font-black uppercase tracking-widest opacity-40">Deployment Area</th>
-                            <th className="pb-6 text-[9px] font-black uppercase tracking-widest opacity-40">Status Cache</th>
-                            <th className="pb-6 text-right text-[9px] font-black uppercase tracking-widest opacity-40">Timeline</th>
+            <div className="overflow-x-auto">
+                <table className="w-full text-left whitespace-nowrap">
+                    <thead className={isDark ? "bg-white/5 text-white" : "bg-neutral-900 text-white"}>
+                        <tr>
+                            <th className="py-4 px-6 text-xs font-semibold tracking-wide">Shift Operator</th>
+                            <th className="py-4 px-6 text-xs font-semibold tracking-wide">Deployment Area</th>
+                            <th className="py-4 px-6 text-xs font-semibold tracking-wide">Status</th>
+                            <th className="py-4 px-6 text-right text-xs font-semibold tracking-wide">Timeline</th>
                         </tr>
                     </thead>
-                    <tbody className={`divide-y ${isDark ? "divide-white/5" : "divide-black/5"}`}>
+                    <tbody className={`divide-y ${isDark ? "divide-white/10" : "divide-neutral-200"}`}>
                         {Array.isArray(events) && events.slice(0, 10).map((evt, i) => (
-                            <tr key={i} className={`group transition-colors ${isDark ? "hover:bg-white/[0.02]" : "hover:bg-black/[0.02]"}`}>
-                                <td className="py-8 pr-12">
-                                    <div className="flex items-center gap-4">
-                                        <div className={`w-10 h-10 rounded-full flex items-center justify-center font-serif italic text-lg ${isDark ? "bg-white/5" : "bg-black/5"}`}>{evt.title.charAt(0)}</div>
-                                        <p className="text-xl font-serif italic">{evt.title.split(' - ')[1] || evt.title}</p>
+                            <tr key={i} className={`group cursor-pointer transition-colors ${isDark ? "hover:bg-white/5" : "hover:bg-neutral-50"}`}>
+                                <td className="py-4 px-6">
+                                    <div className="flex items-center gap-3">
+                                        <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm ${isDark ? "bg-white/10 text-white" : "bg-black/10 text-black"}`}>{(evt.title || "?").charAt(0)}</div>
+                                        <p className="text-sm font-medium">{(evt.title || "No Title").split(' - ')[1] || evt.title}</p>
                                     </div>
                                 </td>
-                                <td className="py-8 pr-12">
-                                    <span className="text-[11px] font-black uppercase tracking-widest opacity-60">{evt.title.split(' - ')[0] || "General Area"}</span>
+                                <td className="py-4 px-6 text-sm opacity-80">
+                                    {(evt.title || "").split(' - ')[0] || "General Area"}
                                 </td>
-                                <td className="py-8">
-                                    <div className="flex items-center gap-2 bg-emerald-500/5 text-emerald-500 rounded-full px-4 py-1.5 w-fit border border-emerald-500/10">
-                                        <div className="w-1 h-1 rounded-full bg-emerald-500" />
-                                        <span className="text-[9px] font-black uppercase tracking-widest">Active Deployment</span>
-                                    </div>
+                                <td className="py-4 px-6">
+                                    <span className="inline-flex items-center gap-1.5 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 rounded-md px-2.5 py-1 text-xs font-semibold">
+                                        <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                                        Active
+                                    </span>
                                 </td>
-                                <td className="py-8 text-right font-mono text-[10px] opacity-40 group-hover:opacity-100 transition-opacity">
-                                    {new Date(evt.start).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                <td className="py-4 px-6 text-right font-mono text-xs opacity-70 group-hover:opacity-100 transition-opacity">
+                                    {evt.startsAt ? new Date(evt.startsAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : "N/A"}
                                 </td>
                             </tr>
                         ))}
