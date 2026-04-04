@@ -130,7 +130,7 @@ export default function Header() {
                             <Button 
                                 variant="outline" 
                                 className="p-2 aspect-square flex items-center justify-center text-red-500 border-red-200 hover:bg-red-50 dark:hover:bg-red-950/20" 
-                                onClick={() => signOut({ callbackUrl: "/" })}
+                                onClick={() => signOut({ redirect: true, callbackUrl: "/" })}
                                 title="Sign Out"
                             >
                                 <LogOut className="w-4 h-4" />
@@ -193,7 +193,7 @@ export default function Header() {
                                             Admin Dashboard
                                         </Link>
                                         <button 
-                                            onClick={() => signOut({ callbackUrl: "/" })}
+                                            onClick={() => signOut({ redirect: true, callbackUrl: "/" })}
                                             className="flex items-center gap-3 text-lg font-medium text-red-500 hover:text-red-600 transition-colors py-2 text-left"
                                         >
                                             <LogOut className="w-5 h-5 opacity-60" />

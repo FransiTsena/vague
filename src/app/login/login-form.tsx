@@ -10,7 +10,7 @@ export function LoginForm() {
   const router = useRouter();
   const { isDark } = useTheme();
   const searchParams = useSearchParams();
-  const callbackUrl = searchParams.get("from") || searchParams.get("callbackUrl") || "/admin/scheduling";
+  const callbackUrl = "/admin";
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
