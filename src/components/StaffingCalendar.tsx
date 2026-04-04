@@ -88,20 +88,20 @@ export function StaffingCalendar({
         <div className="flex items-center gap-3">
           <button
             onClick={() => setCursor((c) => new Date(c.getFullYear(), c.getMonth() - 1, 1))}
-            className="p-3 rounded-full bg-white/5 hover:bg-white/10 border border-white/5 transition-all"
+            className="p-3 bg-white/5 hover:bg-white/10 border border-white/5 transition-all"
           >
             <ChevronLeft className="w-4 h-4 text-zinc-100" />
           </button>
           <button
             onClick={() => setCursor((c) => new Date(c.getFullYear(), c.getMonth() + 1, 1))}
-            className="p-3 rounded-full bg-white/5 hover:bg-white/10 border border-white/5 transition-all"
+            className="p-3 bg-white/5 hover:bg-white/10 border border-white/5 transition-all"
           >
             <ChevronRight className="w-4 h-4 text-zinc-100" />
           </button>
         </div>
       </div>
 
-      <div className="grid grid-cols-7 gap-px bg-white/5 rounded-[2rem] overflow-hidden border border-white/5 shadow-2xl">
+      <div className="grid grid-cols-7 gap-px bg-white/5 overflow-hidden border border-white/5 shadow-2xl">
         {WEEKDAYS.map((w) => (
           <div
             key={w}
@@ -130,12 +130,12 @@ export function StaffingCalendar({
                 onClick={() => onDayClick?.(day, dayItems)}
                 className={`min-h-[140px] p-4 transition-all hover:bg-white/[0.03] relative group cursor-pointer ${isToday ? 'bg-amber-500/[0.02]' : 'bg-[#080808]/60'}`}
               >
-                <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none border border-amber-500/20 rounded-xl z-10" />
+                <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none border border-amber-500/20 z-10" />
                 <div className="flex items-start justify-between mb-3">
                   <span className={`text-[11px] font-black tracking-widest ${isToday ? 'text-amber-500' : 'opacity-20'}`}>
                     {day.getDate().toString().padStart(2, '0')}
                   </span>
-                  {isToday && <div className="w-1 h-1 rounded-full bg-amber-500 animate-ping" />}
+                  {isToday && <div className="w-1 h-1 bg-amber-500 animate-ping" />}
                 </div>
                 
                 <div className="flex flex-col gap-1.5 relative z-20">
@@ -147,7 +147,7 @@ export function StaffingCalendar({
                     return (
                       <div
                         key={idx}
-                        className={`px-2 py-1.5 rounded-lg bg-white/5 border ${shiftColor} text-[9px] font-bold uppercase tracking-widest text-zinc-300 truncate transition-colors group/item relative overflow-hidden flex flex-col gap-0.5`}
+                        className={`px-2 py-1.5 bg-white/5 border ${shiftColor} text-[9px] font-bold uppercase tracking-widest text-zinc-300 truncate transition-colors group/item relative overflow-hidden flex flex-col gap-0.5`}
                         title={it.title}
                       >
                         <div className="flex justify-between items-center relative z-10 w-full">
@@ -182,7 +182,7 @@ export function StaffingCalendar({
                       e.stopPropagation();
                       onAddEvent?.(day);
                     }}
-                    className="opacity-0 group-hover:opacity-40 hover:!opacity-100 transition-opacity text-[8px] font-black uppercase tracking-widest text-zinc-500 mt-2 border border-dashed border-white/10 py-2 rounded-lg"
+                    className="opacity-0 group-hover:opacity-40 hover:!opacity-100 transition-opacity text-[8px] font-black uppercase tracking-widest text-zinc-500 mt-2 border border-dashed border-white/10 py-2"
                   >
                     + Add Shift
                   </button>
@@ -198,10 +198,10 @@ export function StaffingCalendar({
 export function CalendarSkeleton() {
   return (
     <div className="animate-pulse space-y-4 p-8">
-      <div className="h-8 w-1/4 bg-white/5 rounded-full" />
+      <div className="h-8 w-1/4 bg-white/5" />
       <div className="grid grid-cols-7 gap-4">
         {[...Array(35)].map((_, i) => (
-          <div key={i} className="h-32 bg-white/5 rounded-3xl" />
+          <div key={i} className="h-32 bg-white/5" />
         ))}
       </div>
     </div>
