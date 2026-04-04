@@ -80,7 +80,7 @@ export default function OccupancyAnalytics() {
   if (!data.length) return null;
 
   return (
-    <Section id="ai-analytics" className={`pb-12 ${isDark ? "bg-[#0a0a0a]" : "bg-neutral-50"}`}>
+    <Section id="ai-analytics" className={`pb-12 ${isDark ? "bg-[#0a0a0a]" : "bg-white"}`}>
       <div className="max-w-6xl mx-auto px-4 md:px-8 relative">
         <div className="flex flex-col md:flex-row items-baseline justify-between gap-3 mb-12 border-b border-neutral-200 dark:border-neutral-800 pb-8">
           <div className="space-y-4">
@@ -133,19 +133,19 @@ export default function OccupancyAnalytics() {
                 </div>
 
                 <div className="mt-auto space-y-4 pt-4 border-t border-neutral-100 dark:border-neutral-900/50">
-                  <div className="flex justify-between items-center text-[10px] uppercase tracking-widest text-neutral-400">
+                  <div className="flex justify-between items-center text-[10px] uppercase tracking-widest text-neutral-500 dark:text-neutral-400">
                     <span>Rooms</span>
-                    <span className={`font-mono ${isSelected ? "text-neutral-900 dark:text-white font-bold" : "text-neutral-600 dark:text-neutral-400"}`}>{day.booked}/{day.total}</span>
+                    <span className={`font-mono ${isSelected ? "text-neutral-900 dark:text-white font-bold" : "text-neutral-700 dark:text-neutral-300"}`}>{day.booked}/{day.total}</span>
                   </div>
-                  <div className="flex justify-between items-center text-[10px] uppercase tracking-widest text-neutral-400">
+                  <div className="flex justify-between items-center text-[10px] uppercase tracking-widest text-neutral-500 dark:text-neutral-400">
                     <span>Demand</span>
-                    <span className={`font-mono ${isSelected ? "text-neutral-900 dark:text-white font-bold" : "text-neutral-500"}`}>
+                    <span className={`font-mono ${isSelected ? "text-neutral-900 dark:text-white font-bold" : "text-neutral-700 dark:text-neutral-400"}`}>
                       {day.predictedDemand}
                     </span>
                   </div>
-                  <div className="flex justify-between items-center text-[10px] uppercase tracking-widest text-neutral-400">
+                  <div className="flex justify-between items-center text-[10px] uppercase tracking-widest text-neutral-500 dark:text-neutral-400">
                     <span>Pace Adj</span>
-                    <span className={`font-mono ${isSelected ? "text-neutral-900 dark:text-white font-bold" : "text-neutral-500"}`}>
+                    <span className={`font-mono ${isSelected ? "text-neutral-900 dark:text-white font-bold" : "text-neutral-700 dark:text-neutral-400"}`}>
                       {day.aiPaceAdjustment! > 0 ? "+" : ""}{day.aiPaceAdjustment}%
                     </span>
                   </div>

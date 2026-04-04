@@ -62,7 +62,6 @@ const GuestSchema = new Schema<IGuest>(
     activities: [activitySchema],
     loyaltyScore: { type: Number, default: 0 },
     predictedSegment: { type: String, default: "New" },
-    totalSpend: { type: Number, default: 0 },
     aiChurnRisk: { type: Number, default: 0 },
     topAmenityPredicted: { type: String, default: "" },
     isVip: { type: Boolean, default: false },

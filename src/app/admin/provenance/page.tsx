@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import QRCode from "qrcode";
-import { ArrowLeft, Copy, Download, ExternalLink, Plus, QrCode, Sparkles, Trash2 } from "lucide-react";
+import { ArrowLeft, Copy, Download, ExternalLink, Plus, QrCode, Trash2 } from "lucide-react";
 import Button from "@/components/ui/Button";
 import { useTheme } from "@/context/ThemeContext";
 import { defaultProvenanceDraft, slugify, type ProvenanceProductDraft } from "@/lib/provenance-admin";
@@ -248,7 +248,6 @@ export default function ProvenanceAdminPage() {
               />
               <div className="mt-3">
                 <Button variant="secondary" className="inline-flex gap-2 text-xs" type="button" onClick={generateWithAI} disabled={generatingAi}>
-                  <Sparkles className="h-4 w-4" />
                   {generatingAi ? "Generating with AI..." : "Generate with AI"}
                 </Button>
               </div>

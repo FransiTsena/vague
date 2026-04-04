@@ -107,6 +107,11 @@ const translations: Record<Language, Record<string, string>> = {
         "training.course.zero2hero.desc": "A comprehensive 1-year journey from zero to full professional hospitality expert.",
         "training.course.zero2hero.duration": "1 Year",
         "training.course.zero2hero.level": "Zero2Hero",
+
+        // Gallery
+        "gallery.title1": "Curated",
+        "gallery.title2": "Sanctuaries",
+        "gallery.subtitle": "Explore our portfolio of premium ocean-view suites and villas, each designed to harmonize luxury with the natural beauty of the island.",
     },
     am: {
         // Header
@@ -204,6 +209,11 @@ const translations: Record<Language, Record<string, string>> = {
         "training.course.zero2hero.desc": "??? ??? ?? ???? ?????? ?1 ??? ????? ?????",
         "training.course.zero2hero.duration": "1 ???",
         "training.course.zero2hero.level": "Zero2Hero",
+
+        // Gallery
+        "gallery.title1": "????",
+        "gallery.title2": "????",
+        "gallery.subtitle": "???? ?? ?? ?? ??? ????? ?? ????? ??? ??? ????? ????? ????? ?? ??? ??? ?????",
     }
 };
 

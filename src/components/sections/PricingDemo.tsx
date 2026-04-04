@@ -120,7 +120,7 @@ export default function PricingDemo() {
   const isPriceUp = priceDiff > 0;
 
   return (
-    <Section id="pricing-demo" className={`pb-12 ${isDark ? "bg-[#0a0a0a]" : "bg-neutral-50"}`}>
+    <Section id="pricing-demo" className={`pb-12 ${isDark ? "bg-[#0a0a0a]" : "bg-white"}`}>
       <div className="max-w-6xl mx-auto px-4 md:px-8">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-16 border-b border-neutral-200 dark:border-neutral-800 pb-8 gap-8">
           <div className="space-y-4">
@@ -160,33 +160,33 @@ export default function PricingDemo() {
                 </div>
 
                 <div className="flex flex-col space-y-2">
-                  <div className="flex justify-between items-center text-sm text-neutral-500">
+                  <div className="flex justify-between items-center text-sm text-neutral-600 dark:text-neutral-400">
                     <span>Base Parity</span> 
-                    <span className="font-mono">${pricing.basePrice.toFixed(2)}</span>
+                    <span className="font-mono text-neutral-900 dark:text-neutral-100">${pricing.basePrice.toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between items-end pt-4">
-                    <span className="text-[10px] uppercase tracking-widest text-neutral-400">Dynamic Yield</span>
+                    <span className="text-[10px] uppercase tracking-widest text-neutral-500 dark:text-neutral-400">Dynamic Yield</span>
                     <span className="font-serif text-5xl text-neutral-900 dark:text-white tracking-tight">${currentDynamicPrice.toFixed(2)}</span>
                   </div>
                   <div className="flex justify-end pt-1">
-                    <span className={`text-[10px] font-mono tracking-widest uppercase ${isPriceUp ? "text-neutral-400" : "text-neutral-500"}`}>
+                    <span className={`text-[10px] font-mono tracking-widest uppercase ${isPriceUp ? "text-neutral-500 dark:text-neutral-400" : "text-neutral-600 dark:text-neutral-500"}`}>
                       {isPriceUp ? "+ " : "- "}${Math.abs(priceDiff).toFixed(2)} {isPriceUp ? "Premium" : "Discount"}
                     </span>
                   </div>
                 </div>
 
                 <div className="pt-6">
-                  <div className="text-[10px] uppercase tracking-widest text-neutral-400 mb-2">Engine Rationale</div>
-                  <div className="text-sm text-neutral-600 dark:text-neutral-400 italic leading-relaxed pl-4 border-l border-neutral-200 dark:border-neutral-800">
+                  <div className="text-[10px] uppercase tracking-widest text-neutral-500 dark:text-neutral-400 mb-2">Engine Rationale</div>
+                  <div className="text-sm text-neutral-700 dark:text-neutral-400 italic leading-relaxed pl-4 border-l border-neutral-300 dark:border-neutral-800">
                     &quot;{pricing.aiInsight || "Target demand aligns with historical booking pace. Stabilizing around parity."}&quot;
                   </div>
                 </div>
               </div>
 
               {/* Manager Override Controls */}
-              <div className="pt-8 border-t border-neutral-200 dark:border-neutral-800 space-y-8">
+              <div className="pt-8 border-t border-neutral-300 dark:border-neutral-800 space-y-8">
                 <div className="flex justify-between items-end">
-                  <h3 className="text-xs font-mono uppercase tracking-widest text-neutral-500">
+                  <h3 className="text-xs font-mono uppercase tracking-widest text-neutral-500 dark:text-neutral-400">
                     Revenue Control
                   </h3>
                   {hasSavedOverride && <span className="text-[10px] uppercase tracking-widest text-neutral-900 dark:text-white">Active</span>}
@@ -195,7 +195,7 @@ export default function PricingDemo() {
                 <div className="space-y-6">
                   <div>
                     <div className="flex justify-between mb-4 text-xs font-medium">
-                      <span className="text-neutral-600 dark:text-neutral-400">Yield Multiplier Override</span>
+                      <span className="text-neutral-700 dark:text-neutral-400">Yield Multiplier Override</span>
                       <span className="font-mono text-neutral-900 dark:text-white">
                         {managerOverride.toFixed(2)}x
                       </span>
@@ -214,7 +214,7 @@ export default function PricingDemo() {
                       }}
                       className="w-full h-[1px] bg-neutral-300 dark:bg-neutral-700 appearance-none cursor-pointer outline-none [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:bg-neutral-900 [&::-webkit-slider-thumb]:dark:bg-white [&::-webkit-slider-thumb]:rounded-full"
                     />
-                    <div className="flex justify-between text-[10px] text-neutral-400 mt-4 uppercase tracking-widest">
+                    <div className="flex justify-between text-[10px] text-neutral-500 dark:text-neutral-400 mt-4 uppercase tracking-widest">
                       <span>Floor (0.5x)</span>
                       <span>Parity (1.0x)</span>
                       <span>Ceiling (2.0x)</span>
@@ -224,7 +224,7 @@ export default function PricingDemo() {
                   <button 
                     onClick={handleSaveOverride} 
                     disabled={saving || (!isOverrideMode && !hasSavedOverride)}
-                    className={`w-full py-3 text-[10px] tracking-widest uppercase transition-all border ${hasSavedOverride ? "border-neutral-900 text-neutral-900 dark:border-white dark:text-white" : (isOverrideMode ? "bg-neutral-100 text-neutral-900 border-transparent dark:bg-neutral-800 dark:text-white hover:bg-neutral-200 dark:hover:bg-neutral-700" : "border-neutral-200 text-neutral-400 dark:border-neutral-800 cursor-not-allowed")}`}
+                    className={`w-full py-3 text-[10px] tracking-widest uppercase transition-all border ${hasSavedOverride ? "border-neutral-900 text-neutral-900 dark:border-white dark:text-white" : (isOverrideMode ? "bg-neutral-100 text-neutral-900 border-transparent dark:bg-neutral-800 dark:text-white hover:bg-neutral-200 dark:hover:bg-neutral-700" : "border-neutral-300 text-neutral-500 dark:border-neutral-800 cursor-not-allowed")}`}
                   >
                     {saving ? "Publishing..." : (hasSavedOverride ? "Yield Deployed" : "Publish Yield")}
                   </button>
@@ -252,31 +252,31 @@ export default function PricingDemo() {
                   <div className="col-span-2 text-xs font-mono text-right text-neutral-900 dark:text-white">Factor</div>
                 </div>
 
-                <div className="grid grid-cols-12 gap-4 py-6 border-b border-neutral-100 dark:border-neutral-800/50 group hover:bg-neutral-50 dark:hover:bg-neutral-900/50 transition-colors">
+                <div className="grid grid-cols-12 gap-4 py-6 border-b border-neutral-100 dark:border-neutral-800/50 group hover:bg-neutral-100 dark:hover:bg-neutral-900/50 transition-colors">
                   <div className="col-span-4 text-[10px] font-mono text-neutral-500 tracking-wider uppercase">Lead Time</div>
                   <div className="col-span-6 text-sm text-neutral-800 dark:text-neutral-200">{pricing.factors.leadDays} days to arrival</div>
                   <div className="col-span-2 text-sm font-mono text-right text-neutral-900 dark:text-white">{pricing.factors.leadTimeMultiplier.toFixed(2)}x</div>
                 </div>
 
-                <div className="grid grid-cols-12 gap-4 py-6 border-b border-neutral-100 dark:border-neutral-800/50 group hover:bg-neutral-50 dark:hover:bg-neutral-900/50 transition-colors">
+                <div className="grid grid-cols-12 gap-4 py-6 border-b border-neutral-100 dark:border-neutral-800/50 group hover:bg-neutral-100 dark:hover:bg-neutral-900/50 transition-colors">
                   <div className="col-span-4 text-[10px] font-mono text-neutral-500 tracking-wider uppercase">Velocity Pace</div>
                   <div className="col-span-6 text-sm text-neutral-800 dark:text-neutral-200">Trajectory deviation vs 30-day unconstrained mean</div>
                   <div className="col-span-2 text-sm font-mono text-right text-neutral-900 dark:text-white">{pricing.factors.demandTrendMultiplier.toFixed(2)}x</div>
                 </div>
 
-                <div className="grid grid-cols-12 gap-4 py-6 border-b border-neutral-100 dark:border-neutral-800/50 group hover:bg-neutral-50 dark:hover:bg-neutral-900/50 transition-colors">
+                <div className="grid grid-cols-12 gap-4 py-6 border-b border-neutral-100 dark:border-neutral-800/50 group hover:bg-neutral-100 dark:hover:bg-neutral-900/50 transition-colors">
                   <div className="col-span-4 text-[10px] font-mono text-neutral-500 tracking-wider uppercase">Seasonality</div>
                   <div className="col-span-6 text-sm text-neutral-800 dark:text-neutral-200">Curve profile over target stay dates</div>
                   <div className="col-span-2 text-sm font-mono text-right text-neutral-900 dark:text-white">{(pricing.factors.seasonalityMultiplier * pricing.factors.weekendMultiplier).toFixed(2)}x</div>
                 </div>
 
-                <div className="grid grid-cols-12 gap-4 py-6 border-b border-neutral-100 dark:border-neutral-800/50 group hover:bg-neutral-50 dark:hover:bg-neutral-900/50 transition-colors">
+                <div className="grid grid-cols-12 gap-4 py-6 border-b border-neutral-100 dark:border-neutral-800/50 group hover:bg-neutral-100 dark:hover:bg-neutral-900/50 transition-colors">
                   <div className="col-span-4 text-[10px] font-mono text-neutral-500 tracking-wider uppercase">Event Flag</div>
                   <div className="col-span-6 text-sm text-neutral-800 dark:text-neutral-200">{pricing.factors.eventName || "Standard Parity"}</div>
                   <div className="col-span-2 text-sm font-mono text-right text-neutral-900 dark:text-white">{pricing.factors.eventMultiplier.toFixed(2)}x</div>
                 </div>
                 
-                <div className="grid grid-cols-12 gap-4 py-6 border-b border-neutral-100 dark:border-neutral-800/50 group hover:bg-neutral-50 dark:hover:bg-neutral-900/50 transition-colors">
+                <div className="grid grid-cols-12 gap-4 py-6 border-b border-neutral-100 dark:border-neutral-800/50 group hover:bg-neutral-100 dark:hover:bg-neutral-900/50 transition-colors">
                   <div className="col-span-4 text-[10px] font-mono text-neutral-500 tracking-wider uppercase">Market Sentiment</div>
                   <div className="col-span-6 text-sm text-neutral-800 dark:text-neutral-200">Inferred competitor elasticity variance</div>
                   <div className="col-span-2 text-sm font-mono text-right text-neutral-900 dark:text-white">{pricing.factors.volatilityMultiplier.toFixed(2)}x</div>

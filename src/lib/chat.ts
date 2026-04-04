@@ -1,8 +1,53 @@
 import Groq from "groq-sdk";
+import dbConnect from "@/lib/mongodb";
+import { Room } from "@/lib/models";
 
 const groq = new Groq({
   apiKey: process.env.GROQ_API_KEY,
 });
+
+export async function getChatStream(
+  messages: { role: "user" | "assistant" | "system"; content: string }[],
+): Promise<any> {
+  if (!process.env.GROQ_API_KEY) {
+    throw new Error("GROQ_API_KEY is not set");
+  }
+
+  try {
+    await dbConnect();
+    const rooms = await Room.find({ status: "available" }, { roomNumber: 1, type: 1, currentPrice: 1 }).lean();
+    
+    const roomContext = rooms.length > 0 
+      ? `Current available rooms and real-time pricing: \n${rooms.map(r => `- ${r.type} (Room ${r.roomNumber}): $${r.currentPrice} per night`).join('\n')}`
+      : "Currently, all rooms are booked or unavailable. Please check back later.";
+
+    return await groq.chat.completions.create({
+      messages: [
+        {
+          role: "system",
+          content: `You are the AI Concierge for VAGUE Resort. 
+          Your goals:
+          1. Help users explore hotel services (ocean-view suites, wellness, fine dining, etc.).
+          2. Assist with bookings. If they want to book, tell them you can take them to the booking page.
+          3. Real-time Room Info: ${roomContext}
+          4. If they ask for a human, provide this contact: +251 929 945 151.
+          5. Be luxury-oriented, helpful, and concise.
+          
+          Current environment: VAGUE Resort, luxury destination.
+          Human Contact: +251 929 945 151
+          Booking URL: /booking
+          `
+        },
+        ...messages
+      ],
+      model: "llama-3.1-8b-instant",
+      stream: true,
+    });
+  } catch (error) {
+    console.error("Groq Chat Error:", error);
+    throw error;
+  }
+}
 
 export async function getChatResponse(
   messages: { role: "user" | "assistant" | "system"; content: string }[],

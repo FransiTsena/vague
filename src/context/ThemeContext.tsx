@@ -26,23 +26,23 @@ function subscribe(callback: () => void) {
 function getSnapshot(): Theme {
     const saved = localStorage.getItem("vague-theme");
     if (saved === "dark" || saved === "light") return saved;
-    return "light";
+    return "dark";
 }
 
 function getServerSnapshot(): Theme {
-    return "light";
+    return "dark";
 }
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
     const theme = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
 
     useEffect(() => {
-        if (theme === "light") {
-            document.documentElement.classList.add("light");
-            document.documentElement.classList.remove("dark");
-        } else {
+        if (theme === "dark") {
             document.documentElement.classList.add("dark");
             document.documentElement.classList.remove("light");
+        } else {
+            document.documentElement.classList.add("light");
+            document.documentElement.classList.remove("dark");
         }
     }, [theme]);
 

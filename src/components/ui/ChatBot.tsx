@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import { useTheme } from "@/context/ThemeContext";
-import { MessageSquare, X, Send, User, Bot, Sparkles, UserPlus, Headset } from "lucide-react";
+import { MessageSquare, X, Send,  UserPlus, Headset } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface Message {
@@ -35,25 +35,45 @@ export default function ChatBot() {
     setIsLoading(true);
 
     try {
-      const res = await fetch("/api/chat", {
+      const response = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ messages: [...messages, userMessage] })
       });
-      const data = await res.json();
+
+      if (!response.ok) throw new Error("Failed to connect to the resort's systems.");
+
+      const reader = response.body?.getReader();
+      const decoder = new TextDecoder();
+      let assistantContent = "";
       
-      if (data.content) {
-        setMessages(prev => [...prev, { role: "assistant", content: data.content }]);
+      setMessages(prev => [...prev, { role: "assistant", content: "" }]);
+
+      while (true) {
+        const { done, value } = await reader!.read();
+        if (done) break;
         
-        // Auto-scroll logic if they ask for booking
-        if (data.content.toLowerCase().includes("booking page") || data.content.toLowerCase().includes("book now")) {
-            const bookingSection = document.getElementById("stay-registration");
-            if (bookingSection) {
-              setTimeout(() => {
-                bookingSection.scrollIntoView({ behavior: "smooth" });
-              }, 2000); // Give user time to read
-            }
-        }
+        const chunk = decoder.decode(value, { stream: true });
+        assistantContent += chunk;
+        
+        setMessages(prev => {
+          const newMessages = [...prev];
+          newMessages[newMessages.length - 1] = { 
+            role: "assistant", 
+            content: assistantContent 
+          };
+          return newMessages;
+        });
+      }
+
+      // Auto-scroll logic if they ask for booking
+      if (assistantContent.toLowerCase().includes("booking page") || assistantContent.toLowerCase().includes("book now")) {
+          const bookingSection = document.getElementById("stay-registration");
+          if (bookingSection) {
+            setTimeout(() => {
+              bookingSection.scrollIntoView({ behavior: "smooth" });
+            }, 2000); // Give user time to read
+          }
       }
     } catch (error) {
       setMessages(prev => [...prev, { role: "assistant", content: "Apologies, I've encountered an issue. Please try again or ask for a human for assistance." }]);
@@ -92,9 +112,7 @@ export default function ChatBot() {
             {/* Header */}
             <header className="p-4 bg-cognac text-white flex justify-between items-center">
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
-                  <Sparkles className="w-4 h-4" />
-                </div>
+              
                 <div>
                   <h3 className="text-sm font-bold">VAGUE Concierge</h3>
                   <p className="text-[10px] text-white/70">AI-Powered Assistant</p>

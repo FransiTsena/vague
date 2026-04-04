@@ -10,7 +10,7 @@ export default function AnalyticsPage() {
 
   return (
     <main className={`min-h-screen theme-transition pb-32 ${
-      isDark ? "bg-[#0a0a0a] text-neutral-200" : "bg-neutral-50 text-neutral-900"
+      isDark ? "bg-[#0a0a0a] text-neutral-200" : "bg-white text-neutral-900"
     }`}>
       <div className={`pt-32 pb-16 px-4 md:px-8 border-b border-neutral-200 dark:border-neutral-800 ${isDark ? "bg-[#0a0a0a]" : "bg-white"}`}>
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row md:items-end justify-between gap-8">

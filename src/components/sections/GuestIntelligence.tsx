@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Section from "@/components/ui/Section";
 import { useTheme } from "@/context/ThemeContext";
-import { BrainCircuit, Activity, LineChart, Target, Sparkles, Send, Loader2, Check } from "lucide-react";
+import { Loader2, Check } from "lucide-react";
 
 interface GuestSegment {
   id: string;
@@ -52,7 +52,7 @@ export default function GuestIntelligence() {
   if (!data.length) return null;
 
   return (
-    <Section id="guest-intelligence" className={`pb-24 ${isDark ? "bg-[#0a0a0a]" : "bg-neutral-50"}`}>
+    <Section id="guest-intelligence" className={`pb-24 ${isDark ? "bg-[#0a0a0a]" : "bg-white"}`}>
       <div className="max-w-6xl mx-auto px-4 md:px-8">
         <div className="flex flex-col md:flex-row items-baseline justify-between gap-3 mb-12 border-b border-neutral-200 dark:border-neutral-800 pb-8">
           <div className="space-y-4">
@@ -91,7 +91,7 @@ export default function GuestIntelligence() {
                     {/* Loyalty Score */}
                     <div>
                         <div className="flex justify-between items-baseline mb-2">
-                            <span className="text-[10px] text-neutral-400 tracking-widest uppercase">LTV Confidence</span>
+                            <span className="text-[10px] text-neutral-500 dark:text-neutral-400 tracking-widest uppercase">LTV Confidence</span>
                             <span className="font-mono text-xs text-neutral-900 dark:text-white">{Math.round(guest.loyaltyScore)}/100</span>
                         </div>
                         <div className="h-[1px] w-full bg-neutral-200 dark:bg-neutral-800">
@@ -105,12 +105,12 @@ export default function GuestIntelligence() {
                     {/* Churn Risk */}
                     <div>
                         <div className="flex justify-between items-baseline mb-2">
-                            <span className="text-[10px] text-neutral-400 tracking-widest uppercase">Attrition Risk</span>
+                            <span className="text-[10px] text-neutral-500 dark:text-neutral-400 tracking-widest uppercase">Attrition Risk</span>
                             <span className="font-mono text-xs text-neutral-900 dark:text-white">{Math.round(guest.aiChurnRisk!)}%</span>
                         </div>
                         <div className="h-[1px] w-full bg-neutral-200 dark:bg-neutral-800">
                             <div 
-                                className="h-full bg-neutral-400 dark:bg-neutral-600"
+                                className="h-full bg-neutral-500 dark:bg-neutral-600"
                                 style={{ width: `${guest.aiChurnRisk}%` }}
                             />
                         </div>
@@ -118,11 +118,11 @@ export default function GuestIntelligence() {
 
                     <div className="grid grid-cols-2 gap-8 pt-6 border-t border-neutral-100 dark:border-neutral-900/50">
                         <div>
-                            <span className="block text-[10px] text-neutral-400 tracking-widest uppercase mb-2">Proj. Value</span>
+                            <span className="block text-[10px] text-neutral-500 dark:text-neutral-400 tracking-widest uppercase mb-2">Proj. Value</span>
                             <span className="font-serif text-lg text-neutral-900 dark:text-white">${guest.totalSpend.toLocaleString()}</span>
                         </div>
                         <div>
-                            <span className="block text-[10px] text-neutral-400 tracking-widest uppercase mb-2">Next Conversion</span>
+                            <span className="block text-[10px] text-neutral-500 dark:text-neutral-400 tracking-widest uppercase mb-2">Next Conversion</span>
                             <span className="font-mono text-sm text-neutral-900 dark:text-white truncate block">{guest.topAmenityPredicted}</span>
                         </div>
                     </div>
@@ -150,10 +150,8 @@ export default function GuestIntelligence() {
                                     AI Strategy...
                                 </>
                             ) : (
-                                <>
-                                    <Sparkles className="w-3 h-3" />
-                                    Recover & Upsell
-                                </>
+                                <></>
+                                   
                             )}
                         </button>
                     </div>
