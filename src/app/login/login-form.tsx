@@ -42,7 +42,7 @@ export function LoginForm() {
       setError("Invalid credentials. If this is a new setup, ensure the database is seeded.");
       return;
     }
-    router.replace(callbackUrl);
+    router.replace("/admin");
     router.refresh();
   }
 

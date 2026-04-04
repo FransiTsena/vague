@@ -128,21 +128,35 @@ export default async function ProvenanceStoryPage({ params }: ProvenancePageProp
               )}
             </div>
 
-            {product.imageUrl && (
+            {product.imageUrl ? (
               <div className="overflow-hidden rounded-[2rem] border border-black/10 bg-white shadow-2xl shadow-black/10 dark:border-white/10 dark:bg-white/5 dark:shadow-black/40">
                 <div className="relative aspect-[16/9]">
-                  <Image
+                  <img
                     src={product.imageUrl}
                     alt={product.title}
-                    fill
-                    className="object-cover"
-                    sizes="(max-width: 1024px) 100vw, 60vw"
-                    priority
+                    className="h-full w-full object-cover"
+                    loading="eager"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/25 to-transparent" />
                   <div className="absolute bottom-0 left-0 right-0 p-6 md:p-8">
                     <p className="text-xs uppercase tracking-[0.35em] text-white/80">Hosted by {product.hotelName}</p>
                     <h3 className="mt-2 max-w-3xl font-serif text-3xl leading-tight text-white md:text-4xl">A piece with a traceable journey.</h3>
+                    <p className="mt-3 max-w-2xl text-sm leading-6 text-white/90 md:text-base">{product.origin}</p>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="overflow-hidden rounded-[2rem] border border-black/10 bg-neutral-100 shadow-2xl shadow-black/10 dark:border-white/10 dark:bg-neutral-900/40 dark:shadow-black/40">
+                <div className="relative aspect-[16/9]">
+                  <img
+                    src="https://images.unsplash.com/photo-1495121605193-b116b5b9c5fe?auto=format&fit=crop&q=80&w=1200"
+                    alt="Default provenance placeholder"
+                    className="h-full w-full object-cover opacity-60 grayscale transition-all hover:grayscale-0"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/25 to-transparent" />
+                  <div className="absolute bottom-0 left-0 right-0 p-6 md:p-8">
+                    <p className="text-xs uppercase tracking-[0.35em] text-white/80">Hosted by {product.hotelName}</p>
+                    <h3 className="mt-2 max-w-3xl font-serif text-3xl leading-tight text-white md:text-4xl">The story is being written.</h3>
                     <p className="mt-3 max-w-2xl text-sm leading-6 text-white/90 md:text-base">{product.origin}</p>
                   </div>
                 </div>

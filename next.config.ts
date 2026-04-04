@@ -1,9 +1,9 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
-  // reactCompiler: true,
-  allowedDevOrigins: ["46.225.89.2"],
+  // basePath: "/hackathon",
+  // assetPrefix: "/hackathon/",
+  allowedDevOrigins: ["46.225.89.2", "localhost", "localhost:3000", "localhost:3001"],
   devIndicators: {
     appIsrStatus: false,
   },
