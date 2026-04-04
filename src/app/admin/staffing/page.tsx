@@ -35,6 +35,7 @@ const RiskBadge = ({ level }: { level: string }) => {
 
 export default function StaffingAdminPage() {
   const { isDark } = useTheme();
+  type ShiftBucket = "morning" | "swing" | "night";
   const [items, setItems] = useState<CalendarItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [aiLoading, setAiLoading] = useState(false);
@@ -53,6 +54,7 @@ export default function StaffingAdminPage() {
   const [isDayOpen, setIsDayOpen] = useState(false);
   const [dayDetailDate, setDayDetailDate] = useState<Date | null>(null);
   const [dayItems, setDayItems] = useState<CalendarItem[]>([]);
+  const [assigningShiftId, setAssigningShiftId] = useState<string | null>(null);
   const [startDate, setStartDate] = useState(() => {
     const d = new Date();
     return d.toISOString().split('T')[0];
@@ -63,10 +65,86 @@ export default function StaffingAdminPage() {
     return d.toISOString().split('T')[0];
   });
 
+  const getItemsForDay = (events: CalendarItem[], date: Date) => {
+    const dayStart = new Date(date);
+    dayStart.setHours(0, 0, 0, 0);
+    const dayEnd = new Date(date);
+    dayEnd.setDate(dayEnd.getDate() + 1);
+    dayEnd.setHours(0, 0, 0, 0);
+
+    return (events || []).filter((event) => {
+      const start = new Date(event.startsAt);
+      const end = new Date(event.endsAt);
+      return start < dayEnd && end > dayStart;
+    });
+  };
+
+  const inferShiftType = (item: CalendarItem): ShiftBucket => {
+    if (item.shiftType) return item.shiftType;
+
+    const lowerTitle = (item.title || "").toLowerCase();
+    if (lowerTitle.includes("morning")) return "morning";
+    if (lowerTitle.includes("swing") || lowerTitle.includes("evening")) return "swing";
+    if (lowerTitle.includes("night")) return "night";
+
+    const start = new Date(item.startsAt);
+    if (!isNaN(start.getTime())) {
+      const hour = start.getHours();
+      if (hour >= 6 && hour < 14) return "morning";
+      if (hour >= 14 && hour < 22) return "swing";
+    }
+
+    return "night";
+  };
+
+  const getOrganizerId = (item: CalendarItem) => {
+    if (!item.organizerId) return "";
+    return typeof item.organizerId === "string" ? item.organizerId : item.organizerId._id;
+  };
+
+  const getOrganizerName = (item: CalendarItem) => {
+    if (!item.organizerId) return "Unassigned";
+    if (typeof item.organizerId === "string") {
+      return members.find((m) => m._id === item.organizerId)?.name || "Assigned";
+    }
+    return item.organizerId.name || "Assigned";
+  };
+
   const handleDayClick = (date: Date, items: CalendarItem[]) => {
     setDayDetailDate(date);
     setDayItems(items);
     setIsDayOpen(true);
+  };
+
+  const handleAssignShift = async (item: CalendarItem, organizerId: string) => {
+    if (!item._id) return;
+
+    setAssigningShiftId(item._id);
+    try {
+      const res = await fetch(`/api/admin/staffing/events?id=${item._id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          organizerId: organizerId || null,
+          type: "SHIFT",
+          shiftType: inferShiftType(item),
+        }),
+      });
+
+      if (res.ok) {
+        const eRes = await fetch(`/api/admin/staffing/events?departmentId=${selectedDept}&type=SHIFT`);
+        const data = await eRes.json();
+        setItems(data || []);
+
+        if (dayDetailDate) {
+          setDayItems(getItemsForDay(data || [], dayDetailDate));
+        }
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setAssigningShiftId(null);
+    }
   };
 
   const handleAddShift = async () => {
@@ -105,9 +183,12 @@ export default function StaffingAdminPage() {
         setIsAddingShift(false);
         setShiftTitle("");
         setSelectedStaffForShift("");
-        const eRes = await fetch(`/api/admin/staffing/events?departmentId=${selectedDept}`);
+        const eRes = await fetch(`/api/admin/staffing/events?departmentId=${selectedDept}&type=SHIFT`);
         const data = await eRes.json();
         setItems(data || []);
+        if (dayDetailDate) {
+          setDayItems(getItemsForDay(data || [], dayDetailDate));
+        }
       }
     } catch (e) {
       console.error(e);
@@ -121,13 +202,12 @@ export default function StaffingAdminPage() {
         method: "DELETE"
       });
       if (res.ok) {
-        const eRes = await fetch(`/api/admin/staffing/events?departmentId=${selectedDept}`);
+        const eRes = await fetch(`/api/admin/staffing/events?departmentId=${selectedDept}&type=SHIFT`);
         const data = await eRes.json();
         setItems(data || []);
         // Also update day items if day detail is open
         if (dayDetailDate) {
-          const dateStr = dayDetailDate.toISOString().split('T')[0];
-          setDayItems(data.filter((i: any) => i.startsAt.startsWith(dateStr)));
+          setDayItems(getItemsForDay(data || [], dayDetailDate));
         }
       }
     } catch (e) {
@@ -153,14 +233,21 @@ export default function StaffingAdminPage() {
     if (!aiResult?.predictions && !aiResult?.suggestedShifts) return;
     setIsCommitting(true);
     try {
-      const shiftsToCreate: any[] = [];
+      const shiftsByDayAndType = new Map<string, any>();
       const predictions = aiResult.predictions || [aiResult];
 
       predictions.forEach((pred: any) => {
         // AI might return results for multiple days in its predictions array
-        const date = new Date(pred.date || new Date());
+        let date: Date;
+        if (typeof pred.date === "string" && /^\d{4}-\d{2}-\d{2}$/.test(pred.date)) {
+          const [y, m, d] = pred.date.split("-").map(Number);
+          date = new Date(y, m - 1, d);
+        } else {
+          date = new Date(pred.date || new Date());
+        }
+        if (isNaN(date.getTime())) return;
         
-        if (pred.suggestedShifts) {
+        if (Array.isArray(pred.suggestedShifts)) {
           pred.suggestedShifts.forEach((shift: any) => {
             const [sH, sM] = (shift.startTime || "09:00").split(":");
             const [eH, eM] = (shift.endTime || "17:00").split(":");
@@ -176,7 +263,15 @@ export default function StaffingAdminPage() {
               end.setDate(end.getDate() + 1);
             }
 
-            shiftsToCreate.push({
+            const normalizedShiftType = ["morning", "swing", "night"].includes(shift.shiftType)
+              ? shift.shiftType
+              : "morning";
+
+            const dayKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+            const dedupeKey = `${dayKey}-${normalizedShiftType}`;
+            if (shiftsByDayAndType.has(dedupeKey)) return;
+
+            shiftsByDayAndType.set(dedupeKey, {
               title: shift.title || "Allocated Staff",
               description: pred.reasoning || shift.description,
               startsAt: start.toISOString(),
@@ -184,25 +279,41 @@ export default function StaffingAdminPage() {
               departmentId: selectedDept,
               organizerId: shift.assignedStaffId || null,
               type: "SHIFT",
-              shiftType: shift.shiftType || "morning",
+              shiftType: normalizedShiftType,
               status: "DRAFT"
             });
           });
         }
       });
+
+      const shiftsToCreate = Array.from(shiftsByDayAndType.values());
+      if (shiftsToCreate.length === 0) return;
+
+      const replaceRangeStart = new Date(startDate);
+      replaceRangeStart.setHours(0, 0, 0, 0);
+      const replaceRangeEnd = new Date(endDate);
+      replaceRangeEnd.setHours(23, 59, 59, 999);
       
       const res = await fetch("/api/admin/staffing/events", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(shiftsToCreate)
+        body: JSON.stringify({
+          items: shiftsToCreate,
+          replaceExisting: true,
+          replaceRangeStart: replaceRangeStart.toISOString(),
+          replaceRangeEnd: replaceRangeEnd.toISOString(),
+        })
       });
 
       if (res.ok) {
-        const eRes = await fetch(`/api/admin/staffing/events?departmentId=${selectedDept}`);
+        const eRes = await fetch(`/api/admin/staffing/events?departmentId=${selectedDept}&type=SHIFT`);
         const evts = await eRes.json();
         setItems(evts || []);
+        setAiResult(null); // Clear only on successful commit
+      } else {
+        const errText = await res.text();
+        throw new Error(errText || "Failed to commit roster");
       }
-      setAiResult(null); // Clear after commit
     } catch (e) {
       console.error(e);
     } finally {
@@ -234,6 +345,7 @@ export default function StaffingAdminPage() {
     try {
       const res = await fetch("/api/admin/staffing/ai-predict", {
         method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ 
           departmentId: selectedDept, 
           date: startDate,
@@ -243,6 +355,9 @@ export default function StaffingAdminPage() {
       if (res.ok) {
         const data = await res.json();
         setAiResult(data);
+      } else {
+        const errText = await res.text();
+        throw new Error(errText || "Failed to generate AI roster");
       }
     } catch (e) {
       console.error(e);
@@ -255,10 +370,14 @@ export default function StaffingAdminPage() {
     setSelectedDept(id);
     fetchMembers(id);
     try {
-      const eRes = await fetch(`/api/admin/staffing/events?departmentId=${id}`);
+      const eRes = await fetch(`/api/admin/staffing/events?departmentId=${id}&type=SHIFT`);
       if (eRes.ok) {
         const evts = await eRes.json();
-        setItems(Array.isArray(evts) ? evts : []);
+        const normalizedEvents = Array.isArray(evts) ? evts : [];
+        setItems(normalizedEvents);
+        if (dayDetailDate) {
+          setDayItems(getItemsForDay(normalizedEvents, dayDetailDate));
+        }
       }
     } catch (e) {
       console.error(e);
@@ -277,7 +396,7 @@ export default function StaffingAdminPage() {
           setSelectedDept(firstId);
           fetchMembers(firstId);
           
-          const eRes = await fetch(`/api/admin/staffing/events?departmentId=${firstId}`);
+          const eRes = await fetch(`/api/admin/staffing/events?departmentId=${firstId}&type=SHIFT`);
           if (eRes.ok) {
             const evts = await eRes.json();
             setItems(Array.isArray(evts) ? evts : []);
@@ -366,8 +485,8 @@ export default function StaffingAdminPage() {
                             <p className="text-2xl font-serif italic text-zinc-100 mb-8">{dayDetailDate?.toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' })}</p>
                             
                             <div className="space-y-8">
-                                {['morning', 'swing', 'night'].map(type => {
-                                    const shifts = dayItems.filter(i => i.shiftType === type);
+                              {['morning', 'swing', 'night'].map((type) => {
+                                const shifts = dayItems.filter((i) => inferShiftType(i) === type);
                                     const typeLabel = type.charAt(0).toUpperCase() + type.slice(1);
                                     const colorClass = type === 'morning' ? 'text-sky-500' : type === 'swing' ? 'text-amber-500' : 'text-indigo-500';
                                     
@@ -382,13 +501,27 @@ export default function StaffingAdminPage() {
                                             <div className="grid grid-cols-1 gap-3">
                                                 {shifts.map((s, idx) => (
                                                     <div key={s._id || `shift-${idx}`} className="p-4 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-between group/shift transition-colors hover:border-amber-500/20">
-                                                        <div>
-                                                            <p className="text-xs font-bold text-zinc-100 mb-1">{s.organizerId?.name || "Unassigned"}</p>
+                                                    <div className="w-full">
+                                                      <p className="text-xs font-bold text-zinc-100 mb-1">{getOrganizerName(s)}</p>
                                                             <p className="text-[9px] font-black uppercase tracking-[0.2em] text-zinc-500">{s.title}</p>
+
+                                                      <div className="mt-3 flex items-center gap-2">
+                                                        <select
+                                                          value={getOrganizerId(s)}
+                                                          onChange={(e) => handleAssignShift(s, e.target.value)}
+                                                          className={`flex-1 px-3 py-2 rounded-xl border bg-transparent text-[9px] font-bold uppercase tracking-widest outline-none transition-all ${isDark ? "border-white/10" : "border-black/10"}`}
+                                                        >
+                                                          <option value="" className={isDark ? "bg-[#050505]" : "bg-white"}>Unassigned</option>
+                                                          {members.map((m) => (
+                                                            <option key={m._id} value={m._id} className={isDark ? "bg-[#050505]" : "bg-white"}>{m.name}</option>
+                                                          ))}
+                                                        </select>
+                                                        {assigningShiftId === s._id && <Loader2 className="w-3 h-3 animate-spin text-amber-500" />}
+                                                      </div>
                                                         </div>
                                                         <button 
                                                             onClick={() => handleDeleteShift(s)}
-                                                            className="p-2 rounded-full bg-rose-500/10 text-rose-500 opacity-0 group-hover/shift:opacity-100 transition-opacity"
+                                                      className="p-2 rounded-full bg-rose-500/10 text-rose-500 opacity-0 group-hover/shift:opacity-100 transition-opacity ml-3"
                                                         >
                                                             <X className="w-3 h-3" />
                                                         </button>
@@ -533,7 +666,7 @@ export default function StaffingAdminPage() {
                                         <p className="text-[10px] font-black uppercase tracking-widest text-amber-500">AI Strategy Insight</p>
                                         <div className="flex items-center gap-2">
                                             <TrendingUp className="w-3 h-3 text-amber-500" />
-                                            <span className="text-[9px] font-bold text-amber-500">{aiResult.occupancyRate}% Load</span>
+                                        <span className="text-[9px] font-bold text-amber-500">{aiResult.occupancyAtTime || "N/A"} Load</span>
                                         </div>
                                     </div>
                                     <p className="text-xs text-amber-500/80 leading-relaxed italic mb-4">{aiResult.reasoning || "Analyzing data..."}</p>

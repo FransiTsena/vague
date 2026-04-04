@@ -82,6 +82,7 @@ export async function getSmartStaffingPrediction(
   context: {
     department: string;
     occupancyRate: number;
+    occupancyByDay?: { date: string; booked: number; totalRooms: number; occupancyRate: number }[];
     upcomingBookings: number;
     activeEvents: string[];
     historicalDemand: string;
@@ -106,12 +107,14 @@ export async function getSmartStaffingPrediction(
         {
           role: "system",
           content: `You are a hotel workforce optimization AI. Calculate ideal staffing for a given department. 
-          Consider occupancy, event intensity, and service standards. 
+          Consider occupancy, event intensity, and service standards.
+          Use day-by-day occupancy context when available: ${JSON.stringify(context.occupancyByDay || [])}. 
 
           Available Staff to assign: ${JSON.stringify(context.availableStaff)}.
           Assign specific staff members (using their "id" as "assignedStaffId") to the proposed shifts where it makes sense, respecting their availability.
 
-          IMPORTANT: If the user provided a startDate (${context.startDate}) and endDate (${context.endDate}), you MUST return a schedule for EACH day in that range.
+          IMPORTANT: If the user provided a startDate (${context.startDate}) and endDate (${context.endDate}), you MUST return a schedule for EVERY single day in that range. For a full week, that means 7 distinct date objects in the "predictions" array. Do NOT truncate.
+          IMPORTANT: suggestedStaffCount and shift intensity must reflect EACH day's occupancy profile, not one flat value for all days.
 
           Return ONLY JSON in this format:
           { 

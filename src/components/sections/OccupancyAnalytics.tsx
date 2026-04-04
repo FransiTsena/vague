@@ -36,7 +36,7 @@ export default function OccupancyAnalytics() {
         if (Array.isArray(d)) {
             // Mock enrichment for demo realism to ensure variation even if DB is empty
             const enriched = d.map((point, i) => {
-                // If db is perfectly empty, let's inject realistic synthetic variance
+                // ...existing code...
                 const total = point.total || 120;
                 let booked = point.booked;
                 
@@ -70,6 +70,10 @@ export default function OccupancyAnalytics() {
                 };
             });
             setData(enriched);
+            // Select today by default
+            if (enriched.length > 0) {
+              setSelectedDay(enriched[0]);
+            }
         }
         setLoading(false);
       })
@@ -122,12 +126,12 @@ export default function OccupancyAnalytics() {
                 </div>
                 
                 {/* Minimalist Occupancy visualization */}
-                <div className="relative h-48 w-[1px] bg-neutral-100 dark:bg-neutral-800 mx-auto mb-10 flex flex-col justify-end">
+                <div className="relative h-48 w-2 bg-neutral-100 dark:bg-neutral-800 mx-auto mb-10 flex flex-col justify-end rounded-full overflow-hidden">
                   <div 
-                    className={`w-full transition-all duration-1000 ease-out shadow-[0_0_15px_rgba(0,0,0,0.05)] ${isSelected ? "bg-foreground scale-x-[3]" : "bg-neutral-300 dark:bg-neutral-600"}`}
-                    style={{ height: `${Math.max(5, day.occupancy)}%` }}
+                    className={`w-full transition-all duration-1000 ease-out shadow-[0_0_15px_rgba(0,0,0,0.05)] ${isSelected ? "bg-emerald-500" : isPeak ? "bg-amber-500" : "bg-neutral-400 dark:bg-neutral-600"}`}
+                    style={{ height: `${Math.max(8, day.occupancy)}%` }}
                   ></div>
-                  <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 -ml-8 text-[10px] font-mono transform -rotate-90 transition-colors tracking-widest ${isSelected ? "text-foreground font-bold" : "text-neutral-400 dark:text-neutral-600"}`}>
+                  <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 -ml-10 text-[10px] font-mono transform -rotate-90 transition-colors tracking-widest ${isSelected ? "text-foreground font-bold" : "text-neutral-400 dark:text-neutral-500"}`}>
                     {Math.round(day.occupancy)}%
                   </div>
                 </div>

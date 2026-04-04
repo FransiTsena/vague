@@ -11,6 +11,7 @@ export async function GET(req: NextRequest) {
   try {
     const user = await requireUser(["ADMIN", "DEPARTMENT_HEAD"]);
     const departmentIdParam = req.nextUrl.searchParams.get("departmentId");
+    const typeParam = req.nextUrl.searchParams.get("type");
 
     let query: any = {};
     if (user.accessRole === "DEPARTMENT_HEAD") {
@@ -18,6 +19,13 @@ export async function GET(req: NextRequest) {
       query.departmentId = user.departmentId;
     } else if (departmentIdParam) {
       query.departmentId = departmentIdParam;
+    }
+
+    if (typeParam === "SHIFT") {
+      // Backward compatibility: old records may not have the type field populated.
+      query.$or = [{ type: "SHIFT" }, { type: { $exists: false } }];
+    } else if (typeParam) {
+      query.type = typeParam;
     }
 
     const items = await ScheduleEvent.find(query)
@@ -44,10 +52,35 @@ export async function POST(req: NextRequest) {
       return apiError("Invalid JSON body", 400);
     }
 
+    const bulkItems = Array.isArray(body)
+      ? body
+      : Array.isArray(body?.items)
+        ? body.items
+        : null;
+
     // Handle Bulk Operations
-    if (Array.isArray(body)) {
+    if (bulkItems) {
+      const replaceExisting = !!body?.replaceExisting;
+      const replaceStart = body?.replaceRangeStart ? new Date(body.replaceRangeStart) : null;
+      const replaceEnd = body?.replaceRangeEnd ? new Date(body.replaceRangeEnd) : null;
+
+      if (replaceExisting && replaceStart && replaceEnd && !isNaN(replaceStart.getTime()) && !isNaN(replaceEnd.getTime())) {
+        const targetDept = bulkItems[0]?.departmentId;
+        if (targetDept) {
+          await ScheduleEvent.deleteMany({
+            departmentId: targetDept,
+            startsAt: { $lte: replaceEnd },
+            endsAt: { $gte: replaceStart },
+            $and: [
+              { $or: [{ type: "SHIFT" }, { type: { $exists: false } }] },
+              { $or: [{ status: "DRAFT" }, { status: { $exists: false } }] },
+            ],
+          });
+        }
+      }
+
       const results = [];
-      for (const item of body) {
+      for (const item of bulkItems) {
         const { title, description, startsAt, endsAt, departmentId, organizerId, type, shiftType, status } = item;
         
         if (!title || !departmentId) continue;

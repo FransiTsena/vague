@@ -7,6 +7,81 @@ import { requireUser } from "@/lib/scheduling/auth-helpers";
 
 export const dynamic = "force-dynamic";
 
+const SHIFT_TEMPLATES = {
+  morning: { title: "Morning Shift", startTime: "07:00", endTime: "15:00" },
+  swing: { title: "Swing Shift", startTime: "15:00", endTime: "23:00" },
+  night: { title: "Night Shift", startTime: "23:00", endTime: "07:00" }
+} as const;
+
+type ShiftType = "morning" | "swing" | "night";
+
+function toDayKey(value: Date | string): string {
+  if (typeof value === "string" && /^\d{4}-\d{2}-\d{2}$/.test(value)) {
+    return value;
+  }
+
+  const d = new Date(value);
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+}
+
+function enumerateDayKeys(start: Date, end: Date): string[] {
+  const keys: string[] = [];
+  const cursor = new Date(start);
+  cursor.setHours(0, 0, 0, 0);
+
+  const stop = new Date(end);
+  stop.setHours(0, 0, 0, 0);
+
+  while (cursor <= stop) {
+    keys.push(toDayKey(cursor));
+    cursor.setDate(cursor.getDate() + 1);
+  }
+
+  return keys;
+}
+
+function normalizeDayShifts(rawShifts: any[] | undefined, fallbackReasoning: string) {
+  const byType = new Map<ShiftType, any>();
+
+  for (const raw of rawShifts || []) {
+    const normalizedType = ["morning", "swing", "night"].includes(raw?.shiftType)
+      ? (raw.shiftType as ShiftType)
+      : null;
+
+    if (!normalizedType || byType.has(normalizedType)) continue;
+
+    const template = SHIFT_TEMPLATES[normalizedType];
+    byType.set(normalizedType, {
+      title: typeof raw?.title === "string" && raw.title.trim() ? raw.title.trim() : template.title,
+      startTime: typeof raw?.startTime === "string" && raw.startTime.includes(":") ? raw.startTime : template.startTime,
+      endTime: typeof raw?.endTime === "string" && raw.endTime.includes(":") ? raw.endTime : template.endTime,
+      shiftType: normalizedType,
+      description: typeof raw?.description === "string" && raw.description.trim() ? raw.description.trim() : fallbackReasoning,
+      assignedStaffId: raw?.assignedStaffId || null,
+    });
+  }
+
+  const normalized = (["morning", "swing", "night"] as ShiftType[]).map((type) => {
+    const existing = byType.get(type);
+    if (existing) return existing;
+
+    const template = SHIFT_TEMPLATES[type];
+    return {
+      title: template.title,
+      startTime: template.startTime,
+      endTime: template.endTime,
+      shiftType: type,
+      description: fallbackReasoning,
+      assignedStaffId: null,
+    };
+  });
+
+  return normalized;
+}
+
 export async function POST(req: NextRequest) {
   try {
     await dbConnect();
@@ -25,6 +100,7 @@ export async function POST(req: NextRequest) {
     // Set to start and end of range
     const rangeStart = new Date(startDate.setHours(0, 0, 0, 0));
     const rangeEnd = new Date(stopDate.setHours(23, 59, 59, 999));
+    const dayKeys = enumerateDayKeys(rangeStart, rangeEnd);
 
     // 1. Gather Context for AI (Aggregated over range)
     const [totalRooms, bookings, department, events, currentAssignments, members] = await Promise.all([
@@ -41,7 +117,7 @@ export async function POST(req: NextRequest) {
       }),
       ScheduleEvent.countDocuments({
         departmentId,
-        type: "SHIFT",
+        $or: [{ type: "SHIFT" }, { type: { $exists: false } }],
         startsAt: { $lte: rangeEnd },
         endsAt: { $gte: rangeStart }
       }),
@@ -51,6 +127,24 @@ export async function POST(req: NextRequest) {
     if (!department) return apiError("Department not found", 404);
 
     const occupancyRate = totalRooms > 0 ? (bookings.length / totalRooms) * 100 : 0;
+    const occupancyByDay = dayKeys.map((dayKey) => {
+      const dayStart = new Date(`${dayKey}T00:00:00.000Z`);
+      const dayEnd = new Date(`${dayKey}T23:59:59.999Z`);
+
+      const bookedForDay = bookings.filter((b: any) => {
+        const checkIn = new Date(b.checkIn);
+        const checkOut = new Date(b.checkOut);
+        return checkIn <= dayEnd && checkOut >= dayStart;
+      }).length;
+
+      const dayOccupancy = totalRooms > 0 ? (bookedForDay / totalRooms) * 100 : 0;
+      return {
+        date: dayKey,
+        booked: bookedForDay,
+        totalRooms,
+        occupancyRate: Number(dayOccupancy.toFixed(1)),
+      };
+    });
 
     // 2. Call AI Engine (using Groq)
     const prediction = await getSmartStaffingPrediction({
@@ -66,8 +160,9 @@ export async function POST(req: NextRequest) {
         skills: m.skills,
         availability: m.availability
       })),
-      startDate: rangeStart.toISOString(),
-      endDate: rangeEnd.toISOString()
+      occupancyByDay,
+      startDate: rangeStart.toISOString().split('T')[0],
+      endDate: rangeEnd.toISOString().split('T')[0]
     });
 
     if (!prediction) {
@@ -91,8 +186,39 @@ export async function POST(req: NextRequest) {
       return apiJson({ predictions: suggestions });
     }
 
+    const sourcePredictions = Array.isArray(prediction.predictions)
+      ? prediction.predictions
+      : prediction.date
+        ? [prediction]
+        : [];
+
+    const byDate = new Map<string, any>();
+    for (const p of sourcePredictions) {
+      if (!p?.date) continue;
+      const dateKey = toDayKey(p.date);
+      if (!byDate.has(dateKey)) byDate.set(dateKey, p);
+    }
+
+    const normalizedPredictions = dayKeys.map((dayKey) => {
+      const p = byDate.get(dayKey);
+      const dayContext = occupancyByDay.find((d) => d.date === dayKey);
+      const dayReasoning = typeof p?.reasoning === "string" && p.reasoning.trim()
+        ? p.reasoning
+        : (prediction.reasoning || "Demand-balanced staffing generated for this day.");
+
+      return {
+        date: dayKey,
+        suggestedStaffCount: Number.isFinite(p?.suggestedStaffCount)
+          ? p.suggestedStaffCount
+          : Math.max(2, Math.ceil((dayContext?.occupancyRate ?? occupancyRate) / 12)),
+        reasoning: dayReasoning,
+        suggestedShifts: normalizeDayShifts(p?.suggestedShifts, dayReasoning),
+      };
+    });
+
     return apiJson({
       ...prediction,
+      predictions: normalizedPredictions,
       currentStaffCount: currentAssignments,
       occupancyAtTime: occupancyRate.toFixed(1) + "%",
     });

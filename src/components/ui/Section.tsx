@@ -15,10 +15,7 @@ const Section = forwardRef<HTMLElement, SectionProps>(
             <section
                 ref={ref}
                 id={id}
-                className={cn(
-                    "py-16 px-6 md:px-12 theme-transition overflow-x-hidden",
-                    className
-                )}
+               
             >
                 {children}
             </section>

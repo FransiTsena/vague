@@ -205,22 +205,43 @@ async function seed() {
       }
     ]);
 
-    // 5. Seed Bookings (Occupancy Data for AI)
-    console.log("Seeding Historical and Upcoming Bookings...");
-    for (let i = 0; i < 30; i++) {
-        const room = savedRooms[Math.floor(Math.random() * savedRooms.length)];
-        const checkIn = new Date();
-        checkIn.setDate(checkIn.getDate() + (Math.floor(Math.random() * 20) - 10)); // Mix of past/future
-        const checkOut = new Date(checkIn);
-        checkOut.setDate(checkOut.getDate() + 3);
+    // 5. Seed Bookings (AI-Ready Data Patterns for OccupancyAnalytics)
+    console.log("Seeding Booking Data (AI Projection Ready)...");
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
 
+    const bookingPatterns = [
+      { offset: -2, density: 0.3, label: "2 Days Ago" },
+      { offset: -1, density: 0.35, label: "Yesterday" },
+      { offset: 0, density: 0.45, label: "Today" },
+      { offset: 1, density: 0.55, label: "Tomorrow" },
+      { offset: 2, density: 0.88, label: "Friday Peak (Surge)" }, 
+      { offset: 3, density: 0.94, label: "Saturday Peak (Surge)" },
+      { offset: 4, density: 0.65, label: "Sunday" },
+      { offset: 5, density: 0.4, label: "Monday" },
+      { offset: 6, density: 0.3, label: "Tuesday" },
+    ];
+
+    for (const pattern of bookingPatterns) {
+      const targetDate = new Date(today);
+      targetDate.setDate(today.getDate() + pattern.offset);
+      
+      const totalRoomsCount = savedRooms.length;
+      const targetBooked = Math.floor(totalRoomsCount * pattern.density);
+      
+      const shuffledRooms = [...savedRooms].sort(() => 0.5 - Math.random());
+      const selectedForDay = shuffledRooms.slice(0, targetBooked);
+
+      for (const room of selectedForDay) {
         await Booking.create({
-            roomId: room._id,
-            checkIn,
-            checkOut,
-            pricePaid: room.currentPrice * 3,
-            numberOfGuests: Math.floor(Math.random() * 2) + 1
+          roomId: room._id,
+          checkIn: targetDate,
+          checkOut: new Date(new Date(targetDate).getTime() + 24 * 60 * 60 * 1000),
+          pricePaid: room.currentPrice,
+          numberOfGuests: Math.floor(Math.random() * 2) + 1
         });
+      }
+      console.log(`  - Seeded ${targetBooked} bookings for ${targetDate.toISOString().split('T')[0]} (${pattern.label})`);
     }
 
     console.log("-----------------------------------------");
@@ -228,7 +249,7 @@ async function seed() {
     console.log(`- Staff Profiles Created: ${await Member.countDocuments()}`);
     console.log(`- Room Inventory Created: ${savedRooms.length}`);
     console.log(`- Gallery Projects: 2`);
-    console.log(`- Simulated Bookings: 30`);
+    console.log(`- AI-Patterned Bookings: ${await Booking.countDocuments()}`);
     console.log("-----------------------------------------");
     process.exit(0);
   } catch (err) {
