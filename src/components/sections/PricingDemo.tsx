@@ -2,9 +2,6 @@
 
 import { useState, useEffect } from "react";
 import Section from "@/components/ui/Section";
-import { useLanguage } from "@/context/LanguageContext";
-import { useTheme } from "@/context/ThemeContext";
-import { TrendingUp, Calendar as CalendarIcon, Loader2, Database, SlidersHorizontal, Check, RefreshCcw, Info, BrainCircuit, Activity, Settings2, Save } from "lucide-react";
 import Button from "@/components/ui/Button";
 
 interface PricingData {
@@ -74,8 +71,6 @@ function round2(value: number) {
 }
 
 export default function PricingDemo() {
-  const { t, language } = useLanguage();
-  const { isDark } = useTheme();
   const [pricing, setPricing] = useState<PricingData | null>(null);
   const [servicePricing, setServicePricing] = useState<ServicePricingRow[]>([]);
   const [loading, setLoading] = useState(false);

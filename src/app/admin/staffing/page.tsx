@@ -44,6 +44,7 @@ export default function StaffingAdminPage() {
   const [selectedDept, setSelectedDept] = useState("");
   const [members, setMembers] = useState<any[]>([]);
   const [isAddingMember, setIsAddingMember] = useState(false);
+  const [isStaffModalOpen, setIsStaffModalOpen] = useState(false);
   const [newMember, setNewMember] = useState({ name: "", email: "", role: "", departmentId: "" });
   const [isCommitting, setIsCommitting] = useState(false);
   const [isAddingShift, setIsAddingShift] = useState(false);
@@ -469,144 +470,6 @@ export default function StaffingAdminPage() {
 
             {/* AI Control Center */}
             <div className="xl:sticky xl:top-28 space-y-8">
-                <AnimatePresence mode="wait">
-                    {isDayOpen && (
-                        <motion.div
-                          key="day-orchestration"
-                          initial={{ opacity: 0, x: 20 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          exit={{ opacity: 0, x: 20 }}
-                          className={`rounded-[3rem] p-10 border relative overflow-hidden ${isDark ? "bg-white/5 border-white/10" : "bg-white border-black/5 shadow-2xl"}`}
-                        >
-                            <button onClick={() => setIsDayOpen(false)} className="absolute top-8 right-8 text-zinc-500 hover:text-white transition-colors"><X className="w-5 h-5" /></button>
-                            <h2 className="text-[10px] font-black uppercase tracking-[0.4em] text-amber-500 mb-2 flex items-center gap-3 italic">
-                                <Calendar className="w-4 h-4" /> Daily Orchestration
-                            </h2>
-                            <p className="text-2xl font-serif italic text-zinc-100 mb-8">{dayDetailDate?.toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' })}</p>
-                            
-                            <div className="space-y-8">
-                              {['morning', 'swing', 'night'].map((type) => {
-                                const shifts = dayItems.filter((i) => inferShiftType(i) === type);
-                                    const typeLabel = type.charAt(0).toUpperCase() + type.slice(1);
-                                    const colorClass = type === 'morning' ? 'text-sky-500' : type === 'swing' ? 'text-amber-500' : 'text-indigo-500';
-                                    
-                                    return (
-                                        <div key={type} className="space-y-4">
-                                            <div className="flex items-center justify-between">
-                                                <h3 className={`text-[9px] font-black uppercase tracking-widest ${colorClass}`}>
-                                                    {typeLabel} Shift
-                                                </h3>
-                                                <span className="text-[9px] font-mono opacity-20">{shifts.length} Personnel</span>
-                                            </div>
-                                            <div className="grid grid-cols-1 gap-3">
-                                                {shifts.map((s, idx) => (
-                                                    <div key={s._id || `shift-${idx}`} className="p-4 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-between group/shift transition-colors hover:border-amber-500/20">
-                                                    <div className="w-full">
-                                                      <p className="text-xs font-bold text-zinc-100 mb-1">{getOrganizerName(s)}</p>
-                                                            <p className="text-[9px] font-black uppercase tracking-[0.2em] text-zinc-500">{s.title}</p>
-
-                                                      <div className="mt-3 flex items-center gap-2">
-                                                        <select
-                                                          value={getOrganizerId(s)}
-                                                          onChange={(e) => handleAssignShift(s, e.target.value)}
-                                                          className={`flex-1 px-3 py-2 rounded-xl border bg-transparent text-[9px] font-bold uppercase tracking-widest outline-none transition-all ${isDark ? "border-white/10" : "border-black/10"}`}
-                                                        >
-                                                          <option value="" className={isDark ? "bg-[#050505]" : "bg-white"}>Unassigned</option>
-                                                          {members.map((m) => (
-                                                            <option key={m._id} value={m._id} className={isDark ? "bg-[#050505]" : "bg-white"}>{m.name}</option>
-                                                          ))}
-                                                        </select>
-                                                        {assigningShiftId === s._id && <Loader2 className="w-3 h-3 animate-spin text-amber-500" />}
-                                                      </div>
-                                                        </div>
-                                                        <button 
-                                                            onClick={() => handleDeleteShift(s)}
-                                                      className="p-2 rounded-full bg-rose-500/10 text-rose-500 opacity-0 group-hover/shift:opacity-100 transition-opacity ml-3"
-                                                        >
-                                                            <X className="w-3 h-3" />
-                                                        </button>
-                                                    </div>
-                                                ))}
-                                                {shifts.length === 0 && (
-                                                    <div className="py-4 border border-dashed border-white/5 rounded-2xl text-center text-[9px] font-black uppercase tracking-widest text-zinc-700">
-                                                        No Deployments
-                                                    </div>
-                                                )}
-                                            </div>
-                                        </div>
-                                    );
-                                })}
-                            </div>
-
-                            <button 
-                                onClick={() => {
-                                    setSelectedCalendarDate(dayDetailDate);
-                                    setIsAddingShift(true);
-                                    setIsDayOpen(false);
-                                }}
-                                className="w-full mt-10 p-5 rounded-2xl bg-amber-500 text-black text-[10px] font-black uppercase tracking-[0.2em] hover:bg-amber-400 transition-colors flex items-center justify-center gap-3"
-                            >
-                                <Plus className="w-4 h-4" /> Add Personnel
-                            </button>
-                        </motion.div>
-                    )}
-                    {isAddingShift && (
-                        <motion.div 
-                          key="add-manual-shift"
-                          initial={{ opacity: 0, scale: 0.95 }}
-                          animate={{ opacity: 1, scale: 1 }}
-                          exit={{ opacity: 0, scale: 0.95 }}
-                          className={`rounded-[3rem] p-10 border relative overflow-hidden ${isDark ? "bg-amber-500/10 border-amber-500/20" : "bg-amber-50/50 border-amber-500/10 shadow-2xl shadow-amber-500/5"}`}
-                        >
-                            <button onClick={() => setIsAddingShift(false)} className="absolute top-8 right-8 text-amber-500/40 hover:text-amber-500"><X className="w-5 h-5" /></button>
-                            <h2 className="text-[10px] font-black uppercase tracking-[0.4em] text-amber-500 mb-8 flex items-center gap-3 italic">
-                                <Plus className="w-4 h-4" /> Add Manual Shift
-                            </h2>
-                            <div className="space-y-6">
-                                <p className="text-[10px] uppercase font-black tracking-widest opacity-40">Target Date: {selectedCalendarDate?.toDateString()}</p>
-                                <input 
-                                    autoFocus
-                                    placeholder="Enter Shift Name (e.g. Morning Shift)"
-                                    value={shiftTitle}
-                                    onChange={(e) => setShiftTitle(e.target.value)}
-                                    className={`w-full px-8 py-5 rounded-[1.5rem] border bg-transparent text-sm font-bold uppercase tracking-widest outline-none transition-all focus:border-amber-500/50 ${isDark ? "border-white/10" : "border-black/10"}`}
-                                />
-                                <div className="space-y-3">
-                                  <label className="text-[9px] font-black uppercase tracking-widest opacity-40 px-2">Shift Period</label>
-                                  <select 
-                                      value={selectedShiftType}
-                                      onChange={(e) => setSelectedShiftType(e.target.value as any)}
-                                      className={`w-full px-8 py-5 rounded-[1.5rem] border bg-transparent text-sm font-bold uppercase tracking-widest outline-none transition-all focus:border-amber-500/50 appearance-none cursor-pointer ${isDark ? "border-white/10" : "border-black/10"}`}
-                                  >
-                                      <option value="morning" className={isDark ? "bg-[#050505]" : "bg-white"}>Morning (07:00 - 15:00)</option>
-                                      <option value="swing" className={isDark ? "bg-[#050505]" : "bg-white"}>Swing (15:00 - 23:00)</option>
-                                      <option value="night" className={isDark ? "bg-[#050505]" : "bg-white"}>Night (23:00 - 07:00)</option>
-                                  </select>
-                                </div>
-                                <div className="space-y-3">
-                                  <label className="text-[9px] font-black uppercase tracking-widest opacity-40 px-2">Assign Personnel (Optional)</label>
-                                  <select 
-                                      value={selectedStaffForShift}
-                                      onChange={(e) => setSelectedStaffForShift(e.target.value)}
-                                      className={`w-full px-8 py-5 rounded-[1.5rem] border bg-transparent text-sm font-bold uppercase tracking-widest outline-none transition-all focus:border-amber-500/50 appearance-none cursor-pointer ${isDark ? "border-white/10" : "border-black/10"}`}
-                                  >
-                                      <option value="" className={isDark ? "bg-[#050505]" : "bg-white"}>Auto-Assign Later</option>
-                                      {members.map(m => (
-                                          <option key={m._id} value={m._id} className={isDark ? "bg-[#050505]" : "bg-white"}>{m.name}</option>
-                                      ))}
-                                  </select>
-                                </div>
-                                <button 
-                                  onClick={handleAddShift}
-                                  className="w-full py-5 rounded-[1.5rem] bg-amber-500 text-black text-[10px] font-black uppercase tracking-[0.4em] hover:bg-amber-400 transition-all font-sans"
-                                >
-                                  Deploy Shift
-                                </button>
-                            </div>
-                        </motion.div>
-                    )}
-                </AnimatePresence>
-
                 <motion.div 
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -708,114 +571,336 @@ export default function StaffingAdminPage() {
                     </AnimatePresence>
                 </motion.div>
 
-                <div className={`p-10 border overflow-hidden relative transition-all duration-700 ${isDark ? "bg-white/5 border-white/10" : "bg-white border-black/5"}`}>
-                    <h2 className="text-[10px] font-black uppercase tracking-[0.4em] text-amber-500 mb-10 flex items-center gap-3 italic">
-                        Personnel Registry
-                    </h2>
-
-                    <div className="space-y-10">
-                        <div className="space-y-4">
-                            <label className="text-[9px] uppercase font-black tracking-[0.2em] opacity-40 block">Select Target Department</label>
-                            <div className="relative group">
-                                <select 
-                                    value={selectedDept}
-                                    onChange={(e) => handleDeptChange(e.target.value)}
-                                    className={`w-full px-8 py-5 rounded-[1.5rem] border bg-transparent text-sm font-bold uppercase tracking-widest transition-all outline-none appearance-none hover:bg-white/[0.03] ${isDark ? "border-white/10" : "border-black/10"}`}
-                                >
-                                    {departments.map(d => <option className="bg-neutral-900" key={d._id} value={d._id}>{d.name}</option>)}
-                                </select>
-                                <ChevronRight className="absolute right-6 top-1/2 -translate-y-1/2 w-4 h-4 rotate-90 opacity-20 group-hover:opacity-100 transition-opacity pointer-events-none" />
-                            </div>
-                        </div>
-
-                        <div className="space-y-6 pt-6 border-t border-white/5">
-                            <div className="flex items-center justify-between">
-                                <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500">Personnel Roster</h3>
-                                <button 
-                                    onClick={() => setIsAddingMember(!isAddingMember)}
-                                    className="p-2 rounded-full bg-white/5 hover:bg-white/10 transition-colors"
-                                >
-                                    <Users className="w-3 h-3" />
-                                </button>
-                            </div>
-
-                            <AnimatePresence mode="wait">
-                                {isAddingMember && (
-                                    <motion.form 
-                                        key="add-member-form"
-                                        initial={{ height: 0, opacity: 0 }} 
-                                        animate={{ height: "auto", opacity: 1 }} 
-                                        exit={{ height: 0, opacity: 0 }}
-                                        onSubmit={handleAddMember}
-                                        className="space-y-4 overflow-hidden"
-                                    >
-                                        <input 
-                                            placeholder="FULL NAME"
-                                            value={newMember.name}
-                                            onChange={e => setNewMember({...newMember, name: e.target.value})}
-                                            className="w-full bg-transparent border border-white/10 rounded-xl px-4 py-3 text-[10px] font-bold tracking-widest uppercase focus:border-amber-500/50 outline-none"
-                                        />
-                                        <input 
-                                            placeholder="EMAIL ADDRESS"
-                                            value={newMember.email}
-                                            onChange={e => setNewMember({...newMember, email: e.target.value})}
-                                            className="w-full bg-transparent border border-white/10 rounded-xl px-4 py-3 text-[10px] font-bold tracking-widest uppercase focus:border-amber-500/50 outline-none"
-                                        />
-                                        <input 
-                                            placeholder="POSITION / ROLE"
-                                            value={newMember.role}
-                                            onChange={e => setNewMember({...newMember, role: e.target.value})}
-                                            className="w-full bg-transparent border border-white/10 rounded-xl px-4 py-3 text-[10px] font-bold tracking-widest uppercase focus:border-amber-500/50 outline-none"
-                                        />
-                                        <button className="w-full bg-white text-black py-3 rounded-xl text-[9px] font-black uppercase tracking-[0.3em] hover:bg-neutral-200 transition-colors">
-                                            Register Member
-                                        </button>
-                                    </motion.form>
-                                )}
-                            </AnimatePresence>
-
-                            <div className="max-h-[300px] overflow-y-auto space-y-2 pr-2 custom-scrollbar">
-                                {members.length === 0 ? (
-                                    <p className="text-[9px] uppercase tracking-widest opacity-20 italic py-4">No personnel registered in this sector.</p>
-                                ) : (
-                                    members.map((m: any) => (
-                                        <div key={m._id} className="p-4 rounded-2xl bg-white/[0.03] border border-white/5 flex items-center justify-between group hover:border-white/10 transition-all">
-                                            <div>
-                                                <p className="text-[10px] font-black uppercase tracking-widest">{m.name}</p>
-                                                <p className="text-[9px] opacity-40 uppercase font-medium">{m.role || 'Personnel'}</p>
-                                            </div>
-                                            <div className="w-1.5 h-1.5 rounded-full bg-emerald-500/40" />
-                                        </div>
-                                    ))
-                                )}
-                            </div>
-                        </div>
-
-                        <button 
-                            onClick={handleAiForecast}
-                            disabled={aiLoading}
-                            className={`w-full py-6 rounded-[1.5rem] text-[11px] font-black uppercase tracking-[0.4em] transition-all flex items-center justify-center gap-4  disabled:opacity-50 ${isDark ? "bg-amber-500 text-black hover:bg-amber-400" : "bg-black text-white hover:bg-neutral-800"}`}
-                        >
-                            {aiLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Zap className="w-4 h-4" />}
-                            Execute Logic Engine
-                        </button>
-                    </div>
-                </div>
-
-                <div className={`p-8 bg-indigo-500/5 border border-indigo-500/10 flex items-center justify-between group transition-all duration-500 hover:bg-indigo-500/10 rounded-[2rem]`}>
-                    <div className="flex items-center gap-4">
-                        <Calendar className="w-5 h-5 text-indigo-400" />
-                        <div>
-                            <p className="text-[9px] font-black uppercase tracking-widest text-indigo-400">Export Protocol</p>
-                            <p className="text-[11px] font-medium opacity-60 italic">Broadcast roster to staff terminals.</p>
-                        </div>
-                    </div>
-                    <button className="p-3 rounded-full bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <ChevronRight className="w-4 h-4" />
-                    </button>
+                <div className={`p-8 border transition-all duration-700 ${isDark ? "bg-white/5 border-white/10" : "bg-white border-black/5"}`}>
+                  <h2 className="text-[10px] font-black uppercase tracking-[0.4em] text-amber-500 mb-5 flex items-center gap-3 italic">
+                    Staff Command
+                  </h2>
+                  <p className="text-[11px] text-zinc-500 mb-6 leading-relaxed">
+                    Open Manage Staff to onboard, view, and maintain personnel assignments for the selected department.
+                  </p>
+                  <button
+                    onClick={() => setIsStaffModalOpen(true)}
+                    className="w-full py-4 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all text-[10px] font-black uppercase tracking-[0.25em] flex items-center justify-center gap-3"
+                  >
+                    <Users className="w-4 h-4" /> Manage Staff
+                  </button>
                 </div>
             </div>
         </div>
+
+        <AnimatePresence>
+            {isDayOpen && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 pt-24">
+                    <motion.div 
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        onClick={() => setIsDayOpen(false)}
+                        className="absolute inset-0 bg-black/90 backdrop-blur-xl"
+                    />
+                    <motion.div
+                        key="day-orchestration"
+                        initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                        animate={{ opacity: 1, scale: 1, y: 0 }}
+                        exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                        className={`relative w-full max-w-2xl max-h-[85vh] overflow-y-auto custom-scrollbar rounded-[3rem] p-10 border shadow-2xl ${
+                            isDark ? "bg-[#050505] border-white/10" : "bg-white border-black/10 text-neutral-900"
+                        }`}
+                    >
+                        <button onClick={() => setIsDayOpen(false)} className="absolute top-8 right-8 text-zinc-500 hover:text-white transition-colors"><X className="w-5 h-5" /></button>
+                        <h2 className="text-[10px] font-black uppercase tracking-[0.4em] text-amber-500 mb-2 flex items-center gap-3 italic">
+                            <Calendar className="w-4 h-4" /> Daily Orchestration
+                        </h2>
+                        <p className={`text-2xl font-serif italic mb-8 ${isDark ? "text-zinc-100" : "text-zinc-800"}`}>
+                            {dayDetailDate?.toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' })}
+                        </p>
+                        
+                        <div className="space-y-8">
+                          {['morning', 'swing', 'night'].map((type) => {
+                            const shifts = dayItems.filter((i) => inferShiftType(i) === type);
+                                const typeLabel = type.charAt(0).toUpperCase() + type.slice(1);
+                                const colorClass = type === 'morning' ? 'text-sky-500' : type === 'swing' ? 'text-amber-500' : 'text-indigo-500';
+                                
+                                return (
+                                    <div key={type} className="space-y-4">
+                                        <div className="flex items-center justify-between">
+                                            <h3 className={`text-[9px] font-black uppercase tracking-widest ${colorClass}`}>
+                                                {typeLabel} Shift
+                                            </h3>
+                                            <span className="text-[9px] font-mono opacity-20">{shifts.length} Personnel</span>
+                                        </div>
+                                        <div className="grid grid-cols-1 gap-3">
+                                            {shifts.map((s, idx) => (
+                                                <div key={s._id || `shift-${idx}`} className={`p-4 rounded-2xl border flex items-center justify-between group/shift transition-colors shadow-sm ${
+                                                    isDark ? "bg-white/5 border-white/10 hover:border-amber-500/20" : "bg-zinc-50 border-black/5 hover:border-amber-500/20"
+                                                }`}>
+                                                    <div className="w-full">
+                                                        <p className={`text-xs font-bold mb-1 ${isDark ? "text-zinc-100" : "text-zinc-800"}`}>{getOrganizerName(s)}</p>
+                                                        <p className="text-[9px] font-black uppercase tracking-[0.2em] text-zinc-500">{s.title}</p>
+
+                                                        <div className="mt-3 flex items-center gap-2">
+                                                            <select
+                                                                value={getOrganizerId(s)}
+                                                                onChange={(e) => handleAssignShift(s, e.target.value)}
+                                                                className={`flex-1 px-3 py-2 rounded-xl border bg-transparent text-[9px] font-bold uppercase tracking-widest outline-none transition-all ${
+                                                                    isDark ? "border-white/10 text-white" : "border-black/10 text-black"
+                                                                }`}
+                                                            >
+                                                                <option value="" className={isDark ? "bg-[#050505] text-white" : "bg-white text-black"}>Unassigned</option>
+                                                                {members.map((m) => (
+                                                                    <option key={m._id} value={m._id} className={isDark ? "bg-[#050505] text-white" : "bg-white text-black"}>{m.name}</option>
+                                                                ))}
+                                                            </select>
+                                                            {assigningShiftId === s._id && <Loader2 className="w-3 h-3 animate-spin text-amber-500" />}
+                                                        </div>
+                                                    </div>
+                                                    <button 
+                                                        onClick={() => handleDeleteShift(s)}
+                                                        className="p-2 rounded-full bg-rose-500/10 text-rose-500 opacity-0 group-hover/shift:opacity-100 transition-opacity ml-3 hover:bg-rose-500/20"
+                                                    >
+                                                        <X className="w-3 h-3" />
+                                                    </button>
+                                                </div>
+                                            ))}
+                                            {shifts.length === 0 && (
+                                                <div className={`py-4 border border-dashed rounded-2xl text-center text-[9px] font-black uppercase tracking-widest ${
+                                                    isDark ? "border-white/5 text-zinc-700" : "border-black/5 text-zinc-400"
+                                                }`}>
+                                                    No Deployments
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        </div>
+
+                        <button 
+                            onClick={() => {
+                                setSelectedCalendarDate(dayDetailDate);
+                                setIsAddingShift(true);
+                                setIsDayOpen(false);
+                            }}
+                            className="w-full mt-10 p-5 rounded-2xl bg-amber-500 text-black text-[10px] font-black uppercase tracking-[0.2em] hover:bg-amber-400 transition-colors flex items-center justify-center gap-3 shadow-lg shadow-amber-500/20"
+                        >
+                            <Plus className="w-4 h-4" /> Add Personnel
+                        </button>
+                    </motion.div>
+                </div>
+            )}
+
+            {isAddingShift && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+                    <motion.div 
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        onClick={() => setIsAddingShift(false)}
+                        className="absolute inset-0 bg-black/90 backdrop-blur-xl"
+                    />
+                    <motion.div 
+                        key="add-manual-shift"
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.95 }}
+                        className={`relative w-full max-w-xl rounded-[3rem] p-10 border shadow-2xl overflow-hidden ${
+                            isDark ? "bg-[#050505] border-amber-500/20" : "bg-white border-amber-500/10 shadow-amber-500/5 text-neutral-900"
+                        }`}
+                    >
+                        <button onClick={() => setIsAddingShift(false)} className="absolute top-8 right-8 text-amber-500/40 hover:text-amber-500 transition-colors"><X className="w-5 h-5" /></button>
+                        <h2 className="text-[10px] font-black uppercase tracking-[0.4em] text-amber-500 mb-8 flex items-center gap-3 italic">
+                            <Plus className="w-4 h-4" /> Add Manual Shift
+                        </h2>
+                        <div className="space-y-6">
+                            <p className="text-[10px] uppercase font-black tracking-widest opacity-40 italic">Target Date: {selectedCalendarDate?.toDateString()}</p>
+                            <input 
+                                autoFocus
+                                placeholder="Enter Shift Name (e.g. Morning Shift)"
+                                value={shiftTitle}
+                                onChange={(e) => setShiftTitle(e.target.value)}
+                                className={`w-full px-8 py-5 rounded-[1.5rem] border bg-transparent text-sm font-bold uppercase tracking-widest outline-none transition-all focus:border-amber-500/50 ${
+                                    isDark ? "border-white/10 text-white placeholder:text-zinc-600" : "border-black/10 text-black placeholder:text-zinc-400"
+                                }`}
+                            />
+                            <div className="space-y-3">
+                              <label className="text-[9px] font-black uppercase tracking-widest opacity-40 px-2">Shift Period</label>
+                              <select 
+                                  value={selectedShiftType}
+                                  onChange={(e) => setSelectedShiftType(e.target.value as any)}
+                                  className={`w-full px-8 py-5 rounded-[1.5rem] border bg-transparent text-sm font-bold uppercase tracking-widest outline-none transition-all focus:border-amber-500/50 appearance-none cursor-pointer ${
+                                      isDark ? "border-white/10 text-white" : "border-black/10 text-black"
+                                  }`}
+                              >
+                                  <option value="morning" className={isDark ? "bg-[#050505] text-white" : "bg-white text-black"}>Morning (07:00 - 15:00)</option>
+                                  <option value="swing" className={isDark ? "bg-[#050505] text-white" : "bg-white text-black"}>Swing (15:00 - 23:00)</option>
+                                  <option value="night" className={isDark ? "bg-[#050505] text-white" : "bg-white text-black"}>Night (23:00 - 07:00)</option>
+                              </select>
+                            </div>
+                            <div className="space-y-3">
+                              <label className="text-[9px] font-black uppercase tracking-widest opacity-40 px-2">Assign Personnel (Optional)</label>
+                              <select 
+                                  value={selectedStaffForShift}
+                                  onChange={(e) => setSelectedStaffForShift(e.target.value)}
+                                  className={`w-full px-8 py-5 rounded-[1.5rem] border bg-transparent text-sm font-bold uppercase tracking-widest outline-none transition-all focus:border-amber-500/50 appearance-none cursor-pointer ${
+                                      isDark ? "border-white/10 text-white" : "border-black/10 text-black"
+                                  }`}
+                              >
+                                  <option value="" className={isDark ? "bg-[#050505] text-white" : "bg-white text-black"}>Auto-Assign Later</option>
+                                  {members.map(m => (
+                                      <option key={m._id} value={m._id} className={isDark ? "bg-[#050505] text-white" : "bg-white text-black"}>{m.name}</option>
+                                  ))}
+                              </select>
+                            </div>
+                            <button 
+                              onClick={handleAddShift}
+                              className="w-full py-5 rounded-[1.5rem] bg-amber-500 text-black text-[10px] font-black uppercase tracking-[0.4em] hover:bg-amber-400 transition-all font-sans shadow-lg shadow-amber-500/20"
+                            >
+                              Deploy Shift
+                            </button>
+                        </div>
+                    </motion.div>
+                </div>
+            )}
+
+            {isStaffModalOpen && (
+                <div className="fixed inset-0 z-[105] flex items-center justify-center p-4 pt-24 md:pt-32">
+                    <motion.div 
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        onClick={() => setIsStaffModalOpen(false)}
+                        className="absolute inset-0 bg-black/95 backdrop-blur-xl"
+                    />
+                    <motion.div 
+                        initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                        animate={{ opacity: 1, scale: 1, y: 0 }}
+                        exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                        className={`relative w-full max-w-5xl max-h-[85vh] overflow-hidden rounded-[3rem] border shadow-2xl flex flex-col ${
+                            isDark ? "bg-[#050505] border-white/10" : "bg-white border-black/10 text-neutral-900"
+                        }`}
+                    >
+                        <div className="p-8 border-b border-white/5 flex items-center justify-between shrink-0">
+                            <div className="flex items-center gap-6">
+                                <div className="p-4 rounded-3xl bg-amber-500/10 text-amber-500">
+                                    <Users className="w-6 h-6" />
+                                </div>
+                                <div>
+                                    <h2 className="text-[10px] font-black uppercase tracking-[0.4em] text-amber-500 mb-1 italic">
+                                        Personnel Registry
+                                    </h2>
+                                    <p className={`text-2xl font-serif italic ${isDark ? "text-zinc-100" : "text-zinc-800"}`}>Service Command</p>
+                                </div>
+                            </div>
+                            <button 
+                                onClick={() => setIsStaffModalOpen(false)}
+                                className="p-4 rounded-full bg-white/5 hover:bg-white/10 text-zinc-500 hover:text-white transition-all border border-transparent hover:border-white/10"
+                            >
+                                <X className="w-5 h-5" />
+                            </button>
+                        </div>
+
+                        <div className="flex-1 overflow-y-auto p-8 custom-scrollbar">
+                            <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
+                                <div className="lg:col-span-1 space-y-8">
+                                    <div className="space-y-4">
+                                        <label className="text-[9px] uppercase font-black tracking-[0.2em] opacity-40 block pl-2">Active sector</label>
+                                        <div className="relative group">
+                                            <select
+                                                value={selectedDept}
+                                                onChange={(e) => handleDeptChange(e.target.value)}
+                                                className={`w-full px-6 py-4 rounded-2xl border bg-transparent text-[11px] font-black uppercase tracking-widest transition-all outline-none appearance-none hover:bg-white/[0.03] ${
+                                                    isDark ? "border-white/10 text-white" : "border-black/10 text-black"
+                                                }`}
+                                            >
+                                                {departments.map(d => <option className={isDark ? "bg-black text-white" : "bg-white text-black"} key={d._id} value={d._id}>{d.name}</option>)}
+                                            </select>
+                                            <ChevronRight className="absolute right-5 top-1/2 -translate-y-1/2 w-4 h-4 rotate-90 opacity-20 pointer-events-none" />
+                                        </div>
+                                    </div>
+
+                                    <div className={`p-8 rounded-[2.5rem] border ${isDark ? "bg-white/5 border-white/10" : "bg-zinc-50 border-black/5"}`}>
+                                        <h3 className="text-[9px] font-black uppercase tracking-widest text-zinc-500 mb-8 italic flex items-center gap-2">
+                                            <Plus className="w-3 h-3" /> Enroll New Member
+                                        </h3>
+                                        <form className="space-y-5" onSubmit={(e) => { e.preventDefault(); handleAddMember(); }}>
+                                            <input 
+                                                placeholder="FULL NAME" 
+                                                className={`w-full bg-transparent border-b py-3 text-[10px] font-bold tracking-widest uppercase outline-none transition-colors ${
+                                                    isDark ? "border-white/10 focus:border-amber-500 text-white" : "border-black/10 focus:border-amber-500 text-black"
+                                                }`} 
+                                                value={newMember.name} 
+                                                onChange={e => setNewMember({...newMember, name: e.target.value})} 
+                                            />
+                                            <input 
+                                                placeholder="EMAIL ADDRESS" 
+                                                className={`w-full bg-transparent border-b py-3 text-[10px] font-bold tracking-widest uppercase outline-none transition-colors ${
+                                                    isDark ? "border-white/10 focus:border-amber-500 text-white" : "border-black/10 focus:border-amber-500 text-black"
+                                                }`} 
+                                                value={newMember.email} 
+                                                onChange={e => setNewMember({...newMember, email: e.target.value})} 
+                                            />
+                                            <input 
+                                                placeholder="POSITION" 
+                                                className={`w-full bg-transparent border-b py-3 text-[10px] font-bold tracking-widest uppercase outline-none transition-colors ${
+                                                    isDark ? "border-white/10 focus:border-amber-500 text-white" : "border-black/10 focus:border-amber-500 text-black"
+                                                }`} 
+                                                value={newMember.role} 
+                                                onChange={e => setNewMember({...newMember, role: e.target.value})} 
+                                            />
+                                            <button type="submit" className="w-full mt-4 py-4 rounded-2xl bg-amber-500 text-black text-[9px] font-black uppercase tracking-widest hover:bg-amber-400 transition-all shadow-lg shadow-amber-500/10">Authorize Enrollment</button>
+                                        </form>
+                                    </div>
+                                </div>
+
+                                <div className="lg:col-span-2 space-y-4">
+                                    <div className="flex items-center justify-between mb-2 px-2">
+                                        <h3 className="text-[9px] font-black uppercase tracking-widest text-zinc-500">Global Roster</h3>
+                                        <span className="text-[9px] font-mono opacity-20">{members.length} Total Units</span>
+                                    </div>
+                                    
+                                    <div className="space-y-3">
+                                        {members.length === 0 ? (
+                                            <div className={`h-64 flex flex-col items-center justify-center border-2 border-dashed rounded-[3rem] ${isDark ? "border-white/5" : "border-black/5"}`}>
+                                                <Users className="w-10 h-10 text-zinc-800 mb-6 opacity-20" />
+                                                <p className="text-[10px] font-black uppercase tracking-widest text-zinc-700">No personnel detected in sector</p>
+                                            </div>
+                                        ) : (
+                                            members.map((m) => (
+                                                <div key={m._id} className={`p-6 rounded-[2rem] border flex items-center justify-between group hover:border-amber-500/20 transition-all ${
+                                                    isDark ? "bg-white/5 border-white/10" : "bg-white border-black/5 shadow-sm"
+                                                }`}>
+                                                    <div className="flex items-center gap-6">
+                                                        <div className="w-12 h-12 rounded-[1.25rem] bg-gradient-to-br from-amber-500 to-amber-600 flex items-center justify-center shadow-lg shadow-amber-500/20">
+                                                            <span className="text-[11px] font-black text-black uppercase tracking-tighter">{m.name.substring(0, 2)}</span>
+                                                        </div>
+                                                        <div>
+                                                            <p className={`text-sm font-bold tracking-tight ${isDark ? "text-zinc-100" : "text-zinc-800"}`}>{m.name}</p>
+                                                            <p className="text-[9px] font-black uppercase tracking-widest text-amber-500/60 italic">{m.role || "Specialist"}</p>
+                                                        </div>
+                                                    </div>
+                                                    <div className="flex items-center gap-8">
+                                                        <div className="text-right hidden md:block">
+                                                            <p className="text-[10px] font-mono text-zinc-500 mb-1">{m.email}</p>
+                                                            <div className="flex items-center justify-end gap-2">
+                                                                <div className="w-1 h-1 rounded-full bg-emerald-500 animate-pulse" />
+                                                                <span className="text-[8px] uppercase font-black text-emerald-500/60 tracking-widest">Available</span>
+                                                            </div>
+                                                        </div>
+                                                        <button className="p-3 rounded-xl bg-rose-500/10 text-rose-500 opacity-0 group-hover:opacity-100 transition-all hover:bg-rose-500/20">
+                                                            <X className="w-4 h-4" />
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            ))
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </motion.div>
+                </div>
+            )}
+        </AnimatePresence>
       </div>
     </main>
   );
