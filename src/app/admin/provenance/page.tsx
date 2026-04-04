@@ -141,13 +141,39 @@ export default function ProvenanceAdminPage() {
           ...payload.generatedDraft,
         };
 
+        const finalSlug = slugify(merged.title);
+
         return {
           ...merged,
-          slug: slugify(merged.title),
+          slug: finalSlug,
         };
       });
 
-      setMessage("AI generated a full story and filled the fields.");
+      // Show the manual form so the user can see the fetched image URL
+      setShowManualForm(true);
+
+      // Now fetch a dynamic image based on the generated story
+      try {
+        const imageRes = await fetch("/api/provenance/image", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            title: payload.generatedDraft.title,
+            story: payload.generatedDraft.story,
+            itemType: payload.generatedDraft.itemType,
+          }),
+        });
+        if (imageRes.ok) {
+          const imageData = await imageRes.json();
+          if (imageData.url) {
+            setDraft((prev) => ({ ...prev, imageUrl: imageData.url }));
+          }
+        }
+      } catch (imgErr) {
+        console.error("AI Image fetch failed:", imgErr);
+      }
+
+      setMessage("AI generated a full story and selected a matching visual.");
     } catch (generationError) {
       setAiError(generationError instanceof Error ? generationError.message : "Failed to generate with AI.");
     } finally {
@@ -325,7 +351,7 @@ export default function ProvenanceAdminPage() {
                     />
                   </label>
 
-              <label className="space-y-2 md:col-span-2">
+              <label className="space-y-2 md:col-span-1">
                 <span className="text-xs uppercase tracking-[0.28em] text-neutral-400">Title</span>
                 <input
                   value={draft.title}
@@ -335,7 +361,7 @@ export default function ProvenanceAdminPage() {
                   required
                 />
               </label>
-              <label className="space-y-2">
+              <label className="space-y-2 md:col-span-1">
                 <span className="text-xs uppercase tracking-[0.28em] text-neutral-400">Creator name</span>
                 <input
                   value={draft.creatorName}
@@ -393,9 +419,11 @@ export default function ProvenanceAdminPage() {
               <label className="space-y-2 md:col-span-2">
                 <span className="text-xs uppercase tracking-[0.28em] text-neutral-400">Image URL</span>
                 <input
+                  name="imageUrl"
                   value={draft.imageUrl}
                   onChange={(event) => updateDraft("imageUrl", event.target.value)}
                   className={`w-full rounded-2xl border px-4 py-3 text-sm outline-none transition ${isDark ? "border-white/10 bg-black/40 focus:border-white/30" : "border-black/10 bg-white focus:border-black/30"}`}
+                  placeholder="https://images.unsplash.com/..."
                   required
                 />
               </label>
