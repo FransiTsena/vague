@@ -279,7 +279,7 @@ export default function MembersPage() {
                     {m.email}
                     {m.role ? ` · ${m.role}` : ""}
                   </p>
-                  <p className="text-sm text-zinc-500">{m.department?.name ?? "—"}</p>
+                  <p className="text-sm text-zinc-500">{m.department?.name ?? "-"}</p>
                   <p className="mt-1 font-mono text-xs text-zinc-400">id: {m.id}</p>
                 </div>
                 <div className="flex flex-wrap gap-2">

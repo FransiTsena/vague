@@ -5,7 +5,7 @@ import { Member, StaffAssignment, DepartmentModel, StaffingDemand } from "@/lib/
 import { StaffTokenForm } from "./staff-token-form";
 
 export const metadata: Metadata = {
-  title: "My schedule — staff",
+  title: "My schedule - staff",
   description: "Your on-site shifts and history.",
 };
 
@@ -90,7 +90,7 @@ export default async function StaffSchedulePage({
           </p>
           <h1 className="mt-1 text-2xl font-semibold">{member.name}</h1>
           <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
-            {(member.departmentId as any)?.name ?? "—"}
+            {(member.departmentId as any)?.name ?? "-"}
             {member.role ? ` · ${member.role}` : ""} · {member.email}
           </p>
         </header>

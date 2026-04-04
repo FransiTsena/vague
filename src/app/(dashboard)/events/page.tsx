@@ -180,7 +180,7 @@ export default function EventsPage() {
               value={organizerId}
               onChange={(e) => setOrganizerId(e.target.value)}
             >
-              <option value="">—</option>
+              <option value="">-</option>
               {organizers.map((m) => (
                 <option key={m.id} value={m.id}>
                   {m.name}

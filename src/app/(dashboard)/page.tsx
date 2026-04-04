@@ -138,7 +138,7 @@ export default async function OverviewPage() {
                 <div>
                   <p className="font-medium text-zinc-900 dark:text-zinc-100">{n.subject}</p>
                   <p className="text-sm text-zinc-500">
-                    {n.member.name} · {n.member.department?.name ?? "—"} · {n.member.email}
+                    {n.member.name} · {n.member.department?.name ?? "-"} · {n.member.email}
                   </p>
                 </div>
                 <span

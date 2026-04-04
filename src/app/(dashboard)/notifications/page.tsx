@@ -172,7 +172,7 @@ export default function NotificationsPage() {
               >
                 {members.map((m) => (
                   <option key={m.id} value={m.id}>
-                    {m.name} ({m.department?.name ?? "—"})
+                    {m.name} ({m.department?.name ?? "-"})
                   </option>
                 ))}
               </Select>
@@ -244,7 +244,7 @@ export default function NotificationsPage() {
                   </span>
                 </div>
                 <p className="mt-1 text-sm text-zinc-500">
-                  {n.member.name} · {n.member.department?.name ?? "—"} · {n.member.email}
+                  {n.member.name} · {n.member.department?.name ?? "-"} · {n.member.email}
                 </p>
                 <p className="mt-2 whitespace-pre-wrap text-sm text-zinc-700 dark:text-zinc-300">{n.body}</p>
                 <p className="mt-2 text-xs text-zinc-400">

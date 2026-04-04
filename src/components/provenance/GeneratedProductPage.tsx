@@ -65,7 +65,7 @@ export default function GeneratedProductPage({ slug }: { slug: string }) {
 
     return (
         <main className="min-h-screen bg-[radial-gradient(circle_at_top,_rgba(201,170,120,0.12),_transparent_30%),linear-gradient(180deg,_#f8f5ef_0%,_#ffffff_100%)] text-black dark:bg-[radial-gradient(circle_at_top,_rgba(201,170,120,0.22),_transparent_30%),linear-gradient(180deg,_#040404_0%,_#090909_100%)] dark:text-white">
-            <section className="mx-auto w-full max-w-7xl px-6 pb-20 pt-28 md:px-12">
+            <section className="mx-auto w-full max-w-7xl px-6 pb-20 pt-8 md:px-12">
                 <Link href="/provenance" className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.35em] text-neutral-600 transition hover:text-black dark:text-neutral-400 dark:hover:text-white">
                     <ArrowLeft className="h-4 w-4" />
                     Back to index

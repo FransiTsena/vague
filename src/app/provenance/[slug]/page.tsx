@@ -94,7 +94,7 @@ export default async function ProvenanceStoryPage({ params }: ProvenancePageProp
 
   return (
     <main className="min-h-screen bg-[radial-gradient(circle_at_top,_rgba(201,170,120,0.12),_transparent_30%),linear-gradient(180deg,_#f8f5ef_0%,_#ffffff_100%)] text-black dark:bg-[radial-gradient(circle_at_top,_rgba(201,170,120,0.22),_transparent_30%),linear-gradient(180deg,_#040404_0%,_#090909_100%)] dark:text-white">
-      <section className="mx-auto w-full max-w-7xl px-6 pb-20 pt-28 md:px-12">
+      <section className="mx-auto w-full max-w-7xl px-6 pb-20 pt-8 md:px-12">
         <div className="mb-8 flex items-center justify-between gap-4">
           <Link
             href="/provenance"

@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import QRCode from "qrcode";
-import { ArrowLeft, Copy, Download, Edit2, ExternalLink, Plus, QrCode, Save, Sparkles, Trash2, X } from "lucide-react";
+import { ArrowLeft, Copy, Download, Edit2, ExternalLink, Plus, QrCode, Save, Sparkles, Trash2, X, Info } from "lucide-react";
 import Button from "@/components/ui/Button";
 import { useTheme } from "@/context/ThemeContext";
 import { defaultProvenanceDraft, slugify, type ProvenanceProductDraft } from "@/lib/provenance-admin";
@@ -349,37 +349,45 @@ export default function ProvenanceAdminPage() {
   };
 
   return (
-    <main className={`relative min-h-screen overflow-hidden ${isDark ? "bg-[radial-gradient(circle_at_18%_15%,rgba(161,98,7,0.18),transparent_34%),radial-gradient(circle_at_84%_12%,rgba(15,23,42,0.55),transparent_42%),linear-gradient(180deg,#020617_0%,#09090b_62%,#111827_100%)] text-white" : "bg-[radial-gradient(circle_at_16%_14%,rgba(245,158,11,0.2),transparent_34%),radial-gradient(circle_at_82%_14%,rgba(203,213,225,0.5),transparent_40%),linear-gradient(180deg,#f8fafc_0%,#ffffff_56%,#f5f5f4_100%)] text-black"}`}>
-      <div className={`pointer-events-none absolute -left-24 top-28 h-72 w-72 rounded-full blur-3xl ${isDark ? "bg-amber-500/20" : "bg-amber-300/45"}`} />
-      <div className={`pointer-events-none absolute -right-24 top-24 h-80 w-80 rounded-full blur-3xl ${isDark ? "bg-sky-500/20" : "bg-sky-200/45"}`} />
+    <main className={`relative min-h-screen overflow-hidden`}>
 
-      <section className="mx-auto w-full max-w-7xl px-6 pb-20 pt-28 md:px-12">
+      <section className="mx-auto w-full max-w-7xl px-6 pb-20 pt-8 md:px-12">
         <div className="mb-8 flex items-center justify-between gap-4">
           <Link href="/admin" className={`inline-flex items-center gap-2 text-xs uppercase tracking-[0.35em] transition ${isDark ? "text-neutral-400 hover:text-white" : "text-neutral-600 hover:text-black"}`}>
             <ArrowLeft className="h-4 w-4" />
             Back to dashboard
           </Link>
-          <span className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-[10px] uppercase tracking-[0.35em] ${isDark ? "border-white/10 bg-white/5 text-neutral-300" : "border-black/10 bg-neutral-50 text-neutral-600"}`}>
-            <QrCode className="h-4 w-4" />
-            Provenance QR builder
-          </span>
+          <div className="flex items-center gap-3">
+            <Link href="/provenance" className={`inline-flex items-center justify-center p-2 rounded-full border transition ${isDark ? "border-white/10 text-neutral-400 hover:bg-white/10 hover:text-white" : "border-black/10 text-neutral-600 hover:bg-black/5 hover:text-black"}`} title="Learn about Provenance">
+              <Info className="h-4 w-4" />
+            </Link>
+            <span className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-[10px] uppercase tracking-[0.35em] ${isDark ? "border-white/10 bg-white/5 text-neutral-300" : "border-black/10 bg-neutral-50 text-neutral-600"}`}>
+              <QrCode className="h-4 w-4" />
+              Scanner Experience
+            </span>
+          </div>
         </div>
 
-        <div className="mb-10 max-w-4xl">
-          <p className={`text-xs uppercase tracking-[0.35em] ${isDark ? "text-neutral-400" : "text-neutral-600"}`}>Provenance studio</p>
-          <h1 className="mt-4 font-serif text-4xl leading-tight md:text-6xl">Compose each scan as a living story.</h1>
-          <p className={`mt-4 max-w-3xl text-sm leading-7 md:text-base ${isDark ? "text-neutral-300" : "text-neutral-700"}`}>
-            Describe the item once, then let AI generate a premium storytelling draft that fills every field before you publish the QR route.
-          </p>
+        <div className={`mb-10 flex flex-col justify-between gap-6 border-b pb-8 md:flex-row md:items-end ${isDark ? "border-white/10" : "border-black/10"}`}>
+          <div className="max-w-2xl">
+            <h1 className="font-serif text-3xl font-light tracking-wide md:text-4xl text-neutral-900 dark:text-white">Provenance Studio</h1>
+            <p className={`mt-4 text-sm leading-relaxed ${isDark ? "text-neutral-400" : "text-neutral-500"}`}>
+              Manage the <span className="italic text-amber-600 dark:text-amber-400">Digital Soul</span> of handcrafted amenities. Provenance is designed to empower local communities and promote sustainable tourism by connecting guests directly with regional artisans. Every scan invites guests to trace an item's authentic origin, meet the creator, <span className="italic">Tip the Artisan</span>, or <span className="italic">Order to Home</span>-transforming hotel stays into a driver for local economic growth.
+            </p>
+          </div>
+          <div className={`grid grid-cols-2 lg:flex shrink-0 flex-wrap gap-4 text-[9px] uppercase tracking-[0.2em] font-medium ${isDark ? "text-neutral-500" : "text-neutral-500"}`}>
+            <span className={`rounded-full border px-3 py-1.5 ${isDark ? "border-white/10 bg-white/5" : "border-black/10 bg-black/5"}`}>🌍 Sustainable Tourism</span>
+            <span className={`rounded-full border px-3 py-1.5 ${isDark ? "border-white/10 bg-white/5" : "border-black/10 bg-black/5"}`}>🤝 Local Empowerment</span>
+            <span className={`rounded-full border px-3 py-1.5 ${isDark ? "border-white/10 bg-white/5" : "border-black/10 bg-black/5"}`}>✨ AI Storytelling</span>
+          </div>
         </div>
 
-        <div className="grid gap-10 lg:grid-cols-[1.02fr_0.98fr]">
-          <section className={`relative border-l pl-6 md:pl-8 ${isDark ? "border-white/15" : "border-black/15"}`}>
-            <p className={`text-xs uppercase tracking-[0.35em] ${isDark ? "text-neutral-400" : "text-neutral-600"}`}>Chapter one</p>
-            <h2 className="mt-3 font-serif text-3xl leading-tight md:text-5xl">Create QR-linked provenance products.</h2>
+        <div className="grid gap-12 lg:grid-cols-[1.2fr_0.8fr]">
+          <section className="relative">
+            <h2 className="font-serif text-xl font-light tracking-wide text-neutral-900 dark:text-white">1. Define Story</h2>
 
-            <div className={`mt-6 rounded-2xl border p-4 ${isDark ? "border-white/10 bg-black/30" : "border-black/10 bg-white"}`}>
-              <p className={`text-xs uppercase tracking-[0.28em] ${isDark ? "text-neutral-400" : "text-neutral-600"}`}>Generate with AI</p>
+            <div className="mt-6">
+              <p className={`text-xs uppercase tracking-[0.28em] mb-3 ${isDark ? "text-neutral-400" : "text-neutral-600"}`}>Describe the item</p>
               <textarea
                 value={aiDescription}
                 onChange={(event) => setAiDescription(event.target.value)}
@@ -554,7 +562,7 @@ export default function ProvenanceAdminPage() {
           </section>
 
           <aside className={`relative overflow-hidden rounded-[2.2rem] border p-6 md:p-7 ${isDark ? "border-white/10 bg-white/5" : "border-black/10 bg-white/80"}`}>
-            <div className={`pointer-events-none absolute -right-14 -top-16 h-44 w-44 rounded-full blur-3xl ${isDark ? "bg-amber-500/20" : "bg-amber-200/60"}`} />
+          
             <div className="relative">
               <p className={`text-xs uppercase tracking-[0.35em] ${isDark ? "text-neutral-400" : "text-neutral-600"}`}>Chapter two</p>
               <h3 className="mt-2 font-serif text-2xl leading-tight md:text-3xl">Live QR preview</h3>

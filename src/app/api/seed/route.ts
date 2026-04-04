@@ -30,7 +30,7 @@ const roomDataMap = {
       "https://images.unsplash.com/photo-1631049307264-da0ec9d70304?auto=format&fit=crop&w=1920&q=80"
     ],
     videoUrl: "https://www.youtube.com/embed/Y12bL0nB20o",
-    description: "Nestled deep in the forest, Kuriftu Oasis is your private escape—perfect for romance, adventure, or gathering with loved ones. Fire up the grill, stock the bar, and soak in starlit skies. Unwind, connect, and let the journey begin!",
+    description: "Nestled deep in the forest, Kuriftu Oasis is your private escape-perfect for romance, adventure, or gathering with loved ones. Fire up the grill, stock the bar, and soak in starlit skies. Unwind, connect, and let the journey begin!",
     amenities: ["King Size Bed / Electric Bed Warmer", "Indoor Fireplace", "Two Mountain Bicycles", "Outdoor Grill", "Hammock", "Mini Bar"]
   }
 };
@@ -158,7 +158,7 @@ export async function POST(request: Request) {
     const descriptionsEn = {
       standard: "Carefully hidden amongst the eucalyptus trees, our Kuriftu Glamping site offers guests a quiet escape from reality with nothing but the natural world surrounding. With hammocks suspended over the room decks, outdoor grilling stations and mountain bikes provided per room, guests can relax in pure nature.",
       deluxe: "Overlooking the stunning Kuriftu Lake, these rooms are perfect for romance, relaxation, or family bonding. With breathtaking views and exceptional service, your escape awaits!",
-      suite: "Nestled deep in the forest, Kuriftu Oasis is your private escape—perfect for romance, adventure, or gathering with loved ones. Fire up the grill, stock the bar, and soak in starlit skies. Unwind, connect, and let the journey begin!"
+      suite: "Nestled deep in the forest, Kuriftu Oasis is your private escape-perfect for romance, adventure, or gathering with loved ones. Fire up the grill, stock the bar, and soak in starlit skies. Unwind, connect, and let the journey begin!"
     };
 
     // Generate exactly 15 inclusive rooms: 5 standard, 5 deluxe, 5 suites.
