@@ -338,7 +338,7 @@ export default function BookingFlow({ initialRoomId }: BookingFlowProps) {
                     Room {selectedRoom.roomNumber}
                   </p>
                   <p className="text-[10px] uppercase tracking-[0.25em] text-neutral-500">
-                    {formatMoney(selectedRoom.basePrice)} <span className="opacity-50">/ Night</span>
+                    {formatMoney(selectedRoom.currentPrice || selectedRoom.basePrice)} <span className="opacity-50">/ Night</span>
                   </p>
                 </div>
                 <h3 className="mb-4 font-serif text-3xl md:text-4xl">{roomTypeLabel(selectedRoom.type)}</h3>
@@ -466,7 +466,7 @@ export default function BookingFlow({ initialRoomId }: BookingFlowProps) {
                         >
                           <h4 className="font-serif text-lg mb-1">{roomTypeLabel(roomOption.type)}</h4>
                           <p className={`text-[9px] uppercase tracking-widest ${isSelected ? 'opacity-90' : 'opacity-50'}`}>
-                            {isAvailable ? `From ${formatMoney(roomOption.basePrice)}` : "Fully Booked"}
+                            {isAvailable ? `From ${formatMoney(roomOption.currentPrice || roomOption.basePrice)}` : "Fully Booked"}
                           </p>
                         </button>
                       );

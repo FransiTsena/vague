@@ -52,6 +52,7 @@ export default function ProvenanceAdminPage() {
   const [aiError, setAiError] = useState<string | null>(null);
   const [aiDescription, setAiDescription] = useState("");
   const [generatingAi, setGeneratingAi] = useState(false);
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
@@ -152,7 +153,7 @@ export default function ProvenanceAdminPage() {
     }
   };
 
-  const handleCreate = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleCreate = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setError(null);
     setMessage(null);
@@ -169,20 +170,40 @@ export default function ProvenanceAdminPage() {
       return;
     }
 
-    const scanUrl = `${origin || "http://localhost:3000"}/provenance/${slug}`;
+    setSaving(true);
 
-    setItems((current) => [
-      {
-        ...draft,
-        slug,
-        scanUrl,
-        qrDataUrl: qrPreview,
-        createdAt: new Date().toISOString(),
-      },
-      ...current,
-    ]);
+    try {
+      const response = await fetch("/api/provenance/products", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(draft),
+      });
 
-    setMessage(`QR created for ${slug}.`);
+      const payload = await response.json() as { success: boolean; error?: string; message?: string };
+
+      if (!response.ok || !payload.success) {
+        throw new Error(payload.error ?? "Failed to save product to database.");
+      }
+
+      const scanUrl = `${origin || "http://localhost:3000"}/provenance/${slug}`;
+
+      setItems((current) => [
+        {
+          ...draft,
+          slug,
+          scanUrl,
+          qrDataUrl: qrPreview,
+          createdAt: new Date().toISOString(),
+        },
+        ...current,
+      ]);
+
+      setMessage(`QR created for ${slug} and saved to database.`);
+    } catch (saveError) {
+      setError(saveError instanceof Error ? saveError.message : "Failed to save product.");
+    } finally {
+      setSaving(false);
+    }
   };
 
   const handleCopy = async (scanUrl: string, slug: string) => {
@@ -370,9 +391,9 @@ export default function ProvenanceAdminPage() {
               </label>
 
               <div className="md:col-span-2">
-                <Button variant="primary" className="inline-flex gap-2 text-xs" type="submit">
+                <Button variant="primary" className="inline-flex gap-2 text-xs" type="submit" disabled={saving}>
                   <Plus className="h-4 w-4" />
-                  Generate QR product
+                  {saving ? "Saving to database..." : "Generate QR product"}
                 </Button>
               </div>
             </form>

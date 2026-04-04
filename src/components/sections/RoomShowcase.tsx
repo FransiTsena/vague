@@ -157,7 +157,16 @@ export default function RoomShowcase() {
               <div className="mt-6 flex flex-col items-start">
                 <div className="flex w-full items-baseline justify-between mb-2">
                   <h3 className="font-serif text-2xl">{roomTitle(room.type)}</h3>
-                  <p className="text-sm text-neutral-500">From {formatMoney(room.basePrice)}</p>
+                  <div className="text-right">
+                    <p className="text-sm text-neutral-500">
+                      From {formatMoney(room.currentPrice || room.basePrice)}
+                    </p>
+                    {room.currentPrice !== room.basePrice && (
+                      <p className="text-[11px] text-neutral-400 line-through">
+                        {formatMoney(room.basePrice)} base
+                      </p>
+                    )}
+                  </div>
                 </div>
                 {room.description && (
                   <p className="text-sm leading-relaxed text-neutral-500 line-clamp-2 md:line-clamp-3">
