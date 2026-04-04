@@ -1,8 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  basePath: "/hackathon",
-  assetPrefix: "/hackathon/",
+  // basePath: "/hackathon",
+  // assetPrefix: "/hackathon/",
   allowedDevOrigins: ["46.225.89.2", "localhost", "localhost:3000", "localhost:3001"],
   devIndicators: {
     appIsrStatus: false,
