@@ -34,7 +34,7 @@ function getSnapshot(): Theme {
     if (typeof window === "undefined") return "dark";
     const saved = localStorage.getItem("vague-theme");
     if (saved === "dark" || saved === "light") return saved;
-    return getSystemTheme();
+    return "dark";
 }
 
 function getServerSnapshot(): Theme {
