@@ -84,18 +84,18 @@ export default function OccupancyAnalytics() {
   if (!data.length) return null;
 
   return (
-    <Section id="ai-analytics" className="py-0 bg-transparent">
-      <div className="max-w-7xl mx-auto px-4 md:px-8 relative">
-        <div className="flex flex-col md:flex-row items-baseline justify-between gap-6 mb-20 md:mb-24 border-b border-neutral-100 dark:border-white/5 pb-10">
+    <Section id="ai-analytics" className="py-0 bg-transparent overflow-hidden">
+      <div className="max-w-7xl mx-auto relative">
+        <div className="flex flex-col md:flex-row items-baseline justify-between gap-6 mb-12 md:mb-16 border-b border-neutral-100 dark:border-white/5 pb-8">
           <div className="space-y-4">
             <div className="flex items-center gap-3 opacity-40">
               <TrendingUp className="w-3 h-3 text-emerald-500" />
               <span className="text-[10px] font-bold tracking-[0.4em] uppercase">Yield Performance</span>
             </div>
-            <h2 className="font-serif text-4xl md:text-5xl font-light text-foreground tracking-tight">
+            <h2 className="font-serif text-3xl md:text-5xl font-light text-foreground tracking-tight">
               Occupancy <span className="italic text-neutral-400 dark:text-neutral-500">Projections</span>
             </h2>
-            <p className="text-neutral-500 dark:text-neutral-400 max-w-xl text-sm md:text-base leading-relaxed font-light">
+            <p className="text-neutral-500 dark:text-neutral-400 max-w-xl text-xs md:text-sm leading-relaxed font-light">
               Seven-day forward forecasting, highlighting velocity adjustments and unconstrained demand pressure on resort inventory.
             </p>
           </div>
@@ -107,7 +107,7 @@ export default function OccupancyAnalytics() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-12 md:gap-8 relative">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-6 md:gap-4 relative">
           {data.map((day, index) => {
             const date = new Date(day.date);
             const isToday = index === 0;

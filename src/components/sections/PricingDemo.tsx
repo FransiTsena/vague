@@ -245,23 +245,23 @@ export default function PricingDemo() {
   }, []);
 
   return (
-    <Section id="pricing-demo" className="py-0 bg-transparent">
-      <div className="max-w-7xl mx-auto px-4 md:px-8">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-20 md:mb-32 border-b border-neutral-100 dark:border-white/10 pb-12 gap-8">
-          <div className="space-y-6">
+    <Section id="pricing-demo" className="py-0 bg-transparent overflow-hidden">
+      <div className="max-w-7xl mx-auto">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-12 md:mb-16 border-b border-neutral-100 dark:border-white/10 pb-8 gap-8">
+          <div className="space-y-4">
             <div className="flex items-center gap-3 opacity-40">
               <TrendingUp className="w-3 h-3 text-emerald-500" />
               <span className="text-[10px] font-bold tracking-[0.4em] uppercase">Yield Performance</span>
             </div>
-            <h2 className="font-serif text-4xl md:text-5xl font-light text-foreground tracking-tight">
+            <h2 className="font-serif text-3xl md:text-5xl font-light text-foreground tracking-tight">
               Revenue <span className="italic text-neutral-400 dark:text-neutral-500">Yield Engine</span>
             </h2>
-            <p className="text-neutral-500 dark:text-neutral-400 max-w-xl text-sm md:text-base leading-relaxed font-light">
+            <p className="text-neutral-500 dark:text-neutral-400 max-w-xl text-xs md:text-sm leading-relaxed font-light">
               Real-time synchronization of room rates and service pricing calibrated on lead time velocity, market parity, and unconstrained demand.
             </p>
           </div>
-          <div className="flex flex-col gap-4 min-w-[240px]">
-            <Button onClick={fetchPricing} className={`w-full text-[10px] tracking-[0.3em] font-medium uppercase transition-all ${loading ? "opacity-50" : ""} bg-foreground text-background hover:opacity-90 rounded-none h-14 border border-foreground`}>
+          <div className="flex flex-col gap-3 min-w-[200px] w-full md:w-auto">
+            <Button onClick={fetchPricing} className={`w-full text-[10px] tracking-[0.3em] font-medium uppercase transition-all ${loading ? "opacity-50" : ""} bg-foreground text-background hover:opacity-90 rounded-none h-12 border border-foreground`}>
               {loading ? "Calculating..." : "Query Intelligence"}
             </Button>
             <button onClick={handleSeed} className="text-[9px] uppercase tracking-[0.3em] text-neutral-400 hover:text-foreground transition-colors text-right font-medium">
@@ -277,42 +277,42 @@ export default function PricingDemo() {
         )}
 
         {pricing ? (
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-20 lg:gap-32">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-20">
             
             {/* Left Column: Output & Controls */}
-            <div className="lg:col-span-4 space-y-16">
+            <div className="lg:col-span-4 space-y-12">
               {/* Main Price Card */}
-              <div className="space-y-10">
-                <div className="flex justify-between items-baseline border-b border-neutral-100 dark:border-white/5 pb-4">
+              <div className="space-y-8">
+                <div className="flex justify-between items-baseline border-b border-neutral-100 dark:border-white/5 pb-3">
                   <div className="text-[10px] uppercase tracking-[0.4em] text-neutral-400 dark:text-neutral-500 font-bold">Yield Target</div>
                   <div className="text-[10px] font-bold text-foreground uppercase tracking-[0.2em]">{pricing.roomType} Allocation</div>
                 </div>
 
-                <div className="flex flex-col space-y-6">
+                <div className="flex flex-col space-y-5">
                   <div className="flex justify-between items-center text-xs text-neutral-400 dark:text-neutral-500">
                     <span className="font-light tracking-widest uppercase text-[10px]">Base Parity</span> 
                     <span className="font-mono text-foreground">${pricing.basePrice.toFixed(2)}</span>
                   </div>
-                  <div className="flex justify-between items-end pt-6">
-                    <span className="text-[10px] uppercase tracking-[0.3em] font-bold text-neutral-500 dark:text-neutral-400 mb-3">Neural Rate</span>
-                    <span className="font-serif text-6xl md:text-7xl text-foreground tracking-tighter leading-none">${currentDynamicPrice.toFixed(2)}</span>
+                  <div className="flex justify-between items-end pt-4">
+                    <span className="text-[10px] uppercase tracking-[0.3em] font-bold text-neutral-500 dark:text-neutral-400 mb-2">Neural Rate</span>
+                    <span className="font-serif text-5xl md:text-6xl text-foreground tracking-tighter leading-none">${currentDynamicPrice.toFixed(2)}</span>
                   </div>
                   <div className="flex justify-end">
-                    <span className={`text-[10px] font-mono tracking-[0.2em] uppercase px-4 py-2 border ${isPriceUp ? "border-emerald-500/20 text-emerald-600 dark:text-emerald-400" : "border-neutral-100 dark:border-white/10 text-neutral-400"} font-bold`}>
+                    <span className={`text-[10px] font-mono tracking-[0.2em] uppercase px-3 py-1.5 border ${isPriceUp ? "border-emerald-500/20 text-emerald-600 dark:text-emerald-400" : "border-neutral-100 dark:border-white/10 text-neutral-400"} font-bold`}>
                       {isPriceUp ? "+ " : "- "}${Math.abs(priceDiff).toFixed(2)} {isPriceUp ? "PREMIUM" : "DISCOUNT"}
                     </span>
                   </div>
                 </div>
 
-                <div className="pt-10">
-                  <div className="text-[10px] uppercase tracking-[0.3em] font-bold text-neutral-400 dark:text-neutral-500 mb-6">Engine Rationale</div>
-                  <div className="text-sm md:text-base text-neutral-500 dark:text-neutral-400 italic font-light leading-relaxed pl-8 border-l border-neutral-100 dark:border-white/10">
+                <div className="pt-6">
+                  <div className="text-[10px] uppercase tracking-[0.3em] font-bold text-neutral-400 dark:text-neutral-500 mb-4">Engine Rationale</div>
+                  <div className="text-xs md:text-sm text-neutral-500 dark:text-neutral-400 italic font-light leading-relaxed pl-6 border-l border-neutral-100 dark:border-white/10">
                     &quot;{pricing.aiInsight || "Target demand aligns with historical booking pace. Stabilizing around parity."}&quot;
                   </div>
                 </div>
 
-                <div className="pt-12 border-t border-neutral-100 dark:border-white/5">
-                  <div className="flex justify-between items-end mb-8">
+                <div className="pt-8 border-t border-neutral-100 dark:border-white/5">
+                  <div className="flex justify-between items-end mb-6">
                     <h4 className="text-[10px] uppercase tracking-[0.4em] font-bold text-neutral-400 dark:text-neutral-500">
                       Service Deltas
                     </h4>

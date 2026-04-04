@@ -1,33 +1,37 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, QrCode, GalleryHorizontalEnd, LayoutDashboard, Calendar, Users, Briefcase } from "lucide-react";
+import { ArrowUpRight, QrCode, GalleryHorizontalEnd, LayoutDashboard, Users, Activity, ShieldCheck, Grid3X3 } from "lucide-react";
 import { useTheme } from "@/context/ThemeContext";
 
 const adminCards = [
   {
     href: "/admin/analytics",
-    title: "AI Analytics",
-    description: "Access guest intelligence, dynamic pricing, and occupancy forecasting.",
+    title: "Revenue & Intelligence",
+    description: "Access executive-level guest intelligence, dynamic pricing models, and occupancy forecasting trajectories.",
     icon: LayoutDashboard,
+    tag: "Analytics"
   },
   {
     href: "/admin/scheduling",
-    title: "Staff Management",
-    description: "Orchestrate workforce, manage shifts, and analyze staffing efficiency.",
+    title: "Personnel Orchestration",
+    description: "Manage workforce dynamics, shift allocations, and organizational efficiency across all property departments.",
     icon: Users,
+    tag: "Staffing"
   },
   {
     href: "/admin/provenance",
-    title: "Provenance Admin",
-    description: "Create QR-linked products and generate scan-ready story pages.",
+    title: "Digital Archive Admin",
+    description: "Curate the provenance database, generate secure QR signatures, and manage artisanal heritage records.",
     icon: QrCode,
+    tag: "Collection"
   },
   {
     href: "/admin/gallery",
-    title: "Gallery Admin",
-    description: "Manage showcase projects, upload imagery, and edit display content.",
+    title: "Curation & Media",
+    description: "Maintain the visual narrative of the property through high-fidelity media management and project showcases.",
     icon: GalleryHorizontalEnd,
+    tag: "Creative"
   },
 ];
 
@@ -35,45 +39,90 @@ export default function AdminHomePage() {
   const { isDark } = useTheme();
 
   return (
-    <main className={`min-h-screen theme-transition ${isDark
-        ? "bg-[#0c0c0c] text-white"
-        : "bg-neutral-50 text-neutral-900"      
-      }`}>
-      <section className="mx-auto flex w-full max-w-7xl flex-col gap-10 px-6 pb-20 pt-28 md:px-12">
-        <div className="max-w-3xl space-y-5">
-          <h1 className="font-serif text-4xl leading-tight md:text-6xl text-neutral-900 dark:text-white">Unified HMS Control Center.</h1>
-          <p className={`max-w-2xl text-sm leading-7 md:text-base ${isDark ? "text-neutral-300" : "text-neutral-600"
-            }`}>
-            A comprehensive executive interface for managing property content, AI-driven analytics, and internal staff operations.
-          </p>
+    <main className={`min-h-screen theme-transition ${isDark ? "bg-black text-white" : "bg-white text-neutral-900"} pt-6 md:pt-6`}>
+      <div className="mx-auto flex w-full max-w-7xl flex-col px-6 pb-20 pt-4 md:px-12">
+        {/* Header Section */}
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-10 border-b border-neutral-100 dark:border-white/10 pb-10 mb-12 md:mb-16">
+          <div className="max-w-4xl space-y-4">
+          
+            <h1 className="font-serif text-4xl leading-[1.1] md:text-7xl font-light tracking-tight">
+              Unified <span className="italic text-neutral-400 dark:text-neutral-500">Property</span> Management
+            </h1>
+            <p className="max-w-xl text-sm leading-relaxed font-light text-neutral-500 dark:text-neutral-400">
+              Centralized high-fidelity interface for property oversight, architectural curation, and operational excellence.
+            </p>
+          </div>
+          
+          <div className="flex flex-col items-end gap-3 opacity-40 font-mono">
+            <div className="flex items-center gap-2">
+              <Activity className="w-3 h-3" />
+              <span className="text-[8px] font-bold tracking-[0.3em]">SYSTEM ACTIVE</span>
+            </div>
+            
+          </div>
         </div>
 
-        <div className="grid gap-5 md:grid-cols-2">
+        {/* Admin Navigation Grid - Tighter Density */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-px bg-neutral-100 dark:bg-white/10 border border-neutral-100 dark:border-white/10">
           {adminCards.map((card) => {
             const Icon = card.icon;
             return (
               <Link
                 key={card.href}
                 href={card.href}
-                className={`group rounded-none border-none p-10 transition-all duration-300 hover:-translate-y-1 ${isDark
-                    ? "bg-[#0a0a0a] shadow-[0_0_20px_rgba(255,255,255,0.07)] hover:shadow-[0_0_35px_rgba(255,255,255,0.12)]"
-                    : "bg-white shadow-[0_4px_20px_rgba(0,0,0,0.06)] hover:shadow-[0_10px_30px_rgba(0,0,0,0.12)]"
-                  }`}
+                className={`group relative flex flex-col p-8 md:p-10 transition-all duration-700 ${
+                  isDark ? "bg-black hover:bg-neutral-900/50" : "bg-white hover:bg-neutral-50"
+                }`}
               >
-                <div className="flex items-center justify-between">
-                    <Icon className={`h-8 w-8 ${isDark ? "text-white/80" : "text-neutral-900/80"}`} />
-                    <ArrowRight className={`h-5 w-5 opacity-0 group-hover:opacity-100 transition-opacity -translate-x-4 group-hover:translate-x-0 transition-transform ${isDark ? "text-white" : "text-neutral-900"}`} />
+                <div className="flex items-center justify-between mb-6">
+                  <div className="flex items-center gap-4">
+                    <div className="p-2 border border-neutral-100 dark:border-white/10 opacity-60 group-hover:opacity-100 transition-opacity">
+                      <Icon className="w-4 h-4 font-light" />
+                    </div>
+                    <span className="text-[9px] font-bold tracking-[0.4em] uppercase opacity-40 group-hover:opacity-100 transition-opacity">
+                      {card.tag}
+                    </span>
+                  </div>
+                  <ArrowUpRight className="w-4 h-4 opacity-0 -translate-y-1 translate-x-1 group-hover:opacity-100 group-hover:translate-y-0 group-hover:translate-x-0 transition-all duration-500" />
                 </div>
-                <h2 className={`mt-8 font-serif text-3xl ${isDark ? "text-white" : "text-neutral-900"}`}>{card.title}</h2>
-                <p className={`mt-3 max-w-lg text-sm leading-7 ${isDark ? "text-white/80" : "text-neutral-600"}`}>{card.description}</p>
-                <span className={`mt-8 inline-flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.35em] transition ${isDark ? "text-white/60" : "text-neutral-500"}`}>
-                  Management Suite
-                </span>
+
+                <div className="space-y-3">
+                  <h2 className="font-serif text-2xl md:text-3xl font-light tracking-tight group-hover:italic transition-all duration-500">
+                    {card.title}
+                  </h2>
+                  <p className="text-xs leading-relaxed font-light text-neutral-500 dark:text-neutral-400 max-w-sm">
+                    {card.description}
+                  </p>
+                </div>
+
+                <div className="mt-8 flex items-center gap-4 text-[9px] font-bold tracking-[0.3em] uppercase opacity-30 overflow-hidden">
+                  <span className="whitespace-nowrap transition-transform duration-700 group-hover:translate-x-3">Enter Suite</span>
+                  <div className="h-[1px] w-full bg-current transition-transform duration-700 -translate-x-full group-hover:translate-x-0" />
+                </div>
               </Link>
             );
           })}
         </div>
-      </section>
+
+        {/* Global Stats Bar */}
+        <div className="flex flex-col md:flex-row gap-8 justify-between border-t border-neutral-100 dark:border-white/10 pt-12 mt-12 opacity-60">
+          <div className="flex items-center gap-8">
+            <div className="space-y-1">
+              <p className="text-[8px] font-bold tracking-[0.3em] uppercase">Active Nodes</p>
+              <p className="text-xs font-mono tracking-tighter italic">V-01. V-02. V-04</p>
+            </div>
+            <div className="w-[1px] h-6 bg-neutral-200 dark:bg-white/10" />
+            <div className="space-y-1">
+              <p className="text-[8px] font-bold tracking-[0.3em] uppercase">Auth Level</p>
+              <p className="text-xs font-mono tracking-tighter uppercase">Root Executive</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-3">
+             <Grid3X3 className="w-3 h-3" />
+             <span className="text-[10px] tracking-[0.4em] font-medium uppercase">VAGUE HMS OS v2.0</span>
+          </div>
+        </div>
+      </div>
     </main>
   );
 }
