@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import PricingDemo from "@/components/sections/PricingDemo";
 import OccupancyAnalytics from "@/components/sections/OccupancyAnalytics";
@@ -8,24 +8,28 @@ import Link from "next/link";
 import { Calendar } from "lucide-react";
 
 export default function AnalyticsPage() {
+  const { isDark } = useTheme();
   return (
-    <main className="min-h-screen theme-transition pb-32 bg-background text-foreground">
-      <div className="pt-20 pb-16 px-4 md:px-8 border-b border-neutral-800/10 dark:border-neutral-800 bg-neutral-900 dark:bg-[#0a0a0a]">
-        <div className="max-w-6xl mx-auto flex flex-col md:flex-row md:items-end justify-between gap-8">
-          <div className="space-y-4">
-            <h1 className="font-serif text-4xl md:text-5xl text-foreground tracking-tight">
-              Revenue & Analytics
-            </h1>
-            <p className="text-neutral-400 dark:text-neutral-500 max-w-xl text-sm leading-relaxed font-light">
-              System-level oversight of dynamic pricing models, forecasted occupancy trajectories, and real-time customer intelligence patterns.
-            </p>
-          </div>
+    <main className="min-h-screen theme-transition pb-32 bg-background text-foreground pt-12">
+      <div className="max-w-[1400px] mx-auto px-6 sm:px-12 mb-16">
+        <div className="p-12 transition-all duration-300 bg-white dark:bg-[#0a0a0a] shadow-[0_4px_24px_rgba(0,0,0,0.06)] dark:shadow-[0_0_20px_rgba(255,255,255,0.04)] border-none rounded-none">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-8">
+            <div className="space-y-4">
+              <h1 className="font-serif text-4xl md:text-5xl text-foreground tracking-tight">
+                Revenue & Analytics
+              </h1>
+              <p className="text-neutral-500 dark:text-neutral-400 max-w-xl text-sm leading-relaxed font-light">
+                System-level oversight of dynamic pricing models, forecasted occupancy trajectories, and real-time customer intelligence patterns.
+              </p>
+            </div>
           <div className="flex flex-col md:items-end gap-6">
             <Link 
               href="/admin/staffing" 
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-amber-500 text-black text-[10px] font-black uppercase tracking-[0.2em] hover:bg-amber-400 transition-all shadow-lg shadow-amber-500/10"
+              className={`inline-flex items-center gap-2 px-8 py-3 rounded-full text-[11px] font-black uppercase tracking-[0.2em] transition-all shadow-md ${
+                isDark ? "bg-white text-black hover:bg-neutral-200" : "bg-black text-white hover:bg-neutral-800"
+              }`}
             >
-              <Calendar className="w-3.5 h-3.5" /> View Deployment Map
+              <Calendar className="w-4 h-4" /> View Deployment Map
             </Link>
             <div className="flex gap-8 text-[10px] font-mono tracking-[0.2em] uppercase text-neutral-500 dark:text-neutral-500">
               <div className="flex flex-col gap-2">
@@ -42,8 +46,9 @@ export default function AnalyticsPage() {
           </div>
         </div>
       </div>
+      </div>
 
-      <div className="space-y-24 pt-16">
+      <div className="max-w-[1400px] mx-auto px-6 sm:px-12 space-y-24">
         <OccupancyAnalytics />
 
         <PricingDemo />

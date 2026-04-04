@@ -88,8 +88,10 @@ export default function SchedulingAdminPage() {
             
             <div className="flex flex-col gap-6 lg:items-end">
                 <div className="flex items-center gap-4">
-                    <Link href="/admin/staffing" className={`px-10 py-5 rounded-full text-[11px] font-black uppercase tracking-[0.4em] transition-all flex items-center gap-4 ${isDark ? "bg-white/5 border border-white/10 hover:bg-white/10 shadow-2xl shadow-white/5" : "bg-black text-white hover:bg-neutral-800"}`}>
-                        <Calendar className="w-4 h-4 text-amber-500" /> View Deployment Map
+                    <Link href="/admin/staffing" className={`px-10 py-5 rounded-full text-[11px] font-black uppercase tracking-[0.4em] transition-all flex items-center gap-4 shadow-xl ${
+                        isDark ? "bg-white text-black hover:bg-neutral-200" : "bg-black text-white hover:bg-neutral-800"
+                    }`}>
+                        <Calendar className={`w-4 h-4 ${isDark ? "text-neutral-500" : "text-neutral-400"}`} /> View Deployment Map
                     </Link>
                     <button className={`p-5 rounded-full border ${isDark ? "border-white/10 bg-white/5 hover:bg-white/10" : "border-black/10 bg-white shadow-xl hover:bg-neutral-50"}`}>
                         <Plus className="w-5 h-5" />
@@ -105,16 +107,16 @@ export default function SchedulingAdminPage() {
                 { label: "Pending Tasks", value: "42", icon: Zap, trend: "-12%", trendUp: false },
                 { label: "Avg Response", value: "14m", icon: Clock, trend: "Steady", trendUp: true },
             ].map((stat, i) => (
-                <div key={i} className={`p-10 rounded-none border-none transition-all duration-300 hover:-translate-y-1 ${isDark ? "bg-[#0a0a0a] shadow-[0_0_20px_rgba(255,255,255,0.07)] hover:shadow-[0_0_35px_rgba(255,255,255,0.12)]" : "bg-black shadow-[0_10px_30px_rgba(0,0,0,0.2)] hover:shadow-[0_20px_50px_rgba(0,0,0,0.35)]"}`}>
+                <div key={i} className={`p-10 rounded-none border-none transition-all duration-300 hover:-translate-y-1 ${isDark ? "bg-[#0a0a0a] shadow-[0_0_20px_rgba(255,255,255,0.07)] hover:shadow-[0_0_35px_rgba(255,255,255,0.12)]" : "bg-white shadow-[0_4px_20px_rgba(0,0,0,0.06)] hover:shadow-[0_10px_30px_rgba(0,0,0,0.12)]"}`}>
                     <div className="flex items-center justify-between mb-8">
-                        <stat.icon className="w-5 h-5 text-white/50" />
-                        <div className="flex items-center gap-1.5 rounded-none px-3 py-1 bg-white/10 text-white shadow-sm border border-white/5">
-                            {stat.trendUp ? <ArrowUpRight className="w-3 h-3 text-white" /> : <ArrowDownRight className="w-3 h-3 text-white" />}
+                        <stat.icon className={`w-5 h-5 ${isDark ? "text-white/50" : "text-neutral-900/50"}`} />
+                        <div className={`flex items-center gap-1.5 rounded-none px-3 py-1 shadow-sm border ${isDark ? "bg-white/10 text-white border-white/5" : "bg-black/5 text-neutral-900 border-black/5"}`}>
+                            {stat.trendUp ? <ArrowUpRight className={`w-3 h-3 ${isDark ? "text-white" : "text-neutral-900"}`} /> : <ArrowDownRight className={`w-3 h-3 ${isDark ? "text-white" : "text-neutral-900"}`} />}
                             <span className="text-[9px] font-bold tracking-widest">{stat.trend}</span>
                         </div>
                     </div>
-                    <p className="text-5xl font-serif mb-2 text-white">{stat.value}</p>
-                    <p className="text-[10px] font-bold uppercase tracking-widest opacity-40 text-white">{stat.label}</p>
+                    <p className={`text-5xl font-serif mb-2 ${isDark ? "text-white" : "text-neutral-900"}`}>{stat.value}</p>
+                    <p className={`text-[10px] font-bold uppercase tracking-widest opacity-40 ${isDark ? "text-white" : "text-neutral-900"}`}>{stat.label}</p>
                 </div>
             ))}
         </div>

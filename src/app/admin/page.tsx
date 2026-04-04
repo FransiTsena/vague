@@ -57,16 +57,16 @@ export default function AdminHomePage() {
                 href={card.href}
                 className={`group rounded-none border-none p-10 transition-all duration-300 hover:-translate-y-1 ${isDark
                     ? "bg-[#0a0a0a] shadow-[0_0_20px_rgba(255,255,255,0.07)] hover:shadow-[0_0_35px_rgba(255,255,255,0.12)]"
-                    : "bg-black shadow-[0_10px_30px_rgba(0,0,0,0.2)] hover:shadow-[0_20px_50px_rgba(0,0,0,0.35)]"
+                    : "bg-white shadow-[0_4px_20px_rgba(0,0,0,0.06)] hover:shadow-[0_10px_30px_rgba(0,0,0,0.12)]"
                   }`}
               >
                 <div className="flex items-center justify-between">
-                    <Icon className="h-8 w-8 text-white/80" />
-                    <ArrowRight className="h-5 w-5 opacity-0 group-hover:opacity-100 transition-opacity -translate-x-4 group-hover:translate-x-0 transition-transform text-white" />
+                    <Icon className={`h-8 w-8 ${isDark ? "text-white/80" : "text-neutral-900/80"}`} />
+                    <ArrowRight className={`h-5 w-5 opacity-0 group-hover:opacity-100 transition-opacity -translate-x-4 group-hover:translate-x-0 transition-transform ${isDark ? "text-white" : "text-neutral-900"}`} />
                 </div>
-                <h2 className="mt-8 font-serif text-3xl text-white">{card.title}</h2>
-                <p className="mt-3 max-w-lg text-sm leading-7 text-white/80">{card.description}</p>
-                <span className="mt-8 inline-flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.35em] transition text-white/60">
+                <h2 className={`mt-8 font-serif text-3xl ${isDark ? "text-white" : "text-neutral-900"}`}>{card.title}</h2>
+                <p className={`mt-3 max-w-lg text-sm leading-7 ${isDark ? "text-white/80" : "text-neutral-600"}`}>{card.description}</p>
+                <span className={`mt-8 inline-flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.35em] transition ${isDark ? "text-white/60" : "text-neutral-500"}`}>
                   Management Suite
                 </span>
               </Link>
