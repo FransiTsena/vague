@@ -1,8 +1,54 @@
 import Link from "next/link";
 import { ArrowRight, ScanLine, ShieldCheck, Wallet } from "lucide-react";
-import { provenanceProducts } from "@/lib/provenance";
+import { provenanceProducts, type ProvenanceProduct } from "@/lib/provenance";
+import dbConnect from "@/lib/mongodb";
+import { ProvenanceProduct as ProvenanceProductModel } from "@/lib/models";
 
-export default function ProvenanceIndexPage() {
+async function getAllProducts(): Promise<ProvenanceProduct[]> {
+  // Start with hardcoded demo products
+  const allProducts = [...provenanceProducts];
+  const existingSlugs = new Set(allProducts.map((p) => p.slug));
+
+  // Fetch DB products
+  try {
+    await dbConnect();
+    const dbProducts = await ProvenanceProductModel.find({ isPublished: true })
+      .sort({ createdAt: -1 })
+      .lean();
+
+    for (const dbProduct of dbProducts) {
+      if (!existingSlugs.has(dbProduct.slug)) {
+        allProducts.push({
+          slug: dbProduct.slug,
+          itemType: dbProduct.itemType,
+          title: dbProduct.title,
+          hotelName: dbProduct.hotelName || "VAGUE Resort",
+          creatorName: dbProduct.creatorName,
+          creatorRole: dbProduct.creatorRole,
+          creatorLocation: dbProduct.creatorLocation,
+          origin: dbProduct.origin,
+          materials: dbProduct.materials || [],
+          story: dbProduct.story,
+          details: dbProduct.details || [],
+          impact: dbProduct.impact || "",
+          imageUrl: dbProduct.imageUrl,
+          tipHint: dbProduct.tipHint || "",
+        });
+        existingSlugs.add(dbProduct.slug);
+      }
+    }
+  } catch (error) {
+    console.error("Failed to fetch DB provenance products:", error);
+  }
+
+  return allProducts;
+}
+
+export const dynamic = "force-dynamic";
+
+export default async function ProvenanceIndexPage() {
+  const allProducts = await getAllProducts();
+
   return (
     <main className="min-h-screen bg-[radial-gradient(circle_at_top,_rgba(201,170,120,0.18),_transparent_34%),linear-gradient(180deg,_#050505_0%,_#090909_100%)] text-white">
       <section className="mx-auto flex w-full max-w-7xl flex-col gap-12 px-6 pb-20 pt-28 md:px-12">
@@ -20,7 +66,7 @@ export default function ProvenanceIndexPage() {
         </div>
 
         <div className="grid gap-4 md:grid-cols-3">
-          {provenanceProducts.map((product, index) => (
+          {allProducts.map((product, index) => (
             <article
               key={product.slug}
               className="group overflow-hidden rounded-3xl border border-white/10 bg-white/5 backdrop-blur-sm transition duration-300 hover:border-white/20 hover:bg-white/8"
