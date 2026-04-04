@@ -79,42 +79,42 @@ export default function Story() {
         <Section id="story" className={isDark ? "bg-black text-white" : "bg-white text-black"}>
             <div ref={textRef} className="w-full max-w-7xl mx-auto overflow-hidden" lang={language}>
                 {/* Minimalist Header */}
-                <div className="flex flex-col md:flex-row md:items-end justify-between gap-12 mb-20 md:mb-32">
-                    <div className="max-w-3xl space-y-8">
-                        <h2 className="story-line text-xs font-bold tracking-[0.4em] uppercase text-neutral-500">
+                <div className="flex flex-col md:flex-row md:items-end justify-between gap-10 md:gap-12 mb-12 md:mb-32">
+                    <div className="max-w-3xl space-y-6 md:space-y-8">
+                        <h2 className="story-line text-[10px] md:text-xs font-bold tracking-[0.4em] uppercase text-neutral-500">
                             {t("story.label")}
                         </h2>
-                        <h3 className={`story-line text-5xl md:text-7xl font-serif font-light leading-none ${language === "am" ? "leading-snug" : ""}`}>
+                        <h3 className={`story-line text-4xl sm:text-5xl md:text-7xl font-serif font-light leading-tight md:leading-none ${language === "am" ? "leading-snug" : ""}`}>
                             {t("story.headline1")} <br />
                             <span className={`italic ${isDark ? "text-neutral-500" : "text-neutral-400"}`}>{t("story.headline2")}</span>
                         </h3>
                     </div>
-                    <div className="max-w-md pb-4">
-                        <p className={`story-line text-lg md:text-xl leading-relaxed font-light ${isDark ? "text-neutral-300" : "text-neutral-500"} ${language === "am" ? "text-sm" : ""}`}>
+                    <div className="max-w-md md:pb-4 border-l-2 md:border-l-0 border-neutral-800/10 dark:border-white/5 pl-6 md:pl-0">
+                        <p className={`story-line text-base md:text-xl leading-relaxed font-light ${isDark ? "text-neutral-300" : "text-neutral-500"} ${language === "am" ? "text-sm" : ""}`}>
                             {t("story.description")}
                         </p>
                     </div>
                 </div>
 
                 {/* Main Content Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-12 gap-12 md:gap-20 story-line mb-20 md:mb-32">
+                <div className="grid grid-cols-1 md:grid-cols-12 gap-12 md:gap-20 story-line mb-16 md:mb-32">
                     {/* Impact Statement - Left side */}
-                    <div className="md:col-span-12 lg:col-span-4 space-y-12">
-                        <div className="pt-8 border-t border-neutral-800/20 dark:border-white/10">
-                            <h4 className={`text-2xl font-serif font-light mb-6 tracking-wide ${isDark ? "text-white" : "text-black"}`}>
+                    <div className="md:col-span-12 lg:col-span-4 space-y-8 md:space-y-12">
+                        <div className="pt-6 md:pt-8 border-t border-neutral-800/20 dark:border-white/10">
+                            <h4 className={`text-xl md:text-2xl font-serif font-light mb-4 md:mb-6 tracking-wide ${isDark ? "text-white" : "text-black"}`}>
                                 {t("story.impact.title")}
                             </h4>
-                            <p className={`text-base leading-relaxed font-light ${isDark ? "text-neutral-400" : "text-neutral-500"}`}>
+                            <p className={`text-sm md:text-base leading-relaxed font-light ${isDark ? "text-neutral-400" : "text-neutral-500"}`}>
                                 {t("story.impact.description")}
                             </p>
                         </div>
 
                         {/* Stats - Left side bottom */}
-                        <div className="grid grid-cols-2 gap-12 pt-8 border-t border-neutral-800/20 dark:border-white/10">
+                        <div className="grid grid-cols-2 gap-8 md:gap-12 pt-6 md:pt-8 border-t border-neutral-800/20 dark:border-white/10">
                             {stats.slice(0, 2).map((stat) => (
                                 <div key={stat.key}>
-                                    <div className={`text-4xl md:text-5xl font-serif font-light mb-2 ${isDark ? "text-white" : "text-black"}`}>{t(stat.valueKey)}</div>
-                                    <div className="text-[10px] uppercase tracking-[0.3em] text-neutral-500 font-medium">{t(stat.labelKey)}</div>
+                                    <div className={`text-3xl md:text-5xl font-serif font-light mb-1 md:mb-2 ${isDark ? "text-white" : "text-black"}`}>{t(stat.valueKey)}</div>
+                                    <div className="text-[9px] md:text-[10px] uppercase tracking-[0.2em] md:tracking-[0.3em] text-neutral-500 font-medium">{t(stat.labelKey)}</div>
                                 </div>
                             ))}
                         </div>
@@ -122,12 +122,12 @@ export default function Story() {
 
                     {/* Room Showcase - Center/Right */}
                     <div className="md:col-span-12 lg:col-span-8">
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 md:gap-12 h-full">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-10 md:gap-12 h-full">
                             {roomNames.slice(0, 2).map((room, idx) => {
                                 const details = roomDetails[room] ?? { image: "https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&q=80&w=800", priceKey: "" };
                                 return (
-                                    <div key={room} className={`relative group overflow-hidden ${idx === 1 ? "md:mt-12 lg:mt-20" : ""}`}>
-                                        <div className="aspect-[3/4] relative overflow-hidden">
+                                    <div key={room} className={`relative group overflow-hidden ${idx === 1 ? "sm:mt-12 lg:mt-20" : ""}`}>
+                                        <div className="aspect-[4/5] sm:aspect-[3/4] relative overflow-hidden">
                                             <Image
                                                 src={details.image}
                                                 alt={room}
@@ -135,10 +135,10 @@ export default function Story() {
                                                 className="object-cover transition-transform duration-1000 ease-out group-hover:scale-105"
                                             />
                                             <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent opacity-60 group-hover:opacity-100 transition-opacity duration-700" />
-                                            <div className="absolute bottom-8 left-8 right-8 overflow-hidden">
-                                                <p className="text-white/40 text-[9px] uppercase tracking-[0.3em] mb-2 transform -translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-700 delay-100">{t("story.trust.price")}</p>
-                                                <p className="text-white text-2xl font-serif font-light mb-3 transform translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-700 delay-200">{room}</p>
-                                                <p className="text-white text-sm font-light tracking-widest transform translate-y-full opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-700 delay-300">{t(details.priceKey)}</p>
+                                            <div className="absolute bottom-6 left-6 right-6 sm:bottom-8 sm:left-8 sm:right-8 overflow-hidden">
+                                                <p className="text-white/40 text-[8px] sm:text-[9px] uppercase tracking-[0.3em] mb-1 sm:mb-2 transform -translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-700 delay-100">{t("story.trust.price")}</p>
+                                                <p className="text-white text-xl sm:text-2xl font-serif font-light mb-2 sm:mb-3 transform translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-700 delay-200">{room}</p>
+                                                <p className="text-white text-xs sm:text-sm font-light tracking-widest transform translate-y-full opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-700 delay-300">{t(details.priceKey)}</p>
                                             </div>
                                         </div>
                                     </div>

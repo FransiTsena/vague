@@ -167,56 +167,90 @@ export default function Header() {
             <AnimatePresence>
                 {mobileMenuOpen && (
                     <motion.div
-                        initial={{ opacity: 0, height: 0 }}
-                        animate={{ opacity: 1, height: "auto" }}
-                        exit={{ opacity: 0, height: 0 }}
-                        className={`md:hidden border-t mt-4 ${isDark ? "bg-black/95 border-white/10" : "bg-white border-black/10"}`}
-                        ref={mobileMenuRef}
+                        initial={{ opacity: 0, y: -20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -20 }}
+                        transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+                        className={`fixed inset-0 top-0 left-0 w-full h-screen z-[60] overflow-y-auto px-6 py-20 flex flex-col ${isDark ? "bg-black" : "bg-white"}`}
                     >
-                        <nav className="flex flex-col py-6 px-4 space-y-4" lang={language}>
-                            {navItems.map((item) => (
-                                <Link
-                                    key={item.key}
-                                    href={item.href}
-                                    onClick={() => setMobileMenuOpen(false)}
-                                    className={`text-lg font-medium transition-colors py-2 ${isDark ? "text-neutral-300 hover:text-white" : "text-neutral-600 hover:text-black"}`}
-                                >
-                                    {t(item.key)}
-                                </Link>
-                            ))}
-                            <div className={`flex flex-col gap-4 pt-4 border-t ${isDark ? "border-white/10" : "border-black/10"}`}>
-                                {session ? (
-                                    <>
-                                        <div className="px-2 py-2 mb-2 rounded-xl bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800">
-                                            <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest leading-none mb-1">Authenticated Personnel</p>
-                                            <p className="text-sm font-bold text-zinc-900 dark:text-zinc-50 truncate">{session.user?.name}</p>
-                                        </div>
-                                        <Link href="/admin" onClick={() => setMobileMenuOpen(false)} className={`flex items-center gap-3 text-lg font-medium transition-colors ${isDark ? "text-neutral-300 hover:text-white" : "text-neutral-600 hover:text-black"}`}>
-                                            <Settings className="w-5 h-5 opacity-60" />
-                                            Admin Dashboard
-                                        </Link>
-                                        <button 
-                                            onClick={() => signOut({ redirect: true })}
-                                            className="flex items-center gap-3 text-lg font-medium text-red-500 hover:text-red-600 transition-colors py-2 text-left"
-                                        >
-                                            <LogOut className="w-5 h-5 opacity-60" />
-                                            Sign Out
-                                        </button>
-                                    </>
-                                ) : (
-                                    <Link href="/login" onClick={() => setMobileMenuOpen(false)} className={`flex items-center gap-3 text-lg font-medium transition-colors ${isDark ? "text-neutral-300 hover:text-white" : "text-neutral-600 hover:text-black"}`}>
-                                        <Settings className="w-5 h-5 opacity-60" />
-                                        Personnel Portal
-                                    </Link>
-                                )}
-                                <div className="flex items-center gap-4 pt-4">
-                                    <ThemeToggle />
-                                </div>
+                        {/* Close Button Inside Fullscreen Menu */}
+                        <button
+                            onClick={() => setMobileMenuOpen(false)}
+                            className={`absolute top-6 right-6 p-2 rounded-full border ${isDark ? "border-white/10 text-white" : "border-black/10 text-black"}`}
+                        >
+                            <X className="w-6 h-6" />
+                        </button>
+
+                        <div className="flex flex-col h-full max-w-lg mx-auto w-full">
+                            <div className="mb-12">
+                                <span className={`block text-3xl font-bold tracking-tighter ${isDark ? "text-white" : "text-black"}`}>VAGUE</span>
+                                <span className={`block text-sm font-light tracking-[0.2em] ${isDark ? "text-neutral-400" : "text-neutral-500"}`}>RESORT</span>
                             </div>
-                            <Button variant="primary" className="w-full mt-4" onClick={handleBookClick}>
-                                {t("cta.book")}
-                            </Button>
-                        </nav>
+
+                            <nav className="flex flex-col space-y-6 mb-12" lang={language}>
+                                {navItems.map((item, index) => (
+                                    <motion.div
+                                        key={item.key}
+                                        initial={{ opacity: 0, x: -20 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        transition={{ delay: 0.1 + index * 0.05 }}
+                                    >
+                                        <Link
+                                            href={item.href}
+                                            onClick={() => setMobileMenuOpen(false)}
+                                            className={`text-2xl font-serif italic transition-colors ${isDark ? "text-neutral-300 hover:text-white" : "text-neutral-600 hover:text-black"}`}
+                                        >
+                                            {t(item.key)}
+                                        </Link>
+                                    </motion.div>
+                                ))}
+                            </nav>
+
+                            <div className={`mt-auto pt-8 border-t space-y-8 ${isDark ? "border-white/10" : "border-black/10"}`}>
+                                <div className="flex items-center justify-between">
+                                    <div className="flex items-center gap-4">
+                                        <ThemeToggle />
+                                        <span className={`text-xs uppercase tracking-widest ${isDark ? "text-neutral-500" : "text-neutral-400"}`}>
+                                            {isDark ? "Dark Appearance" : "Light Appearance"}
+                                        </span>
+                                    </div>
+                                    
+                                    {session ? (
+                                        <Button 
+                                            variant="outline" 
+                                            className="text-red-500 border-red-200" 
+                                            onClick={() => signOut({ redirect: true })}
+                                        >
+                                            <LogOut className="w-4 h-4 mr-2" />
+                                            Sign Out
+                                        </Button>
+                                    ) : (
+                                        <Link href="/admin" onClick={() => setMobileMenuOpen(false)}>
+                                            <Button variant="outline" className="flex items-center gap-2">
+                                                <Settings className="w-4 h-4" />
+                                                Personnel Login
+                                            </Button>
+                                        </Link>
+                                    )}
+                                </div>
+
+                                {session && (
+                                    <div className={`p-4 rounded-lg flex items-center gap-4 ${isDark ? "bg-white/5" : "bg-black/5"}`}>
+                                        <div className={`w-10 h-10 rounded-full flex items-center justify-center ${isDark ? "bg-white/10" : "bg-black/10"}`}>
+                                            <User className="w-5 h-5" />
+                                        </div>
+                                        <div>
+                                            <p className={`text-[10px] uppercase tracking-widest ${isDark ? "text-neutral-500" : "text-neutral-400"}`}>Welcome Back</p>
+                                            <p className={`text-sm font-medium ${isDark ? "text-white" : "text-black"}`}>{session.user?.name}</p>
+                                        </div>
+                                    </div>
+                                )}
+
+                                <Button variant="primary" className="w-full py-6 text-sm tracking-[0.3em] uppercase" onClick={handleBookClick}>
+                                    {t("cta.book")}
+                                </Button>
+                            </div>
+                        </div>
                     </motion.div>
                 )}
             </AnimatePresence>

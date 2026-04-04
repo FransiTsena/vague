@@ -89,20 +89,20 @@ export default function Hero() {
                 lang={language}
             >
                 <div>
-                    <h1 className={`hero-text text-5xl md:text-8xl lg:text-9xl font-serif font-light tracking-tight leading-[0.9] mb-8 ${isDark ? "text-white" : "text-black"}`}>
+                    <h1 className={`hero-text text-4xl sm:text-5xl md:text-8xl lg:text-9xl font-serif font-light tracking-tight leading-[1.1] md:leading-[0.9] mb-6 md:mb-8 ${isDark ? "text-white" : "text-black"}`}>
                         {t("hero.title1")} <br />
                         <span className={`italic font-light ${isDark ? "text-neutral-400" : "text-neutral-500"}`}>{t("hero.title2")}</span>
                     </h1>
-                    <p className={`hero-text text-lg md:text-2xl max-w-2xl mx-auto font-light tracking-wide leading-relaxed ${isDark ? "text-neutral-300" : "text-neutral-600"}`}>
+                    <p className={`hero-text text-base md:text-2xl max-w-2xl mx-auto font-light tracking-wide leading-relaxed ${isDark ? "text-neutral-300" : "text-neutral-600"}`}>
                         {t("hero.subtitle")}
                     </p>
                 </div>
                 
-                <div className="hero-btn flex flex-col sm:flex-row gap-6 mt-4">
-                    <Button variant="primary" className="px-10 py-4 text-sm tracking-[0.2em] uppercase rounded-none border border-white" onClick={() => document.getElementById("services")?.scrollIntoView({ behavior: "smooth" })}>
+                <div className="hero-btn flex flex-col sm:flex-row gap-4 md:gap-6 mt-2 md:mt-4 w-full sm:w-auto px-4 sm:px-0">
+                    <Button variant="primary" className="w-full sm:w-auto px-10 py-4 text-[10px] md:text-sm tracking-[0.2em] uppercase rounded-none border border-white" onClick={() => document.getElementById("services")?.scrollIntoView({ behavior: "smooth" })}>
                         {t("hero.cta1")}
                     </Button>
-                    <Button variant="secondary" className="px-10 py-4 text-sm tracking-[0.2em] uppercase rounded-none border border-white/20" onClick={() => document.getElementById("story")?.scrollIntoView({ behavior: "smooth" })}>
+                    <Button variant="secondary" className="w-full sm:w-auto px-10 py-4 text-[10px] md:text-sm tracking-[0.2em] uppercase rounded-none border border-white/20" onClick={() => document.getElementById("story")?.scrollIntoView({ behavior: "smooth" })}>
                         {t("hero.cta2")}
                     </Button>
                 </div>
