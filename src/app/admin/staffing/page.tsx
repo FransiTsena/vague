@@ -819,10 +819,7 @@ export default function StaffingAdminPage() {
                                     </div>
 
                                     <div className={`p-8 rounded-[2.5rem] border ${isDark ? "bg-white/5 border-white/10" : "bg-zinc-50 border-black/5"}`}>
-                                        <h3 className="text-[9px] font-black uppercase tracking-widest text-zinc-500 mb-8 italic flex items-center gap-2">
-                                            <Plus className="w-3 h-3" /> Enroll New Member
-                                        </h3>
-                                        <form className="space-y-5" onSubmit={(e) => { e.preventDefault(); handleAddMember(); }}>
+                                        <form className="space-y-5" onSubmit={handleAddMember}>
                                             <input 
                                                 placeholder="FULL NAME" 
                                                 className={`w-full bg-transparent border-b py-3 text-[10px] font-bold tracking-widest uppercase outline-none transition-colors ${
