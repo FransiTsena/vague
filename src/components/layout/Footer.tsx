@@ -48,13 +48,13 @@ export default function Footer() {
                             {language === "en" ? "Quick Links" : "ፈጣን ማገናኛዎች"}
                         </h4>
                         <nav className="flex flex-col space-y-2">
-                            <Link href="/#services" className={`text-sm transition-colors ${isDark ? "text-neutral-400 hover:text-white" : "text-neutral-600 hover:text-black"}`}>
+                            <Link href="/demo#services" className={`text-sm transition-colors ${isDark ? "text-neutral-400 hover:text-white" : "text-neutral-600 hover:text-black"}`}>
                                 {t("nav.services")}
                             </Link>
-                            <Link href="/#gallery" className={`text-sm transition-colors ${isDark ? "text-neutral-400 hover:text-white" : "text-neutral-600 hover:text-black"}`}>
+                            <Link href="/demo#gallery" className={`text-sm transition-colors ${isDark ? "text-neutral-400 hover:text-white" : "text-neutral-600 hover:text-black"}`}>
                                 {t("nav.gallery")}
                             </Link>
-                            <Link href="/#contact" className={`text-sm transition-colors ${isDark ? "text-neutral-400 hover:text-white" : "text-neutral-600 hover:text-black"}`}>
+                            <Link href="/demo#contact" className={`text-sm transition-colors ${isDark ? "text-neutral-400 hover:text-white" : "text-neutral-600 hover:text-black"}`}>
                                 {t("nav.contact")}
                             </Link>
                             <Link href="/provenance" className={`text-sm transition-colors ${isDark ? "text-neutral-400 hover:text-white" : "text-neutral-600 hover:text-black"}`}>

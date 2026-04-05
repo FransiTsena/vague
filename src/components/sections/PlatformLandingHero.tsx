@@ -97,7 +97,7 @@ export default function PlatformLandingHero() {
                 </div>
                 
                 <div className="hero-btn flex flex-col sm:flex-row gap-6 mt-6 w-full sm:w-auto px-4 sm:px-0">
-                    <Link href="/">
+                    <Link href="/demo">
                         <Button variant="primary" className="w-full sm:w-auto px-12 py-5 text-[10px] md:text-xs tracking-[0.3em] uppercase rounded-none bg-white text-black border border-white hover:bg-transparent hover:text-white transition-all duration-500 shadow-2xl">
                             {t("platform.hero.cta1")}
                         </Button>

@@ -57,7 +57,6 @@ export const authOptions: AuthOptions = {
   callbacks: {
     async redirect({ url, baseUrl }) {
       // Use the actual request's origin instead of falling back to localhost or a static baseUrl
-      // NextAuth provides baseUrl from NEXTAUTH_URL or detected from the request
       if (typeof window !== "undefined") {
         return window.location.origin;
       }
