@@ -2,29 +2,39 @@
 
 import { useState, useRef, useEffect } from "react";
 import { useTheme } from "@/context/ThemeContext";
-import { MessageSquare, X, Send,  UserPlus, Headset } from "lucide-react";
+import { MessageSquare, X, Send, UserPlus, Headset, Sparkles, Minus, Maximize2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface Message {
   role: "user" | "assistant";
   content: string;
+  roomCards?: Array<{
+    roomNumber: string;
+    type: string;
+    price: number;
+    description: string;
+  }>;
 }
 
 export default function ChatBot() {
   const { isDark } = useTheme();
   const [isOpen, setIsOpen] = useState(false);
+  const [isMinimized, setIsMinimized] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
-    { role: "assistant", content: "Welcome to VAGUE Resort. I'm your virtual concierge. How can I help you explore our services today?" }
+    { role: "assistant", content: "Welcome to VAGUE. How may we assist your stay today?" }
   ]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    if (scrollRef.current && !isMinimized) {
+      scrollRef.current.scrollTo({
+        top: scrollRef.current.scrollHeight,
+        behavior: "smooth"
+      });
     }
-  }, [messages, isLoading]);
+  }, [messages, isLoading, isMinimized]);
 
   const handleSend = async () => {
     if (!input.trim() || isLoading) return;
@@ -41,7 +51,7 @@ export default function ChatBot() {
         body: JSON.stringify({ messages: [...messages, userMessage] })
       });
 
-      if (!response.ok) throw new Error("Failed to connect to the resort's systems.");
+      if (!response.ok) throw new Error("Connection error.");
 
       const reader = response.body?.getReader();
       const decoder = new TextDecoder();
@@ -56,34 +66,38 @@ export default function ChatBot() {
         const chunk = decoder.decode(value, { stream: true });
         assistantContent += chunk;
         
+        let cleanedContent = assistantContent;
+        let roomCardsData: any[] = [];
+
+        // Use global flag /g to find all tags
+        const tagMatches = assistantContent.matchAll(/\[\[ROOM_CARD:(\{[\s\S]*?\})\]\]/g);
+        
+        for (const match of tagMatches) {
+          try {
+            const rawJson = match[1];
+            const parsed = JSON.parse(rawJson);
+            roomCardsData.push(parsed);
+            cleanedContent = cleanedContent.replace(match[0], "").trim();
+          } catch (e) {
+            // Wait for full tag
+          }
+        }
+
         setMessages(prev => {
           const newMessages = [...prev];
           newMessages[newMessages.length - 1] = { 
             role: "assistant", 
-            content: assistantContent 
+            content: cleanedContent,
+            roomCards: roomCardsData.length > 0 ? roomCardsData : undefined
           };
           return newMessages;
         });
       }
-
-      // Auto-scroll logic if they ask for booking
-      if (assistantContent.toLowerCase().includes("booking page") || assistantContent.toLowerCase().includes("book now")) {
-          const bookingSection = document.getElementById("stay-registration");
-          if (bookingSection) {
-            setTimeout(() => {
-              bookingSection.scrollIntoView({ behavior: "smooth" });
-            }, 2000); // Give user time to read
-          }
-      }
     } catch (error) {
-      setMessages(prev => [...prev, { role: "assistant", content: "Apologies, I've encountered an issue. Please try again or ask for a human for assistance." }]);
+      setMessages(prev => [...prev, { role: "assistant", content: "Our apologies. Please try again or reach out to our concierge." }]);
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const requestHuman = () => {
-    setMessages(prev => [...prev, { role: "assistant", content: "Understood. Our human concierge is available at +251 929 945 151. Would you like to message them on WhatsApp or call now?" }]);
   };
 
   const openWhatsApp = () => {
@@ -93,103 +107,173 @@ export default function ChatBot() {
   return (
     <>
       <button
-        onClick={() => setIsOpen(true)}
-        className="fixed bottom-6 right-6 z-50 p-4 rounded-full bg-cognac text-white shadow-2xl hover:scale-110 transition-transform active:scale-95"
+        onClick={() => {
+          setIsOpen(true);
+          setIsMinimized(false);
+        }}
+        className={`fixed bottom-10 right-10 z-[100] group flex items-center gap-3 transition-all duration-700 ease-[cubic-bezier(0.23,1,0.32,1)]`}
       >
-        <MessageSquare className="w-6 h-6" />
+        <span className={`text-[10px] uppercase tracking-[0.4em] font-light transition-all duration-700 opacity-0 group-hover:opacity-100 translate-x-4 group-hover:translate-x-0 ${isDark ? "text-white" : "text-black"}`}>
+          Concierge
+        </span>
+        <div className={`p-6 rounded-none border shadow-none hover:scale-105 active:scale-95 transition-all duration-500 relative overflow-hidden ${
+          isDark ? "bg-black border-white/20" : "bg-white border-black/10"
+        }`}>
+          <MessageSquare className={`w-5 h-5 font-light ${isDark ? "text-white" : "text-black"}`} strokeWidth={1} />
+        </div>
       </button>
 
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            initial={{ opacity: 0, y: 50, scale: 0.95 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 50, scale: 0.95 }}
-            className={`fixed bottom-24 right-6 z-50 w-[350px] sm:w-[400px] h-[500px] flex flex-col rounded-3xl overflow-hidden border shadow-2xl ${
-              isDark ? "bg-neutral-900 border-white/10" : "bg-white border-black/10"
+            initial={{ opacity: 0, y: 40, filter: "blur(15px)" }}
+            animate={{ 
+              opacity: 1, 
+              y: 0, 
+              filter: "blur(0px)",
+              height: isMinimized ? "80px" : "640px"
+            }}
+            exit={{ opacity: 0, y: 40, filter: "blur(15px)" }}
+            transition={{ duration: 0.8, ease: [0.23, 1, 0.32, 1] }}
+            className={`fixed bottom-10 right-10 z-[110] w-[400px] flex flex-col rounded-none border shadow-none ${
+              isDark 
+                ? "bg-black/95 border-white/10" 
+                : "bg-white border-black/10"
             }`}
           >
-            {/* Header */}
-            <header className="p-4 bg-cognac text-white flex justify-between items-center">
-              <div className="flex items-center gap-3">
-              
-                <div>
-                  <h3 className="text-sm font-bold">VAGUE Concierge</h3>
-                  <p className="text-[10px] text-white/70">AI-Powered Assistant</p>
-                </div>
+            {/* Minimalist Header */}
+            <header className={`p-8 flex justify-between items-start border-b ${
+              isDark ? "border-white/5" : "border-black/5"
+            }`}>
+              <div className="space-y-1">
+                <h3 className={`text-xs font-serif tracking-[0.3em] uppercase ${isDark ? "text-white" : "text-black"}`}>
+                  VAGUE
+                </h3>
+                <p className={`text-[9px] uppercase tracking-[0.2em] font-light ${isDark ? "text-neutral-500" : "text-neutral-400"}`}>
+                  Virtual Private Assistant
+                </p>
               </div>
-              <button onClick={() => setIsOpen(false)} className="hover:rotate-90 transition-transform">
-                <X className="w-5 h-5" />
-              </button>
+              <div className="flex gap-4">
+                <button onClick={() => setIsMinimized(!isMinimized)} className="opacity-40 hover:opacity-100 transition-opacity">
+                  {isMinimized ? <Maximize2 className="w-3.5 h-3.5" strokeWidth={1.5} /> : <Minus className="w-3.5 h-3.5" strokeWidth={1.5} />}
+                </button>
+                <button onClick={() => setIsOpen(false)} className="opacity-40 hover:opacity-100 transition-opacity">
+                  <X className="w-3.5 h-3.5" strokeWidth={1.5} />
+                </button>
+              </div>
             </header>
 
-            {/* Chat Area */}
-            <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 space-y-4 bg-transparent">
-              {messages.map((m, i) => (
-                <div key={i} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
-                  <div className={`max-w-[80%] p-3 rounded-2xl text-sm ${
-                    m.role === "user" 
-                      ? "bg-cognac text-white rounded-br-none" 
-                      : isDark ? "bg-white/5 text-neutral-200 rounded-bl-none" : "bg-black/5 text-neutral-800 rounded-bl-none"
-                  }`}>
-                    {m.content}
-                  </div>
-                </div>
-              ))}
-              {isLoading && (
-                <div className="flex justify-start">
-                  <div className={`p-3 rounded-2xl animate-pulse ${isDark ? "bg-white/5" : "bg-black/5"}`}>
-                    <div className="flex gap-1">
-                      <div className="w-1 h-1 rounded-full bg-current opacity-25" />
-                      <div className="w-1 h-1 rounded-full bg-current opacity-50" />
-                      <div className="w-1 h-1 rounded-full bg-current opacity-75" />
+            {!isMinimized && (
+              <>
+                <div ref={scrollRef} className="flex-1 overflow-y-auto p-8 space-y-8 scrollbar-hide">
+                  {messages.map((m, i) => (
+                    <motion.div 
+                      key={i} 
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.1 }}
+                      className={`flex flex-col ${m.role === "user" ? "items-end" : "items-start"}`}
+                    >
+                      <div className={`max-w-[90%] text-xs leading-relaxed tracking-wider font-light ${
+                        m.role === "user" 
+                          ? `${isDark ? "text-white" : "text-black"} italic` 
+                          : `${isDark ? "text-neutral-400" : "text-neutral-600"}`
+                      }`}>
+                        {m.content}
+                      </div>
+                      
+                      {m.roomCards && m.roomCards.length > 0 && (
+                        <div className="w-full space-y-4">
+                          {m.roomCards.map((card, idx) => (
+                            <motion.div 
+                              key={idx}
+                              initial={{ opacity: 0, y: 10 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              transition={{ delay: idx * 0.1 }}
+                              className={`w-full p-4 border rounded-none shadow-sm ${
+                                isDark ? "bg-white/[0.03] border-white/10" : "bg-black/[0.02] border-black/5"
+                              }`}
+                            >
+                              <div className="flex justify-between items-end mb-3">
+                                <h4 className={`text-[9px] uppercase tracking-[0.3em] font-medium ${isDark ? "text-white" : "text-black"}`}>
+                                  {card.type}
+                                </h4>
+                                <span className={`text-[10px] font-light tracking-widest ${isDark ? "text-white/60" : "text-black/60"}`}>
+                                  ${card.price}
+                                </span>
+                              </div>
+                              
+                              <p className={`text-[9px] leading-relaxed mb-4 opacity-50 font-light max-w-[80%] ${isDark ? "text-white" : "text-black"}`}>
+                                {card.description}
+                              </p>
+
+                              <button
+                                onClick={() => window.location.href = `/booking?room=${card.roomNumber}`}
+                                className={`w-full py-2.5 text-[8px] uppercase tracking-[0.4em] transition-all duration-700 hover:bg-current group relative overflow-hidden ${
+                                  isDark ? "border border-white/20 text-white" : "border border-black/10 text-black"
+                                }`}
+                              >
+                                <span className="relative z-10 group-hover:invert duration-700 transition-all">Book Stay</span>
+                              </button>
+                            </motion.div>
+                          ))}
+                        </div>
+                      )}
+                    </motion.div>
+                  ))}
+                  {isLoading && (
+                    <div className="flex justify-start">
+                      <div className="flex gap-2 opacity-30">
+                        <div className="w-1 h-1 rounded-full bg-current animate-pulse" />
+                        <div className="w-1 h-1 rounded-full bg-current animate-pulse delay-75" />
+                        <div className="w-1 h-1 rounded-full bg-current animate-pulse delay-150" />
+                      </div>
                     </div>
+                  )}
+                </div>
+
+                <div className={`p-8 pt-0 flex gap-6 overflow-x-auto scrollbar-hide`}>
+                    <button 
+                        onClick={() => document.getElementById("stay-registration")?.scrollIntoView({ behavior: "smooth" })}
+                        className={`text-[9px] uppercase tracking-[0.3em] font-light border-b border-transparent hover:border-current transition-all py-1 ${isDark ? "text-white/40 hover:text-white" : "text-black/40 hover:text-black"}`}
+                    >
+                        Reservation
+                    </button>
+                    <button 
+                        onClick={openWhatsApp}
+                        className={`text-[9px] uppercase tracking-[0.3em] font-light border-b border-transparent hover:border-current transition-all py-1 ${isDark ? "text-white/40 hover:text-white" : "text-black/40 hover:text-black"}`}
+                    >
+                        Concierge
+                    </button>
+                </div>
+
+                <div className="p-8 pt-0">
+                  <div className="relative group">
+                    <input
+                      type="text"
+                      placeholder="Your inquiry..."
+                      value={input}
+                      onChange={(e) => setInput(e.target.value)}
+                      onKeyPress={(e) => e.key === "Enter" && handleSend()}
+                      className={`w-full bg-transparent py-4 text-xs outline-none border-b font-light tracking-widest transition-all ${
+                        isDark 
+                          ? "border-white/10 focus:border-white text-white placeholder:text-neutral-700" 
+                          : "border-black/5 focus:border-black text-black placeholder:text-neutral-300"
+                      }`}
+                    />
+                    <button 
+                      onClick={handleSend}
+                      disabled={isLoading || !input.trim()}
+                      className={`absolute right-0 top-1/2 -translate-y-1/2 p-2 opacity-0 group-focus-within:opacity-100 transition-all ${
+                        isDark ? "text-white" : "text-black"
+                      }`}
+                    >
+                      <Send className="w-3.5 h-3.5" strokeWidth={1} />
+                    </button>
                   </div>
                 </div>
-              )}
-            </div>
-
-            {/* Actions Bar */}
-            <div className="px-4 py-2 flex gap-2 overflow-x-auto border-t border-white/5">
-                <button 
-                    onClick={() => {
-                        const bookingSection = document.getElementById("stay-registration");
-                        if (bookingSection) bookingSection.scrollIntoView({ behavior: "smooth" });
-                    }}
-                    className={`whitespace-nowrap flex items-center gap-1 text-[10px] px-2 py-1 rounded-full border ${isDark ? "border-white/10 hover:bg-white/5 text-neutral-400" : "border-black/10 hover:bg-black/5 text-neutral-600"}`}
-                >
-                    <UserPlus className="w-3 h-3" /> Book Now
-                </button>
-                <button 
-                    onClick={openWhatsApp}
-                    className={`whitespace-nowrap flex items-center gap-1 text-[10px] px-2 py-1 rounded-full border ${isDark ? "border-white/10 hover:bg-green-500/20 text-green-500" : "border-black/10 hover:bg-green-500/10 text-green-600"}`}
-                >
-                    <Headset className="w-3 h-3" /> WhatsApp +251 929 945 151
-                </button>
-            </div>
-
-            {/* Input Area */}
-            <div className={`p-4 ${isDark ? "bg-black/50" : "bg-neutral-50/50"}`}>
-              <div className="relative">
-                <input
-                  type="text"
-                  placeholder="Ask me anything..."
-                  value={input}
-                  onChange={(e) => setInput(e.target.value)}
-                  onKeyPress={(e) => e.key === "Enter" && handleSend()}
-                  className={`w-full py-3 px-4 rounded-xl text-sm outline-none transition-all ${
-                    isDark ? "bg-white/5 text-white focus:bg-white/10" : "bg-black/5 text-black focus:bg-black/10"
-                  }`}
-                />
-                <button 
-                  onClick={handleSend}
-                  disabled={isLoading || !input.trim()}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 p-2 text-cognac hover:scale-110 active:scale-95 disabled:opacity-30"
-                >
-                  <Send className="w-4 h-4" />
-                </button>
-              </div>
-            </div>
+              </>
+            )}
           </motion.div>
         )}
       </AnimatePresence>

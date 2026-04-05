@@ -9,7 +9,13 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "No messages provided." }, { status: 400 });
     }
 
-    const stream = await getChatStream(messages);
+    // Clean messages to remove UI-only properties like roomCard before sending to Groq
+    const sanitizedMessages = messages.map((msg: any) => ({
+      role: msg.role,
+      content: msg.content
+    }));
+
+    const stream = await getChatStream(sanitizedMessages);
     
     const encoder = new TextEncoder();
     const readableStream = new ReadableStream({
