@@ -116,7 +116,7 @@ export default function ChatBot() {
         <span className={`text-[10px] uppercase tracking-[0.4em] font-light transition-all duration-700 opacity-0 group-hover:opacity-100 translate-x-4 group-hover:translate-x-0 ${isDark ? "text-white" : "text-black"}`}>
           Concierge
         </span>
-        <div className={`p-6 rounded-none border shadow-none hover:scale-105 active:scale-95 transition-all duration-500 relative overflow-hidden ${
+        <div className={`p-6 rounded-full border shadow-none hover:scale-105 active:scale-95 transition-all duration-500 relative overflow-hidden ${
           isDark ? "bg-black border-white/20" : "bg-white border-black/10"
         }`}>
           <MessageSquare className={`w-5 h-5 font-light ${isDark ? "text-white" : "text-black"}`} strokeWidth={1} />
@@ -149,7 +149,7 @@ export default function ChatBot() {
                 <h3 className={`text-xs font-serif tracking-[0.3em] uppercase ${isDark ? "text-white" : "text-black"}`}>
                   VAGUE
                 </h3>
-                <p className={`text-[9px] uppercase tracking-[0.2em] font-light ${isDark ? "text-neutral-500" : "text-neutral-400"}`}>
+                <p className={`text-[9px] uppercase tracking-[0.2em] font-light ${isDark ? "text-white/60" : "text-black/60"}`}>
                   Virtual Private Assistant
                 </p>
               </div>
@@ -257,8 +257,8 @@ export default function ChatBot() {
                       onKeyPress={(e) => e.key === "Enter" && handleSend()}
                       className={`w-full bg-transparent py-4 text-xs outline-none border-b font-light tracking-widest transition-all ${
                         isDark 
-                          ? "border-white/10 focus:border-white text-white placeholder:text-neutral-700" 
-                          : "border-black/5 focus:border-black text-black placeholder:text-neutral-300"
+                          ? "border-white/20 focus:border-white/60 text-white placeholder:text-white/40" 
+                          : "border-black/10 focus:border-black/60 text-black placeholder:text-black/40"
                       }`}
                     />
                     <button 
