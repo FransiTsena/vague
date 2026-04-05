@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { useState, useEffect, useRef } from "react";
 import { useSession, signOut } from "next-auth/react";
 import { cn } from "@/lib/utils";
@@ -15,6 +15,7 @@ import { motion, AnimatePresence } from "framer-motion";
 
 export default function Header() {
     const router = useRouter();
+    const pathname = usePathname();
     const { data: session } = useSession();
     const [scrolled, setScrolled] = useState(false);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -22,6 +23,8 @@ export default function Header() {
     const { isDark } = useTheme();
     const mobileMenuRef = useRef<HTMLDivElement | null>(null);
     const mobileMenuButtonRef = useRef<HTMLButtonElement | null>(null);
+
+    const isAdminRoute = pathname?.startsWith("/admin") || pathname?.startsWith("/(dashboard)");
 
     useEffect(() => {
         const handleScroll = () => {
@@ -71,7 +74,7 @@ export default function Header() {
         <header
             className={cn(
                 "fixed top-0 left-0 right-0 z-50 transition-all duration-300 ease-in-out px-6 md:px-12",
-                scrolled
+                isAdminRoute || scrolled
                     ? isDark ? "bg-black py-3" : "bg-white py-3"
                     : "bg-transparent py-4"
             )}
