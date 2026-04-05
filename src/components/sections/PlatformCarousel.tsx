@@ -57,7 +57,7 @@ export default function PlatformCarousel() {
     }, []);
 
     return (
-        <section className={`py-48 px-6 overflow-hidden ${isDark ? "bg-black" : "bg-white"}`}>
+        <section className={`py-8 px-6 overflow-hidden ${isDark ? "bg-black" : "bg-white"}`}>
             <div className="max-w-7xl mx-auto">
                 <div className="flex flex-col md:flex-row items-end justify-between mb-24 gap-8">
                     <div className="max-w-2xl">
