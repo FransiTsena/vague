@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowUpRight, QrCode, GalleryHorizontalEnd, LayoutDashboard, Users, Activity, ShieldCheck, Grid3X3 } from "lucide-react";
+import { ArrowUpRight, QrCode, GalleryHorizontalEnd, LayoutDashboard, Users, Activity, Grid3X3 } from "lucide-react";
 import { useTheme } from "@/context/ThemeContext";
 
 const adminCards = [
@@ -39,39 +39,40 @@ export default function AdminHomePage() {
   const { isDark } = useTheme();
 
   return (
-    <main className={`min-h-screen theme-transition ${isDark ? "bg-black text-white" : "bg-white text-neutral-900"} pt-6 md:pt-6`}>
+    <main className={`min-h-[calc(100vh-200px)] theme-transition ${isDark ? "bg-black text-white" : "bg-white text-neutral-900"} pt-6 md:pt-12`}>
       <div className="mx-auto flex w-full max-w-7xl flex-col px-6 pb-20 pt-4 md:px-12">
         {/* Header Section */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-10 border-b border-neutral-100 dark:border-white/10 pb-10 mb-12 md:mb-16">
-          <div className="max-w-4xl space-y-4">
-          
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-10 border-b border-neutral-100 dark:border-white/10 pb-12 mb-12 md:mb-16">
+          <div className="max-w-4xl space-y-6">
+            
             <h1 className="font-serif text-4xl leading-[1.1] md:text-7xl font-light tracking-tight">
               Unified <span className="italic text-neutral-400 dark:text-neutral-500">Property</span> Management
             </h1>
             <p className="max-w-xl text-sm leading-relaxed font-light text-neutral-500 dark:text-neutral-400">
-              Centralized high-fidelity interface for property oversight, architectural curation, and operational excellence.
+              Centralized high-fidelity interface for property oversight, architectural curation, and operational excellence. Select a module from the navigation grid or the sidebar to begin orchestration.
             </p>
           </div>
           
           <div className="flex flex-col items-end gap-3 opacity-40 font-mono">
-            <div className="flex items-center gap-2">
-              <Activity className="w-3 h-3" />
+            <div className="flex items-center gap-2 text-emerald-500">
+              <Activity className="w-3 h-3 animate-pulse" />
               <span className="text-[8px] font-bold tracking-[0.3em]">SYSTEM ACTIVE</span>
             </div>
-            
           </div>
         </div>
 
-        {/* Admin Navigation Grid - Tighter Density */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-px bg-neutral-100 dark:bg-white/10 border border-neutral-100 dark:border-white/10">
+        {/* Admin Navigation Grid - Modern Card Layout */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-20">
           {adminCards.map((card) => {
             const Icon = card.icon;
             return (
               <Link
                 key={card.href}
                 href={card.href}
-                className={`group relative flex flex-col p-8 md:p-10 transition-all duration-700 ${
-                  isDark ? "bg-black hover:bg-neutral-900/50" : "bg-white hover:bg-neutral-50"
+                className={`group relative flex flex-col p-10 transition-all duration-700 rounded-lg border shadow-sm ${
+                  isDark 
+                    ? "bg-zinc-900/50 border-white/5 hover:border-white/20 hover:bg-zinc-900" 
+                    : "bg-neutral-50/50 border-neutral-100 hover:border-neutral-200 hover:bg-neutral-50"
                 }`}
               >
                 <div className="flex items-center justify-between mb-6">

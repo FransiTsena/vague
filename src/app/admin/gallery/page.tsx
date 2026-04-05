@@ -127,7 +127,7 @@ export default function GalleryAdminPage() {
                         initial={{ opacity: 0, scale: 0.9 }} 
                         animate={{ opacity: 1, scale: 1 }} 
                         exit={{ opacity: 0, scale: 0.9 }}
-                        key={item._id} 
+                        key={item._id || `${item.category}-${idx}`} 
                         className="group relative aspect-[4/5] rounded-[3rem] overflow-hidden bg-zinc-900 border border-white/5 shadow-2xl"
                     >
                         <img 
