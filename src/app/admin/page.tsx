@@ -39,63 +39,63 @@ export default function AdminHomePage() {
   const { isDark } = useTheme();
 
   return (
-    <main className={`min-h-[calc(100vh-200px)] theme-transition ${isDark ? "bg-black text-white" : "bg-white text-neutral-900"} pt-6 md:pt-12`}>
-      <div className="mx-auto flex w-full max-w-7xl flex-col px-6 pb-20 pt-4 md:px-12">
+    <main className={`min-h-[calc(100vh-160px)] theme-transition ${isDark ? "bg-black text-white" : "bg-white text-neutral-900"} pt-4 md:pt-8`}>
+      <div className="mx-auto flex w-full max-w-7xl flex-col px-4 pb-12 pt-2 md:px-8">
         {/* Header Section */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-10 border-b border-neutral-100 dark:border-white/10 pb-12 mb-12 md:mb-16">
-          <div className="max-w-4xl space-y-6">
-            <div className="flex items-center gap-3">
-               <div className="h-[1px] w-8 bg-neutral-400 opacity-50" />
-               <span className="text-[10px] uppercase font-mono tracking-[0.5em] text-neutral-400">Executive Console</span>
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-neutral-100 dark:border-white/10 pb-8 mb-8 md:mb-10">
+          <div className="max-w-4xl space-y-3">
+            <div className="flex items-center gap-2">
+               <div className="h-[1px] w-6 bg-neutral-400 opacity-50" />
+               <span className="text-[9px] uppercase font-mono tracking-[0.4em] text-neutral-400">Executive Console</span>
             </div>
-            <h1 className="font-serif text-4xl leading-[1.1] md:text-7xl font-light tracking-tight">
+            <h1 className="font-serif text-3xl leading-[1.1] md:text-5xl font-light tracking-tight">
               Unified <span className="italic text-neutral-400 dark:text-neutral-500">Property</span> Management
             </h1>
-            <p className="max-w-xl text-sm leading-relaxed font-light text-neutral-500 dark:text-neutral-400">
-              Welcome back. All architectural and operational modules are active. Core infrastructure is synchronized across 4 active nodes. Use the navigation hierarchy to orchestrate property assets.
+            <p className="max-w-xl text-xs leading-relaxed font-light text-neutral-500 dark:text-neutral-400">
+              Core infrastructure synchronized. Use the navigation hierarchy to orchestrate property assets.
             </p>
           </div>
           
-          <div className="flex flex-col items-end gap-3 font-mono">
-            <div className="flex items-center gap-2 text-emerald-500 bg-emerald-500/5 px-3 py-1.5 border border-emerald-500/10 rounded-full">
-              <Activity className="w-3 h-3 animate-pulse" />
-              <span className="text-[8px] font-bold tracking-[0.3em]">SYSTEM ACTIVE</span>
+          <div className="flex flex-col items-end gap-2 font-mono">
+            <div className="flex items-center gap-2 text-emerald-500 bg-emerald-500/5 px-2.5 py-1 border border-emerald-500/10 rounded-full">
+              <Activity className="w-2.5 h-2.5 animate-pulse" />
+              <span className="text-[7px] font-bold tracking-[0.2em]">SYSTEM ACTIVE</span>
             </div>
           </div>
         </div>
 
         {/* Quick Insights Row - New Section */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16">
-           <div className={`p-6 border transition-all duration-500 ${isDark ? "bg-white/5 border-white/10 hover:bg-white/[0.07]" : "bg-neutral-50 border-neutral-100"}`}>
-              <div className="flex items-center gap-2 mb-4">
-                 <div className="p-1.5 rounded-md bg-sky-500/10 text-sky-500"><Activity className="w-3.5 h-3.5" /></div>
-                 <span className="text-[9px] font-bold tracking-widest text-neutral-400 uppercase">Live Occupancy</span>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-10">
+           <div className={`p-4 border transition-all duration-500 ${isDark ? "bg-white/5 border-white/10 hover:bg-white/[0.07]" : "bg-neutral-50 border-neutral-100"}`}>
+              <div className="flex items-center gap-2 mb-2">
+                 <div className="p-1 rounded-md bg-sky-500/10 text-sky-500"><Activity className="w-3 h-3" /></div>
+                 <span className="text-[8px] font-bold tracking-widest text-neutral-400 uppercase">Live Occupancy</span>
               </div>
               <div className="flex items-baseline gap-2">
-                 <span className="text-3xl font-serif">84%</span>
-                 <span className="text-[10px] text-emerald-500 font-mono">+12.4%</span>
+                 <span className="text-2xl font-serif">84%</span>
+                 <span className="text-[9px] text-emerald-500 font-mono">+12.4%</span>
               </div>
            </div>
            
-           <div className={`p-6 border transition-all duration-500 ${isDark ? "bg-white/5 border-white/10 hover:bg-white/[0.07]" : "bg-neutral-50 border-neutral-100"}`}>
-              <div className="flex items-center gap-2 mb-4">
-                 <div className="p-1.5 rounded-md bg-amber-500/10 text-amber-500"><TrendingUp className="w-3.5 h-3.5" /></div>
-                 <span className="text-[9px] font-bold tracking-widest text-neutral-400 uppercase">Daily Revenue</span>
+           <div className={`p-4 border transition-all duration-500 ${isDark ? "bg-white/5 border-white/10 hover:bg-white/[0.07]" : "bg-neutral-50 border-neutral-100"}`}>
+              <div className="flex items-center gap-2 mb-2">
+                 <div className="p-1 rounded-md bg-amber-500/10 text-amber-500"><TrendingUp className="w-3 h-3" /></div>
+                 <span className="text-[8px] font-bold tracking-widest text-neutral-400 uppercase">Daily Revenue</span>
               </div>
               <div className="flex items-baseline gap-2">
-                 <span className="text-3xl font-serif">€14.2k</span>
-                 <span className="text-[10px] text-emerald-500 font-mono">+4.2%</span>
+                 <span className="text-2xl font-serif">€14.2k</span>
+                 <span className="text-[9px] text-emerald-500 font-mono">+4.2%</span>
               </div>
            </div>
 
-           <div className={`p-6 border transition-all duration-500 ${isDark ? "bg-white/5 border-white/10 hover:bg-white/[0.07]" : "bg-neutral-50 border-neutral-100"}`}>
-              <div className="flex items-center gap-2 mb-4">
-                 <div className="p-1.5 rounded-md bg-emerald-500/10 text-emerald-500"><Users className="w-3.5 h-3.5" /></div>
-                 <span className="text-[9px] font-bold tracking-widest text-neutral-400 uppercase">Staff Active</span>
+           <div className={`p-4 border transition-all duration-500 ${isDark ? "bg-white/5 border-white/10 hover:bg-white/[0.07]" : "bg-neutral-50 border-neutral-100"}`}>
+              <div className="flex items-center gap-2 mb-2">
+                 <div className="p-1 rounded-md bg-emerald-500/10 text-emerald-500"><Users className="w-3 h-3" /></div>
+                 <span className="text-[8px] font-bold tracking-widest text-neutral-400 uppercase">Staff Active</span>
               </div>
               <div className="flex items-baseline gap-2">
-                 <span className="text-3xl font-serif">42</span>
-                 <span className="text-[10px] text-neutral-400 font-mono">Full Capacity</span>
+                 <span className="text-2xl font-serif">42</span>
+                 <span className="text-[9px] text-neutral-400 font-mono">Full Capacity</span>
               </div>
            </div>
         </div>

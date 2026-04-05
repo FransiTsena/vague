@@ -37,6 +37,7 @@ export default function StaffRosterPage() {
     email: "",
     role: "",
     departmentId: "",
+    password: "",
     accessRole: "MEMBER"
   });
 
@@ -71,6 +72,21 @@ export default function StaffRosterPage() {
     setTimeout(() => setNotification(null), 5000);
   };
 
+  const handleDeleteMember = async (id: string) => {
+    if (!confirm("Are you sure you want to terminate this personnel record?")) return;
+    try {
+      const res = await fetch(`/api/admin/staffing/members?id=${id}`, { method: 'DELETE' });
+      if (res.ok) {
+        showNotification('success', "Personnel record successfully terminated.");
+        fetchData();
+      } else {
+        showNotification('error', "Failed to terminate record.");
+      }
+    } catch (err) {
+      showNotification('error', "Operational error during termination.");
+    }
+  };
+
   const filteredStaff = useMemo(() => {
     return staff.filter(person => {
       const name = person.name || "";
@@ -102,7 +118,7 @@ export default function StaffRosterPage() {
       if (res.ok) {
         showNotification('success', "Personnel record successfully initialized.");
         setIsAddingMember(false);
-        setFormData({ name: "", email: "", role: "", departmentId: "", accessRole: "MEMBER" });
+        setFormData({ name: "", email: "", role: "", departmentId: "", password: "", accessRole: "MEMBER" });
         fetchData();
       } else {
         const err = await res.json();
@@ -116,73 +132,73 @@ export default function StaffRosterPage() {
   };
 
   return (
-    <main className={`min-h-screen pb-20 pt-8 md:pt-12 px-6 sm:px-12 theme-transition ${isDark ? "bg-[#050505] text-white" : "bg-[#fcfcfc] text-neutral-900"}`}>
+    <main className={`min-h-screen pb-12 pt-6 md:pt-8 px-4 sm:px-8 theme-transition ${isDark ? "bg-[#050505] text-white" : "bg-[#fcfcfc] text-neutral-900"}`}>
       <div className="max-w-7xl mx-auto">
         
         {/* Header Navigation */}
-        <div className="flex items-center justify-between mb-12">
-            <Link href="/admin/scheduling" className="inline-flex items-center gap-2 text-[10px] uppercase font-black tracking-[0.3em] opacity-40 hover:opacity-100 transition-all">
-                <ArrowLeft className="w-3 h-3" /> Logistics Engine
+        <div className="flex items-center justify-between mb-8">
+            <Link href="/admin/scheduling" className="inline-flex items-center gap-2 text-[9px] uppercase font-black tracking-[0.2em] opacity-40 hover:opacity-100 transition-all">
+                <ArrowLeft className="w-2.5 h-2.5" /> Logistics Engine
             </Link>
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-3">
                 <button 
                   onClick={fetchData}
-                  className="p-2 opacity-40 hover:opacity-100 transition-opacity"
+                  className="p-1.5 opacity-40 hover:opacity-100 transition-opacity"
                   title="Synchronize Data"
                 >
-                  <RefreshCcw className={`w-4 h-4 ${loading && staff.length > 0 ? 'animate-spin' : ''}`} />
+                  <RefreshCcw className={`w-3.5 h-3.5 ${loading && staff.length > 0 ? 'animate-spin' : ''}`} />
                 </button>
-                <div className="h-4 w-[1px] bg-neutral-800" />
-                <span className="text-[10px] font-mono opacity-40 uppercase tracking-widest">Registry v4.2</span>
+                <div className="h-3 w-[1px] bg-neutral-800/20 dark:bg-neutral-800" />
+                <span className="text-[9px] font-mono opacity-40 uppercase tracking-widest">Registry v4.2</span>
             </div>
         </div>
 
         {/* Hero Section */}
-        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-12 mb-16 border-b border-neutral-100 dark:border-white/5 pb-12">
+        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8 mb-10 border-b border-neutral-100 dark:border-white/5 pb-8">
           <div className="max-w-2xl">
-            <h1 className="font-serif text-5xl md:text-7xl tracking-tight mb-8">
+            <h1 className="font-serif text-4xl md:text-5xl tracking-tight mb-4">
               Personnel <span className="text-neutral-500 italic">Registry</span>
             </h1>
-            <p className="text-neutral-500 dark:text-neutral-400 text-sm md:text-base leading-relaxed font-light">
-              Unified directory of property artisans, operational leads, and specialized personnel. 
-              Manage department hierarchy and secure access protocols through the centralized high-fidelity engine.
+            <p className="text-neutral-500 dark:text-neutral-400 text-xs md:text-sm leading-relaxed font-light">
+              Unified directory of property artisans and operational leads. 
+              Manage hierarchy and secure access protocols.
             </p>
           </div>
           
-          <div className="flex flex-wrap gap-4">
+          <div className="flex flex-wrap gap-3">
             <button 
               onClick={() => setIsAddingMember(true)}
-              className={`px-10 py-5 rounded-full text-[11px] font-black uppercase tracking-[0.4em] transition-all flex items-center gap-4 shadow-xl ${
+              className={`px-6 py-3 rounded-full text-[10px] font-black uppercase tracking-[0.3em] transition-all flex items-center gap-3 shadow-lg ${
                 isDark ? "bg-white text-black hover:bg-neutral-200" : "bg-black text-white hover:bg-neutral-800"
               }`}
             >
-              <UserPlus className="w-4 h-4" /> Initialize Record
+              <UserPlus className="w-3.5 h-3.5" /> Initialize Record
             </button>
           </div>
         </div>
 
         {/* Search & Filtering Architecture */}
-        <div className="flex flex-col md:flex-row gap-6 mb-12 items-center">
+        <div className="flex flex-col md:flex-row gap-4 mb-8 items-center">
            <div className="relative flex-1 w-full">
-              <Search className="w-4 h-4 absolute left-6 top-1/2 -translate-y-1/2 opacity-20" />
+              <Search className="w-3.5 h-3.5 absolute left-5 top-1/2 -translate-y-1/2 opacity-20" />
               <input 
                 type="text" 
-                placeholder="Search by Name, Email or Role..." 
+                placeholder="Search Name, Email, Role..." 
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className={`w-full bg-transparent border rounded-full px-14 py-4 text-xs font-light tracking-widest focus:outline-none transition-all ${
+                className={`w-full bg-transparent border rounded-full px-12 py-3 text-[11px] font-light tracking-widest focus:outline-none transition-all ${
                   isDark ? "border-white/10 focus:border-white/30" : "border-black/5 focus:border-black/20"
                 }`}
               />
            </div>
            
-           <div className="flex items-center gap-4 w-full md:w-auto">
-              <div className={`flex items-center gap-3 px-6 py-4 rounded-full border ${isDark ? "border-white/10" : "border-black/5"}`}>
-                 <Building2 className="w-3.5 h-3.5 opacity-40" />
+           <div className="flex items-center gap-3 w-full md:w-auto">
+              <div className={`flex items-center gap-2 px-4 py-3 rounded-full border ${isDark ? "border-white/10" : "border-black/5"}`}>
+                 <Building2 className="w-3 h-3 opacity-40" />
                  <select 
                    value={selectedDept}
                    onChange={(e) => setSelectedDept(e.target.value)}
-                   className="bg-transparent text-xs font-light pr-4 tracking-widest focus:outline-none cursor-pointer"
+                   className="bg-transparent text-[11px] font-light pr-2 tracking-widest focus:outline-none cursor-pointer"
                  >
                     <option value="all">All Departments</option>
                     {departments.map(dept => (
@@ -192,87 +208,88 @@ export default function StaffRosterPage() {
               </div>
            </div>
 
-           <div className="hidden lg:flex items-center gap-2 px-4 opacity-40">
-              <span className="text-[10px] font-mono uppercase tracking-widest">{filteredStaff.length} Records Detected</span>
+           <div className="hidden lg:flex items-center gap-2 px-2 opacity-30">
+              <span className="text-[9px] font-mono uppercase tracking-widest">{filteredStaff.length} Records</span>
            </div>
         </div>
 
         {/* Roster Display */}
-        <div className="grid grid-cols-1 gap-px bg-neutral-100 dark:bg-white/5 border border-neutral-100 dark:border-white/5 overflow-hidden rounded-2xl shadow-2xl">
+        <div className="grid grid-cols-1 gap-px bg-neutral-100 dark:bg-white/5 border border-neutral-100 dark:border-white/5 overflow-hidden rounded-xl shadow-xl">
            {loading && staff.length === 0 ? (
-             <div className={`p-32 flex flex-col items-center justify-center ${isDark ? "bg-[#080808]" : "bg-white"}`}>
-                <Loader2 className="w-8 h-8 animate-spin opacity-20 mb-6" />
-                <span className="text-[10px] font-black uppercase tracking-[0.5em] opacity-20">Accessing Database...</span>
-             </div>
-           ) : filteredStaff.length === 0 ? (
-             <div className={`p-32 flex flex-col items-center justify-center ${isDark ? "bg-[#080808]" : "bg-white"}`}>
-                <div className="p-6 rounded-full border border-dashed border-neutral-800 mb-8 opacity-20">
-                   <Search className="w-8 h-8" />
-                </div>
-                <span className="text-[10px] font-black uppercase tracking-[0.4em] opacity-30">No matches found in this vector</span>
+             <div className={`p-16 flex flex-col items-center justify-center ${isDark ? "bg-[#080808]" : "bg-white"}`}>
+                <Loader2 className="w-6 h-6 animate-spin opacity-20 mb-4" />
+                <span className="text-[9px] font-black uppercase tracking-[0.4em] opacity-20">Accessing Database...</span>
              </div>
            ) : (
              filteredStaff.map((person, idx) => (
                <motion.div 
                  key={person._id}
-                 initial={{ opacity: 0, y: 10 }}
+                 initial={{ opacity: 0, y: 5 }}
                  animate={{ opacity: 1, y: 0 }}
-                 transition={{ delay: idx * 0.02 }}
-                 className={`group relative p-8 flex flex-col md:flex-row md:items-center justify-between transition-all duration-700 ${
+                 transition={{ delay: idx * 0.01 }}
+                 className={`group relative p-4 md:px-6 flex flex-col md:flex-row md:items-center justify-between transition-all duration-500 ${
                    isDark ? "bg-[#080808] hover:bg-[#0c0c0c]" : "bg-white hover:bg-neutral-50"
                  }`}
                >
-                  <div className="flex items-center gap-8">
+                  <div className="flex items-center gap-5">
                      <div className="relative group">
-                        <div className={`w-16 h-16 rounded-full overflow-hidden border-2 flex-shrink-0 transition-all duration-700 group-hover:scale-105 ${
+                        <div className={`w-12 h-12 rounded-full overflow-hidden border flex-shrink-0 transition-all duration-500 group-hover:scale-105 ${
                           isDark ? "bg-[#111] border-white/5" : "bg-neutral-100 border-black/5"
                         }`}>
                            {person.image ? (
                              <img src={person.image} alt={person.name} className="w-full h-full object-cover" />
                            ) : (
                              <div className="w-full h-full flex items-center justify-center">
-                                <span className="text-xl font-serif text-neutral-500">{person.name ? person.name[0] : '?'}</span>
+                                <span className="text-lg font-serif text-neutral-500">{person.name ? person.name[0] : '?'}</span>
                              </div>
                            )}
                         </div>
-                        <div className={`absolute -bottom-1 -right-1 w-5 h-5 rounded-full border-4 flex items-center justify-center ${
+                        <div className={`absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full border-2 flex items-center justify-center ${
                           isDark ? "bg-[#080808] border-[#080808]" : "bg-white border-white"
                         }`}>
-                           <div className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
+                           <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_4px_rgba(16,185,129,0.5)]" />
                         </div>
                      </div>
                      
-                     <div className="space-y-1">
-                        <div className="flex items-center gap-3">
-                           <h3 className="font-serif text-2xl font-light tracking-tight group-hover:italic transition-all duration-500">
+                     <div className="space-y-0.5">
+                        <div className="flex items-center gap-2">
+                           <h3 className="font-serif text-xl font-light tracking-tight group-hover:italic transition-all duration-500">
                              {person.name}
                            </h3>
                            {person.accessRole === 'ADMIN' && (
-                             <Shield className="w-3.5 h-3.5 text-amber-500/60" />
+                             <Shield className="w-3 h-3 text-amber-500/50" />
                            )}
                         </div>
-                        <div className="flex flex-wrap items-center gap-y-2 gap-x-6 text-[10px] font-mono uppercase tracking-[0.2em] opacity-40">
-                           <span className="flex items-center gap-2"><Mail className="w-3 h-3" /> {person.email}</span>
-                           <span className="flex items-center gap-2"><Building2 className="w-3 h-3" /> {person.departmentId?.name || 'Unassigned'}</span>
-                           <span className="px-2 py-0.5 border border-current rounded text-[8px] font-bold">{person.role || 'Staff'}</span>
+                        <div className="flex flex-wrap items-center gap-y-1 gap-x-4 text-[9px] font-mono uppercase tracking-[0.1em] opacity-40">
+                           <span className="flex items-center gap-1.5"><Mail className="w-2.5 h-2.5" /> {person.email}</span>
+                           <span className="flex items-center gap-1.5"><Building2 className="w-2.5 h-2.5" /> {person.departmentId?.name || 'Unassigned'}</span>
+                           <span className="px-1.5 py-0 border border-current rounded text-[7px] font-bold">{person.role || 'Staff'}</span>
                         </div>
                      </div>
                   </div>
 
-                  <div className="mt-8 md:mt-0 flex items-center gap-12 text-right">
-                     <div className="hidden xl:flex flex-col gap-1 items-end">
-                        <span className="text-[10px] font-mono uppercase tracking-widest opacity-30">Last Active</span>
-                        <span className="text-[10px] font-mono tracking-widest">02:42 UTC</span>
+                  <div className="mt-4 md:mt-0 flex items-center gap-8 text-right">
+                     <div className="hidden xl:flex flex-col gap-0.5 items-end">
+                        <span className="text-[9px] font-mono uppercase tracking-widest opacity-20">Last Active</span>
+                        <span className="text-[9px] font-mono tracking-widest opacity-60">02:42 UTC</span>
                      </div>
                      
-                     <div className="flex items-center gap-3">
+                     <div className="flex items-center gap-2">
+                        <button 
+                          onClick={() => handleDeleteMember(person._id)}
+                          className={`p-2 rounded-full border transition-all duration-300 opacity-0 group-hover:opacity-100 ${
+                            isDark ? "border-red-500/20 text-red-400 hover:bg-red-500/10" : "border-red-500/10 text-red-500 hover:bg-red-50"
+                          }`}
+                        >
+                           <Trash2 className="w-3.5 h-3.5" />
+                        </button>
                         <Link 
                           href={`#`}
-                          className={`p-3 rounded-full border transition-all duration-500 ${
+                          className={`p-2 rounded-full border transition-all duration-300 ${
                             isDark ? "border-white/5 hover:border-white/20 hover:bg-white/5" : "border-black/5 hover:border-black/10 hover:bg-black/5"
                           }`}
                         >
-                           <ArrowUpRight className="w-4 h-4" />
+                           <ArrowUpRight className="w-3.5 h-3.5" />
                         </Link>
                      </div>
                   </div>
@@ -374,6 +391,19 @@ export default function StaffRosterPage() {
                         }`}
                       />
                    </div>
+                </div>
+
+                <div className="space-y-4 pt-6">
+                   <label className="text-[10px] font-black uppercase tracking-[0.3em] opacity-40">Cryptographic Credential (Optional)</label>
+                   <input 
+                     type="password" 
+                     placeholder="Secure Password" 
+                     value={formData.password}
+                     onChange={e => setFormData({...formData, password: e.target.value})}
+                     className={`w-full bg-transparent border-b pb-4 text-sm font-light focus:outline-none focus:border-neutral-500 transition-all ${
+                       isDark ? "border-white/10" : "border-black/10"
+                     }`}
+                   />
                 </div>
 
                 <div className="space-y-4 pt-6">

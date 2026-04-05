@@ -32,6 +32,7 @@ export async function GET(req: NextRequest) {
       .sort({ startsAt: "asc" })
       .populate("departmentId", "name")
       .populate("organizerId", "name email")
+      .populate("staffIds", "name email")
       .lean();
 
     return apiJson(items);

@@ -301,7 +301,8 @@ export interface IScheduleEvent extends Document {
   startsAt: Date;
   endsAt: Date;
   departmentId: mongoose.Types.ObjectId;
-  organizerId?: mongoose.Types.ObjectId;
+  organizerId?: mongoose.Types.ObjectId; // Kept for backward compatibility, moving towards staffIds
+  staffIds: mongoose.Types.ObjectId[];
   type: "SHIFT" | "EVENT" | "TASK";
   shiftType?: "morning" | "swing" | "night";
   status: "DRAFT" | "PUBLISHED" | "COMPLETED";
@@ -317,6 +318,7 @@ const ScheduleEventSchema = new Schema<IScheduleEvent>(
     endsAt: { type: Date, required: true },
     departmentId: { type: Schema.Types.ObjectId, ref: "Department", required: true },
     organizerId: { type: Schema.Types.ObjectId, ref: "Member" },
+    staffIds: [{ type: Schema.Types.ObjectId, ref: "Member" }],
     type: { type: String, enum: ["SHIFT", "EVENT", "TASK"], default: "EVENT" },
     shiftType: { type: String, enum: ["morning", "swing", "night"] },
     status: { type: String, enum: ["DRAFT", "PUBLISHED", "COMPLETED"], default: "PUBLISHED" },

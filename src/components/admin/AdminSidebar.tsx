@@ -56,7 +56,10 @@ const adminNavItems: NavItem[] = [
     subItems: [
       { href: "/admin/scheduling", label: "Logistics Overview" },
       { href: "/admin/scheduling/roster", label: "Personnel Registry" },
-      { href: "/admin/scheduling/shifts", label: "Shift Orchestration" }
+      { href: "/admin/scheduling/shifts", label: "Shift Orchestration" },
+      { href: "/admin/scheduling/departments", label: "Domain Management" },
+      { href: "/admin/scheduling/events", label: "Event Matrix" },
+      { href: "/admin/scheduling/notifications", label: "Communication Hub" }
     ]
   },
   {
@@ -116,7 +119,7 @@ export default function AdminSidebar() {
 
   return (
     <aside
-      className={`fixed left-0 top-24 md:top-32 h-[calc(100vh-96px)] md:h-[calc(100vh-128px)] w-64 border-r transition-all duration-700 ${
+      className={`fixed left-0 top-20 md:top-24 h-[calc(100vh-80px)] md:h-[calc(100vh-96px)] w-56 border-r transition-all duration-700 ${
         isDark
           ? "bg-black border-white/10"
           : "bg-white border-neutral-100"
@@ -124,7 +127,7 @@ export default function AdminSidebar() {
     >
       <div className="flex flex-col h-full overflow-hidden">
         {/* Navigation Content */}
-        <nav className="flex-1 px-4 py-6 space-y-1 overflow-y-auto custom-scrollbar">
+        <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto custom-scrollbar">
           {adminNavItems.map((item) => {
             const Icon = item.icon;
             const active = isActive(item.href);
@@ -132,11 +135,11 @@ export default function AdminSidebar() {
             const hasSubItems = item.subItems && item.subItems.length > 0;
 
             return (
-              <div key={item.href} className="space-y-1">
+              <div key={item.href} className="space-y-0.5">
                 {hasSubItems ? (
                   <button
                     onClick={() => toggleExpand(item.href)}
-                    className={`group w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-300 ${
+                    className={`group w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-md transition-all duration-300 ${
                       active
                         ? isDark
                           ? "bg-white/5 text-white"
@@ -146,25 +149,22 @@ export default function AdminSidebar() {
                         : "text-neutral-500 hover:text-neutral-900 hover:bg-neutral-50"
                     }`}
                   >
-                    <Icon className={`w-4 h-4 transition-transform duration-300 ${active ? "scale-110" : ""}`} />
+                    <Icon className={`w-3.5 h-3.5 transition-transform duration-300 ${active ? "scale-105" : ""}`} />
                     <div className="flex-1 text-left min-w-0">
-                      <span className={`text-sm font-light block truncate ${active ? "font-medium" : ""}`}>
+                      <span className={`text-[13px] font-light block truncate ${active ? "font-medium" : ""}`}>
                         {item.label}
-                      </span>
-                      <span className="text-[9px] font-mono tracking-widest uppercase opacity-40 group-hover:opacity-70 transition-opacity">
-                        {item.tag}
                       </span>
                     </div>
                     {isExpanded ? (
-                      <ChevronDown className="w-3.5 h-3.5 opacity-40 group-hover:opacity-100" />
+                      <ChevronDown className="w-3 h-3 opacity-30 group-hover:opacity-100" />
                     ) : (
-                      <ChevronRight className="w-3.5 h-3.5 opacity-40 group-hover:opacity-100" />
+                      <ChevronRight className="w-3 h-3 opacity-30 group-hover:opacity-100" />
                     )}
                   </button>
                 ) : (
                   <Link
                     href={item.href}
-                    className={`group flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-300 ${
+                    className={`group flex items-center gap-2.5 px-2.5 py-1.5 rounded-md transition-all duration-300 ${
                       active
                         ? isDark
                           ? "bg-white/5 text-white"
@@ -174,13 +174,10 @@ export default function AdminSidebar() {
                         : "text-neutral-500 hover:text-neutral-900 hover:bg-neutral-50"
                     }`}
                   >
-                    <Icon className={`w-4 h-4 transition-transform duration-300 ${active ? "scale-110" : ""}`} />
+                    <Icon className={`w-3.5 h-3.5 transition-transform duration-300 ${active ? "scale-105" : ""}`} />
                     <div className="flex-1 min-w-0">
-                      <span className={`text-sm font-light block truncate ${active ? "font-medium" : ""}`}>
+                      <span className={`text-[13px] font-light block truncate ${active ? "font-medium" : ""}`}>
                         {item.label}
-                      </span>
-                      <span className="text-[9px] font-mono tracking-widest uppercase opacity-40 group-hover:opacity-70 transition-opacity">
-                        {item.tag}
                       </span>
                     </div>
                   </Link>
@@ -188,21 +185,21 @@ export default function AdminSidebar() {
 
                 {/* Sub-items list with animation */}
                 {hasSubItems && isExpanded && (
-                  <div className="pl-9 pr-2 py-1 space-y-1 overflow-hidden transition-all duration-500 animate-in slide-in-from-top-2 fade-in">
+                  <div className="pl-8 pr-1.5 py-0.5 space-y-0.5 overflow-hidden transition-all duration-500 animate-in slide-in-from-top-1 fade-in">
                     {item.subItems!.map((sub) => {
                       const subActive = isSubActive(sub.href);
                       return (
                         <Link
                           key={sub.href}
                           href={sub.href}
-                          className={`block py-1.5 px-2 text-[13px] font-light rounded-md transition-all duration-300 border-l ${
+                          className={`block py-1 px-2 text-[12px] font-light rounded-md transition-all duration-300 border-l ${
                             subActive
                               ? isDark
-                                ? "text-white border-white/40 bg-white/5 shadow-sm"
-                                : "text-neutral-900 border-neutral-900 bg-neutral-100/50 shadow-sm"
+                                ? "text-white border-white/40 bg-white/5"
+                                : "text-neutral-900 border-neutral-900 bg-neutral-100/50"
                               : isDark
-                              ? "text-neutral-500 border-transparent hover:text-neutral-300 hover:border-white/20 hover:bg-white/5"
-                              : "text-neutral-500 border-transparent hover:text-neutral-800 hover:border-neutral-200 hover:bg-neutral-50"
+                              ? "text-neutral-500 border-transparent hover:text-neutral-300 hover:border-white/20"
+                              : "text-neutral-500 border-transparent hover:text-neutral-800 hover:border-neutral-200"
                           }`}
                         >
                           {sub.label}
@@ -220,14 +217,14 @@ export default function AdminSidebar() {
         <div className={`p-4 border-t ${isDark ? "border-white/10" : "border-neutral-100"}`}>
           <Link
             href="/admin/settings"
-            className="flex items-center gap-3 px-3 py-2 text-xs font-light text-neutral-500 hover:text-neutral-900 dark:hover:text-white transition-colors"
+            className="flex items-center gap-2.5 px-2 py-1.5 text-[11px] font-light text-neutral-500 hover:text-neutral-900 dark:hover:text-white transition-colors"
           >
-            <Settings className="w-3.5 h-3.5" />
+            <Settings className="w-3 h-3" />
             <span>Infrastructure Settings</span>
           </Link>
-          <div className="mt-4 flex items-center gap-3 px-3">
-             <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-             <span className="text-[10px] uppercase tracking-widest text-neutral-400 font-mono">Core v2.4.0</span>
+          <div className="mt-2 flex items-center gap-2.5 px-2">
+             <div className="w-1 h-1 rounded-full bg-emerald-500 animate-pulse" />
+             <span className="text-[9px] uppercase tracking-widest text-neutral-400 font-mono">Core v2.4.0</span>
           </div>
         </div>
       </div>
