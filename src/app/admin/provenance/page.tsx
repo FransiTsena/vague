@@ -376,9 +376,9 @@ export default function ProvenanceAdminPage() {
             </p>
           </div>
           <div className={`grid grid-cols-2 lg:flex shrink-0 flex-wrap gap-4 text-[9px] uppercase tracking-[0.2em] font-medium ${isDark ? "text-neutral-500" : "text-neutral-500"}`}>
-            <span className={`rounded-full border px-3 py-1.5 ${isDark ? "border-white/10 bg-white/5" : "border-black/10 bg-black/5"}`}>🌍 Sustainable Tourism</span>
-            <span className={`rounded-full border px-3 py-1.5 ${isDark ? "border-white/10 bg-white/5" : "border-black/10 bg-black/5"}`}>🤝 Local Empowerment</span>
-            <span className={`rounded-full border px-3 py-1.5 ${isDark ? "border-white/10 bg-white/5" : "border-black/10 bg-black/5"}`}>✨ AI Storytelling</span>
+            <span className={`rounded-full border px-3 py-1.5 ${isDark ? "border-white/10 bg-white/5 text-neutral-400" : "border-black/10 bg-black/5 text-neutral-600"}`}>🌍 Sustainable Tourism</span>
+            <span className={`rounded-full border px-3 py-1.5 ${isDark ? "border-white/10 bg-white/5 text-neutral-400" : "border-black/10 bg-black/5 text-neutral-600"}`}>🤝 Local Empowerment</span>
+            <span className={`rounded-full border px-3 py-1.5 ${isDark ? "border-white/10 bg-white/5 text-neutral-400" : "border-black/10 bg-black/5 text-neutral-600"}`}>✨ AI Storytelling</span>
           </div>
         </div>
 
@@ -392,7 +392,7 @@ export default function ProvenanceAdminPage() {
                 value={aiDescription}
                 onChange={(event) => setAiDescription(event.target.value)}
                 placeholder="Describe the product, artisan, origin, materials, and the feeling you want guests to have."
-                className={`mt-3 min-h-24 w-full rounded-2xl border px-4 py-3 text-sm outline-none transition ${isDark ? "border-white/10 bg-black/40 focus:border-white/30" : "border-black/10 bg-white focus:border-black/30"}`}
+                className={`mt-3 min-h-24 w-full rounded-2xl border px-4 py-3 text-sm outline-none transition ${isDark ? "border-white/10 bg-black/40 text-white focus:border-white/30" : "border-black/10 bg-white text-black focus:border-black/30"}`}
               />
               <div className="mt-3">
                 <Button variant="secondary" className="inline-flex gap-2 text-xs" type="button" onClick={generateWithAI} disabled={generatingAi}>
@@ -434,7 +434,7 @@ export default function ProvenanceAdminPage() {
                     <input
                       value={draft.slug}
                       onChange={(event) => updateDraft("slug", slugify(event.target.value))}
-                      className={`w-full rounded-2xl border px-4 py-3 text-sm outline-none transition ${isDark ? "border-white/10 bg-black/40 focus:border-white/30" : "border-black/10 bg-white focus:border-black/30"}`}
+                      className={`w-full rounded-2xl border px-4 py-3 text-sm outline-none transition ${isDark ? "border-white/10 bg-black/40 text-white focus:border-white/30" : "border-black/10 bg-white text-black focus:border-black/30"}`}
                       placeholder="sidamo-coffee"
                       required
                     />
@@ -444,7 +444,7 @@ export default function ProvenanceAdminPage() {
                     <input
                       value={draft.itemType}
                       onChange={(event) => updateDraft("itemType", event.target.value)}
-                      className={`w-full rounded-2xl border px-4 py-3 text-sm outline-none transition ${isDark ? "border-white/10 bg-black/40 focus:border-white/30" : "border-black/10 bg-white focus:border-black/30"}`}
+                      className={`w-full rounded-2xl border px-4 py-3 text-sm outline-none transition ${isDark ? "border-white/10 bg-black/40 text-white focus:border-white/30" : "border-black/10 bg-white text-black focus:border-black/30"}`}
                       placeholder="Coffee"
                       required
                     />
@@ -455,7 +455,7 @@ export default function ProvenanceAdminPage() {
                 <input
                   value={draft.title}
                   onChange={(event) => updateDraft("title", event.target.value)}
-                  className={`w-full rounded-2xl border px-4 py-3 text-sm outline-none transition ${isDark ? "border-white/10 bg-black/40 focus:border-white/30" : "border-black/10 bg-white focus:border-black/30"}`}
+                  className={`w-full rounded-2xl border px-4 py-3 text-sm outline-none transition ${isDark ? "border-white/10 bg-black/40 text-white focus:border-white/30" : "border-black/10 bg-white text-black focus:border-black/30"}`}
                   placeholder="Sidamo Reserve Coffee"
                   required
                 />
@@ -465,7 +465,7 @@ export default function ProvenanceAdminPage() {
                 <input
                   value={draft.creatorName}
                   onChange={(event) => updateDraft("creatorName", event.target.value)}
-                  className={`w-full rounded-2xl border px-4 py-3 text-sm outline-none transition ${isDark ? "border-white/10 bg-black/40 focus:border-white/30" : "border-black/10 bg-white focus:border-black/30"}`}
+                  className={`w-full rounded-2xl border px-4 py-3 text-sm outline-none transition ${isDark ? "border-white/10 bg-black/40 text-white focus:border-white/30" : "border-black/10 bg-white text-black focus:border-black/30"}`}
                   required
                 />
               </label>
@@ -474,7 +474,7 @@ export default function ProvenanceAdminPage() {
                 <input
                   value={draft.creatorRole}
                   onChange={(event) => updateDraft("creatorRole", event.target.value)}
-                  className={`w-full rounded-2xl border px-4 py-3 text-sm outline-none transition ${isDark ? "border-white/10 bg-black/40 focus:border-white/30" : "border-black/10 bg-white focus:border-black/30"}`}
+                  className={`w-full rounded-2xl border px-4 py-3 text-sm outline-none transition ${isDark ? "border-white/10 bg-black/40 text-white focus:border-white/30" : "border-black/10 bg-white text-black focus:border-black/30"}`}
                   required
                 />
               </label>
@@ -483,7 +483,7 @@ export default function ProvenanceAdminPage() {
                 <input
                   value={draft.creatorLocation}
                   onChange={(event) => updateDraft("creatorLocation", event.target.value)}
-                  className={`w-full rounded-2xl border px-4 py-3 text-sm outline-none transition ${isDark ? "border-white/10 bg-black/40 focus:border-white/30" : "border-black/10 bg-white focus:border-black/30"}`}
+                  className={`w-full rounded-2xl border px-4 py-3 text-sm outline-none transition ${isDark ? "border-white/10 bg-black/40 text-white focus:border-white/30" : "border-black/10 bg-white text-black focus:border-black/30"}`}
                   required
                 />
               </label>
@@ -492,7 +492,7 @@ export default function ProvenanceAdminPage() {
                 <input
                   value={draft.origin}
                   onChange={(event) => updateDraft("origin", event.target.value)}
-                  className={`w-full rounded-2xl border px-4 py-3 text-sm outline-none transition ${isDark ? "border-white/10 bg-black/40 focus:border-white/30" : "border-black/10 bg-white focus:border-black/30"}`}
+                  className={`w-full rounded-2xl border px-4 py-3 text-sm outline-none transition ${isDark ? "border-white/10 bg-black/40 text-white focus:border-white/30" : "border-black/10 bg-white text-black focus:border-black/30"}`}
                   required
                 />
               </label>
@@ -501,7 +501,7 @@ export default function ProvenanceAdminPage() {
                 <input
                   value={draft.materials}
                   onChange={(event) => updateDraft("materials", event.target.value)}
-                  className={`w-full rounded-2xl border px-4 py-3 text-sm outline-none transition ${isDark ? "border-white/10 bg-black/40 focus:border-white/30" : "border-black/10 bg-white focus:border-black/30"}`}
+                  className={`w-full rounded-2xl border px-4 py-3 text-sm outline-none transition ${isDark ? "border-white/10 bg-black/40 text-white focus:border-white/30" : "border-black/10 bg-white text-black focus:border-black/30"}`}
                   placeholder="Highland arabica, spring water processing"
                   required
                 />
@@ -511,7 +511,7 @@ export default function ProvenanceAdminPage() {
                 <textarea
                   value={draft.story}
                   onChange={(event) => updateDraft("story", event.target.value)}
-                  className={`min-h-32 w-full rounded-2xl border px-4 py-3 text-sm outline-none transition ${isDark ? "border-white/10 bg-black/40 focus:border-white/30" : "border-black/10 bg-white focus:border-black/30"}`}
+                  className={`min-h-32 w-full rounded-2xl border px-4 py-3 text-sm outline-none transition ${isDark ? "border-white/10 bg-black/40 text-white focus:border-white/30" : "border-black/10 bg-white text-black focus:border-black/30"}`}
                   required
                 />
               </label>
@@ -521,7 +521,7 @@ export default function ProvenanceAdminPage() {
                   name="imageUrl"
                   value={draft.imageUrl}
                   onChange={(event) => updateDraft("imageUrl", event.target.value)}
-                  className={`w-full rounded-2xl border px-4 py-3 text-sm outline-none transition ${isDark ? "border-white/10 bg-black/40 focus:border-white/30" : "border-black/10 bg-white focus:border-black/30"}`}
+                  className={`w-full rounded-2xl border px-4 py-3 text-sm outline-none transition ${isDark ? "border-white/10 bg-black/40 text-white focus:border-white/30" : "border-black/10 bg-white text-black focus:border-black/30"}`}
                   placeholder="https://images.unsplash.com/..."
                   required
                 />
@@ -531,7 +531,7 @@ export default function ProvenanceAdminPage() {
                 <textarea
                   value={draft.imageDirection}
                   onChange={(event) => updateDraft("imageDirection", event.target.value)}
-                  className={`min-h-24 w-full rounded-2xl border px-4 py-3 text-sm outline-none transition ${isDark ? "border-white/10 bg-black/40 focus:border-white/30" : "border-black/10 bg-white focus:border-black/30"}`}
+                  className={`min-h-24 w-full rounded-2xl border px-4 py-3 text-sm outline-none transition ${isDark ? "border-white/10 bg-black/40 text-white focus:border-white/30" : "border-black/10 bg-white text-black focus:border-black/30"}`}
                   placeholder="Guidance for selecting/editing the product image"
                   required
                 />
@@ -541,7 +541,7 @@ export default function ProvenanceAdminPage() {
                     <input
                       value={draft.tipText}
                       onChange={(event) => updateDraft("tipText", event.target.value)}
-                      className={`w-full rounded-2xl border px-4 py-3 text-sm outline-none transition ${isDark ? "border-white/10 bg-black/40 focus:border-white/30" : "border-black/10 bg-white focus:border-black/30"}`}
+                      className={`w-full rounded-2xl border px-4 py-3 text-sm outline-none transition ${isDark ? "border-white/10 bg-black/40 text-white focus:border-white/30" : "border-black/10 bg-white text-black focus:border-black/30"}`}
                       required
                     />
                   </label>
@@ -659,7 +659,7 @@ export default function ProvenanceAdminPage() {
                               <h2 className={`mt-1 text-lg ${isDark ? "text-white" : "text-neutral-900"}`}>{item.title}</h2>
                               <p className={`mt-1 text-sm ${isDark ? "text-neutral-400" : "text-neutral-600"}`}>{item.creatorName}</p>
                             </div>
-                            <div className={`rounded-2xl overflow-hidden border p-2 ${isDark ? "border-white/10 bg-white" : "border-black/10 bg-neutral-50"}`}>
+                            <div className={`rounded-2xl overflow-hidden border p-2 ${isDark ? "border-white/10 bg-white" : "border-black/10 bg-white"}`}>
                               <Image src={item.qrDataUrl} alt={`${item.title} QR`} width={88} height={88} className="h-20 w-20" unoptimized />
                             </div>
                           </div>
@@ -742,13 +742,13 @@ const InputField = ({ label, value, onChange, isDark, isTextArea = false }: {
       <textarea
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className={`w-full rounded-xl border px-3 py-2 text-xs outline-none transition min-h-[80px] ${isDark ? "border-white/10 bg-black/40 focus:border-amber-500/30" : "border-black/10 bg-white focus:border-amber-500/30"}`}
+        className={`w-full rounded-xl border px-3 py-2 text-xs outline-none transition min-h-[80px] ${isDark ? "border-white/10 bg-black/40 focus:border-amber-500/30 text-white" : "border-black/10 bg-white focus:border-amber-500/30 text-black"}`}
       />
     ) : (
       <input
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className={`w-full rounded-xl border px-3 py-2 text-xs outline-none transition ${isDark ? "border-white/10 bg-black/40 focus:border-amber-500/30" : "border-black/10 bg-white focus:border-amber-500/30"}`}
+        className={`w-full rounded-xl border px-3 py-2 text-xs outline-none transition ${isDark ? "border-white/10 bg-black/40 focus:border-amber-500/30 text-white" : "border-black/10 bg-white focus:border-amber-500/30 text-black"}`}
       />
     )}
   </label>
