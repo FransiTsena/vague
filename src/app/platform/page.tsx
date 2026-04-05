@@ -2,6 +2,8 @@
 
 import PlatformLandingHero from "@/components/sections/PlatformLandingHero";
 import PlatformFeatures from "@/components/sections/PlatformFeatures";
+import PlatformCarousel from "@/components/sections/PlatformCarousel";
+import PlatformProvenance from "@/components/sections/PlatformProvenance";
 import AIVisualization from "@/components/sections/AIVisualization";
 import Contact from "@/components/sections/Contact";
 import Footer from "@/components/layout/Footer";
@@ -9,7 +11,7 @@ import { motion, AnimatePresence } from "framer-motion";
 
 export default function PlatformLandingPage() {
   return (
-    <AnimatePresence>
+    <AnimatePresence mode="wait">
       <div className="min-h-screen bg-black theme-transition overflow-x-hidden">
         <motion.div
           initial={{ opacity: 0 }}
@@ -28,6 +30,10 @@ export default function PlatformLandingPage() {
             >
               <PlatformFeatures />
             </motion.div>
+
+            <PlatformCarousel />
+
+            <PlatformProvenance />
 
             <AIVisualization />
 

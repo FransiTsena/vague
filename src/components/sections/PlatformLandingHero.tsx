@@ -74,7 +74,7 @@ export default function PlatformLandingHero() {
                 ref={bgRef}
                 className={`absolute inset-0 w-full h-full ${isDark ? "bg-black" : "bg-white"}`}
             >
-                <div className="absolute inset-0 bg-[url('/photos/hero-background.webp')] bg-cover bg-center opacity-40 scale-110" />
+                <div className="absolute inset-0 bg-[url('/photos/services/wenchi.jpg')] bg-cover bg-center opacity-40 scale-110" />
                 <div className={`absolute inset-0 bg-gradient-to-b ${isDark ? "from-black/90 via-black/40 to-black" : "from-white/90 via-white/40 to-white"}`} />
             </div>
 

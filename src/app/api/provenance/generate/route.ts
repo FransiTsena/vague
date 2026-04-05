@@ -35,7 +35,7 @@ function fallbackDraft(description: string, draft: ProvenanceDraftPayload) {
     story:
       draft.story?.trim() ||
       `${description.trim()} This product reflects local craft traditions and gives guests a deeper connection to the maker behind the experience.`,
-    imageUrl: draft.imageUrl?.trim() || "https://images.unsplash.com/photo-1447933601403-0c6688de566e?auto=format&fit=crop&q=80&w=1200",
+    imageUrl: draft.imageUrl?.trim() || "https://hackathon.upick.live/provenance/luminary-feathers",
     imageDirection:
       draft.imageDirection?.trim() ||
       "Use a clear, close-up composition in warm natural light. Highlight texture and craftsmanship with a clean background.",

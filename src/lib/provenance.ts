@@ -64,6 +64,22 @@ export const provenanceProducts: ProvenanceProduct[] = [
     imageUrl: "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&q=80&w=1200",
     tipHint: "Tips can be added after the story as a gratitude gesture.",
   },
+  {
+    slug: "luminary-feathers",
+    itemType: "Art",
+    title: "Luminary Feathers",
+    hotelName: "Le Clos des Oliviers",
+    creatorName: "Fransi",
+    creatorRole: "Master artisan",
+    creatorLocation: "Ancestral lands with a river",
+    origin: "Commissioned for the ultra-luxe Le Clos des Oliviers hotel",
+    materials: ["Gold leaf", "Bronze", "Polished silver", "Canvas", "Squirrel-hair brush"],
+    story: "Fransi's masterpiece, Luminary Feathers, radiates with the essence of light translated through shimmering gold, bronze, and polished silver. Each feather is meticulously intertwined, with the delicate gold leaf applied using a squirrel-hair brush. The central silver spine, symbolizing the river that flows through her ancestral lands, embodies the soul of the artwork. This dramatic composition is a testament to Fransi's skill and reverence for her craft, destined to adorn the walls of the newly opened Le Clos des Oliviers hotel.",
+    details: ["Commissioned for the ultra-luxe Le Clos des Oliviers hotel", "Gold leaf applied with a squirrel-hair brush", "Central silver spine symbolizes the river in her ancestral lands"],
+    impact: "If this story made an impact, jump back up and send support directly to the maker.",
+    imageUrl: "provenance/luminary-feathers",
+    tipHint: "A guest tip can be routed directly to Fransi's verified payout account as a appreciation for her remarkable work.",
+  }
 ];
 
 export function getProvenanceProduct(slug: string) {

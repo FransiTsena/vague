@@ -1,12 +1,17 @@
 "use client";
 
 import { motion, useScroll, useTransform } from "framer-motion";
-import { useRef } from "react";
+import { useRef, useEffect, useState } from "react";
 import { useLanguage } from "@/context/LanguageContext";
 
 export default function AIVisualization() {
     const containerRef = useRef<HTMLDivElement>(null);
     const { t } = useLanguage();
+    const [mounted, setMounted] = useState(false);
+
+    useEffect(() => {
+        setMounted(true);
+    }, []);
     
     const { scrollYProgress } = useScroll({
         target: containerRef,
@@ -17,12 +22,14 @@ export default function AIVisualization() {
     const opacity = useTransform(scrollYProgress, [0, 0.3], [0, 1]);
     const y = useTransform(scrollYProgress, [0, 0.5], [100, 0]);
 
-    const dataPoints = Array.from({ length: 40 }).map((_, i) => ({
+    // Use empty array or null for dataPoints during SSR to prevent hydration mismatch
+    const dataPoints = mounted ? Array.from({ length: 40 }).map((_, i) => ({
         id: i,
         x: Math.random() * 100,
         y: Math.random() * 100,
-        size: Math.random() * 3 + 1
-    }));
+        size: Math.random() * 3 + 1,
+        duration: Math.random() * 3 + 2,
+    })) : [];
 
     return (
         <section
@@ -60,7 +67,7 @@ export default function AIVisualization() {
                                     scale: [1, 1.5, 1]
                                 }}
                                 transition={{
-                                    duration: Math.random() * 3 + 2,
+                                    duration: point.duration,
                                     repeat: Infinity,
                                     ease: "easeInOut"
                                 }}
