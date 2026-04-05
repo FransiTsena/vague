@@ -326,8 +326,16 @@ const ScheduleEventSchema = new Schema<IScheduleEvent>(
   { timestamps: true }
 );
 
+const existingScheduleEventModel = mongoose.models.ScheduleEvent as Model<IScheduleEvent> | undefined;
+
+// In Next.js dev HMR, Mongoose models are cached between edits.
+// If ScheduleEvent was compiled before staffIds existed, refresh the model.
+if (existingScheduleEventModel && !existingScheduleEventModel.schema.path("staffIds")) {
+  mongoose.deleteModel("ScheduleEvent");
+}
+
 export const ScheduleEvent: Model<IScheduleEvent> =
-  mongoose.models.ScheduleEvent || mongoose.model<IScheduleEvent>("ScheduleEvent", ScheduleEventSchema);
+  (mongoose.models.ScheduleEvent as Model<IScheduleEvent>) || mongoose.model<IScheduleEvent>("ScheduleEvent", ScheduleEventSchema);
 
 export type DemandStatus = "SCHEDULED" | "PARTIAL";
 

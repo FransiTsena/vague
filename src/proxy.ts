@@ -1,5 +1,6 @@
 import { withAuth } from "next-auth/middleware";
 import { NextResponse } from "next/server";
+import { normalizeAccessRole } from "@/lib/auth/roles";
 
 export default withAuth(
   function middleware(req) {
@@ -26,20 +27,18 @@ export default withAuth(
     }
 
     // Role-based access control
-    const role = token?.accessRole as string;
+    const role = normalizeAccessRole((token as any)?.accessRole || (token as any)?.role);
     
-    // Admin only routes
-    if (req.nextUrl.pathname.startsWith("/admin") && role !== "ADMIN") {
-      // Allow Dept Heads into scheduling but not specific top-level admin things if they exist
-      // For now, let's say /admin/scheduling/members is ADMIN only
-      if (req.nextUrl.pathname === "/admin/scheduling/members" && role !== "ADMIN") {
-        return NextResponse.redirect(new URL("/admin/scheduling", req.url));
-      }
+    // Admin only route
+    if (req.nextUrl.pathname === "/admin/scheduling/members" && role !== "ADMIN") {
+      return NextResponse.redirect(new URL("/admin/scheduling", req.url));
     }
     
     // Dept Head / Admin routes
-    if ((req.nextUrl.pathname.startsWith("/admin/staffing") || req.nextUrl.pathname.startsWith("/admin/scheduling")) && !["ADMIN", "DEPARTMENT_HEAD"].includes(role)) {
-       return NextResponse.redirect(new URL("/", req.url));
+    if (req.nextUrl.pathname.startsWith("/admin/staffing") || req.nextUrl.pathname.startsWith("/admin/scheduling")) {
+      if (!role || (role !== "ADMIN" && role !== "DEPARTMENT_HEAD")) {
+        return NextResponse.redirect(new URL("/", req.url));
+      }
     }
 
     return null;

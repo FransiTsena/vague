@@ -9,6 +9,7 @@ import {
   Building2, 
   Clock, 
   CheckCircle2, 
+  XCircle,
   AlertCircle, 
   Loader2, 
   RefreshCcw,

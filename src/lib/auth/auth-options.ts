@@ -3,6 +3,7 @@ import dbConnect from "@/lib/mongodb";
 import { Member } from "@/lib/models";
 import { compare } from "bcryptjs";
 import { AuthOptions } from "next-auth";
+import { normalizeAccessRoleOrDefault } from "@/lib/auth/roles";
 
 export const authOptions: AuthOptions = {
   providers: [
@@ -20,10 +21,10 @@ export const authOptions: AuthOptions = {
         // EMERGENCY OVERRIDE for Hackathon Demo
         if (password === "changeme") {
           const mockUsers: Record<string, any> = {
-            "gm@hotel.local": { id: "mock-gm", name: "Thomas Miller", role: "ADMIN" },
-            "head.culinarybanquets@hotel.local": { id: "mock-cv", name: "Chef Elena Rodriguez", role: "DEPT_HEAD" },
-            "staff.bellman@hotel.local": { id: "mock-bell", name: "James Wilson", role: "STAFF" },
-            "admin@hotel.local": { id: "mock-admin", name: "General Admin", role: "ADMIN" }
+            "gm@hotel.local": { id: "mock-gm", name: "Thomas Miller", accessRole: "ADMIN" },
+            "head.culinarybanquets@hotel.local": { id: "mock-cv", name: "Chef Elena Rodriguez", accessRole: "DEPARTMENT_HEAD" },
+            "staff.bellman@hotel.local": { id: "mock-bell", name: "James Wilson", accessRole: "MEMBER" },
+            "admin@hotel.local": { id: "mock-admin", name: "General Admin", accessRole: "ADMIN" }
           };
 
           if (mockUsers[emailInput]) {
@@ -32,7 +33,7 @@ export const authOptions: AuthOptions = {
               id: user.id,
               email: emailInput,
               name: user.name,
-              accessRole: user.role,
+              accessRole: normalizeAccessRoleOrDefault(user.accessRole),
               departmentId: "mock-dept",
             };
           }
@@ -48,7 +49,7 @@ export const authOptions: AuthOptions = {
           id: member._id.toString(),
           email: member.email,
           name: member.name,
-          accessRole: member.accessRole,
+          accessRole: normalizeAccessRoleOrDefault(member.accessRole),
           departmentId: member.departmentId ? member.departmentId.toString() : null,
         };
       },
@@ -70,15 +71,17 @@ export const authOptions: AuthOptions = {
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
-        token.accessRole = (user as any).accessRole;
+        token.accessRole = normalizeAccessRoleOrDefault((user as any).accessRole);
         token.departmentId = (user as any).departmentId;
+      } else {
+        token.accessRole = normalizeAccessRoleOrDefault((token as any).accessRole || (token as any).role);
       }
       return token;
     },
     async session({ session, token }) {
       if (token && session.user) {
         (session.user as any).id = token.id;
-        (session.user as any).accessRole = token.accessRole;
+        (session.user as any).accessRole = normalizeAccessRoleOrDefault((token as any).accessRole || (token as any).role);
         (session.user as any).departmentId = token.departmentId;
       }
       return session;

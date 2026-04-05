@@ -74,8 +74,21 @@ export default function StaffingAdminPage() {
           startsAt: e.startsAt,
           endsAt: e.endsAt,
           type: e.type,
-          department: e.departmentId?.name || "Operations",
-          assignees: e.assignees || []
+          departmentId: e.departmentId
+            ? {
+                _id: String(e.departmentId?._id || e.departmentId),
+                name: e.departmentId?.name || "Operations",
+              }
+            : undefined,
+          organizerId: e.organizerId
+            ? {
+                _id: String(e.organizerId?._id || e.organizerId),
+                name: e.organizerId?.name || "",
+                email: e.organizerId?.email || "",
+              }
+            : undefined,
+          shiftType: e.shiftType,
+          status: e.status,
         }));
         
         setItems(calendarItems);
@@ -110,7 +123,9 @@ export default function StaffingAdminPage() {
   };
 
   const filteredItems = useMemo(() => {
-    return selectedDept === "all" ? items : items.filter(i => i.department === selectedDept);
+    return selectedDept === "all"
+      ? items
+      : items.filter((i) => i.departmentId?.name === selectedDept);
   }, [items, selectedDept]);
 
   return (
@@ -235,7 +250,6 @@ export default function StaffingAdminPage() {
           ) : viewMode === 'calendar' ? (
              <StaffingCalendar 
                items={filteredItems} 
-               isDark={isDark} 
              />
           ) : (
             <div className="p-40 flex flex-col items-center justify-center opacity-20 italic">

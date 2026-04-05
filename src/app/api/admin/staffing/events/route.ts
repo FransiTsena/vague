@@ -9,7 +9,8 @@ export const dynamic = "force-dynamic";
 export async function GET(req: NextRequest) {
   await dbConnect();
   try {
-    const user = await requireUser(["ADMIN", "DEPARTMENT_HEAD"]);
+    const userResult = await requireUser(["ADMIN", "DEPARTMENT_HEAD", "MEMBER"]);
+    const user = userResult as any;
     const departmentIdParam = req.nextUrl.searchParams.get("departmentId");
     const typeParam = req.nextUrl.searchParams.get("type");
 
@@ -17,8 +18,18 @@ export async function GET(req: NextRequest) {
     if (user.accessRole === "DEPARTMENT_HEAD") {
       if (!user.departmentId) return apiJson([]);
       query.departmentId = user.departmentId;
-    } else if (departmentIdParam) {
-      query.departmentId = departmentIdParam;
+    } else if (user.accessRole === "MEMBER") {
+      // If a regular member is accessing the dashboard, filter by their department
+      if (!user.departmentId) {
+        query.organizerId = user.id;
+      } else {
+        query.departmentId = user.departmentId;
+      }
+    } else if (user.accessRole === "ADMIN") {
+      // Admins (GM) can see all, but can also filter by departmentId param if provided
+      if (departmentIdParam) {
+        query.departmentId = departmentIdParam;
+      }
     }
 
     if (typeParam === "SHIFT") {
@@ -28,12 +39,20 @@ export async function GET(req: NextRequest) {
       query.type = typeParam;
     }
 
-    const items = await ScheduleEvent.find(query)
+    let itemsQuery = ScheduleEvent.find(query)
       .sort({ startsAt: "asc" })
       .populate("departmentId", "name")
-      .populate("organizerId", "name email")
-      .populate("staffIds", "name email")
-      .lean();
+      .populate("organizerId", "name email");
+
+    if (ScheduleEvent.schema.path("staffIds")) {
+      itemsQuery = itemsQuery.populate("staffIds", "name email");
+    }
+
+    const items = await itemsQuery.lean();
+
+    if (user.accessRole === "MEMBER") {
+      return apiJson(items.filter((item: any) => String(item.organizerId) === String(user.id)));
+    }
 
     return apiJson(items);
   } catch (error: any) {
@@ -44,7 +63,8 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   await dbConnect();
   try {
-    const user = await requireUser(["ADMIN", "DEPARTMENT_HEAD"]);
+    const userResult = await requireUser(["ADMIN", "DEPARTMENT_HEAD"]);
+    const user = userResult as any;
     
     let body: any;
     try {
@@ -90,6 +110,15 @@ export async function POST(req: NextRequest) {
         const end = new Date(endsAt);
         if (isNaN(start.getTime()) || isNaN(end.getTime()) || end <= start) continue;
 
+        if (user.accessRole === "DEPARTMENT_HEAD" && String(departmentId) !== String(user.departmentId || "")) {
+          continue;
+        }
+
+        if (organizerId) {
+          const org = await Member.findOne({ _id: organizerId, departmentId });
+          if (!org) continue;
+        }
+
         const event = await ScheduleEvent.create({
           title: title.trim(),
           description,
@@ -111,7 +140,7 @@ export async function POST(req: NextRequest) {
     if (!title || !title.trim()) return apiError("title is required", 400);
     if (!departmentId) return apiError("departmentId is required", 400);
     
-    if (user.accessRole === "DEPARTMENT_HEAD" && departmentId !== user.departmentId) {
+    if (user.accessRole === "DEPARTMENT_HEAD" && String(departmentId) !== String(user.departmentId || "")) {
       return apiError("You can only create events for your department", 403);
     }
 
@@ -147,7 +176,8 @@ export async function POST(req: NextRequest) {
 
     return apiJson(populated, 201);
   } catch (error: any) {
-    return apiError(error.message, 401);
+    const status = error?.message === "Unauthorized" ? 401 : error?.message === "Forbidden" ? 403 : 400;
+    return apiError(error.message, status);
   }
 }
 

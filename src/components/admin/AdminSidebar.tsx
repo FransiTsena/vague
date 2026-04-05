@@ -17,7 +17,8 @@ import {
   UserPlus,
   BarChart3,
   Search,
-  Plus
+  Plus,
+  Clock
 } from "lucide-react";
 import { useTheme } from "@/context/ThemeContext";
 
@@ -49,17 +50,26 @@ const adminNavItems: NavItem[] = [
     ]
   },
   {
-    href: "/admin/scheduling",
+    href: "/admin/scheduling/members",
     label: "Personnel",
     icon: Users,
+    tag: "Workforce",
+    subItems: [
+      { href: "/admin/scheduling/members", label: "Registry" },
+      { href: "/admin/scheduling/roster", label: "Availability" },
+      { href: "/admin/scheduling/departments", label: "Departments" },
+    ]
+  },
+  {
+    href: "/admin/scheduling/shifts",
+    label: "Scheduling",
+    icon: Clock,
     tag: "Operations",
     subItems: [
-      { href: "/admin/scheduling", label: "Logistics Overview" },
-      { href: "/admin/scheduling/roster", label: "Personnel Registry" },
       { href: "/admin/scheduling/shifts", label: "Shift Orchestration" },
-      { href: "/admin/scheduling/departments", label: "Domain Management" },
       { href: "/admin/scheduling/events", label: "Event Matrix" },
-      { href: "/admin/scheduling/notifications", label: "Communication Hub" }
+      { href: "/admin/staffing", label: "Deployment Map" },
+      { href: "/admin/scheduling", label: "Logistics Hub" },
     ]
   },
   {

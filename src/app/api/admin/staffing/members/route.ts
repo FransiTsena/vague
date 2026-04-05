@@ -10,12 +10,13 @@ export const dynamic = "force-dynamic";
 export async function GET(req: NextRequest) {
   try {
     await dbConnect();
-    const user = await requireUser(["ADMIN", "DEPARTMENT_HEAD"]);
+    const userResult = await requireUser(["ADMIN", "DEPARTMENT_HEAD", "MEMBER"]);
+    const user = userResult as any;
     
     const departmentIdParam = req.nextUrl.searchParams.get("departmentId");
     let query: any = {};
 
-    if (user.accessRole === "DEPARTMENT_HEAD") {
+    if (user.accessRole === "DEPARTMENT_HEAD" || user.accessRole === "MEMBER") {
       if (!user.departmentId) return apiJson([]);
       query.departmentId = user.departmentId;
     } else if (departmentIdParam) {

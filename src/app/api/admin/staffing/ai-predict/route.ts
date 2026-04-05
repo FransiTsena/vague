@@ -252,7 +252,8 @@ function normalizeDayShifts(rawShifts: any[] | undefined, fallbackReasoning: str
 export async function POST(req: NextRequest) {
   try {
     await dbConnect();
-    await requireUser(["ADMIN", "DEPARTMENT_HEAD"]);
+    const userResult = await requireUser(["ADMIN", "DEPARTMENT_HEAD"]);
+    const user = userResult as any;
 
     const body = await req.json();
     const { departmentId, date, endDate } = body;
@@ -263,6 +264,21 @@ export async function POST(req: NextRequest) {
 
     const startDate = new Date(date);
     const stopDate = endDate ? new Date(endDate) : new Date(date);
+    if (isNaN(startDate.getTime()) || isNaN(stopDate.getTime())) {
+      return apiError("Invalid date or endDate", 400);
+    }
+    if (stopDate < startDate) {
+      return apiError("endDate must be on or after date", 400);
+    }
+
+    const spanDays = Math.ceil((stopDate.getTime() - startDate.getTime()) / (24 * 60 * 60 * 1000)) + 1;
+    if (spanDays > 56) {
+      return apiError("Date range too large. Maximum horizon is 56 days.", 400);
+    }
+
+    if (user.accessRole === "DEPARTMENT_HEAD" && String(user.departmentId || "") !== String(departmentId)) {
+      return apiError("You can only generate schedules for your department", 403);
+    }
     
     // Set to start and end of range
     const rangeStart = new Date(startDate.setHours(0, 0, 0, 0));

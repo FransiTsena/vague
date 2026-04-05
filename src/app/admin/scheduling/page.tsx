@@ -38,7 +38,10 @@ export default function SchedulingAdminPage() {
       try {
         const res = await fetch("/api/admin/staffing/events");
         if (res.status === 401 || res.status === 403) {
-          window.location.href = "/";
+          console.error("Access denied to scheduling events:", res.status);
+          // Instead of redirecting to root (which might trigger further redirects to /platform),
+          // we stay on the page and the UI handles the empty state or error.
+          setIsLoading(false);
           return;
         }
         const data = await res.json();

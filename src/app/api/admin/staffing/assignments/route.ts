@@ -15,9 +15,14 @@ export async function GET(req: NextRequest) {
     const eventId = req.nextUrl.searchParams.get("eventId");
     if (!eventId) return apiError("eventId is required", 400);
 
-    const event = await ScheduleEvent.findById(eventId)
-      .populate("organizerId", "name email")
-      .populate("staffIds", "name email");
+    let eventQuery = ScheduleEvent.findById(eventId)
+      .populate("organizerId", "name email");
+
+    if (ScheduleEvent.schema.path("staffIds")) {
+      eventQuery = eventQuery.populate("staffIds", "name email");
+    }
+
+    const event = await eventQuery;
     if (!event) return apiError("Event not found", 404);
 
     return apiJson(event);
@@ -32,22 +37,28 @@ export async function POST(req: NextRequest) {
     await requireUser(["ADMIN", "DEPARTMENT_HEAD"]);
 
     const body = await req.json();
-    const { eventId, memberId, action } = body; // action: 'add' or 'remove'
+    const { eventId, memberId, action } = body;
 
     if (!eventId || !memberId) return apiError("eventId and memberId are required", 400);
 
-    let updateQuery;
+    let updatePayload;
     if (action === "remove") {
-      updateQuery = { $pull: { staffIds: memberId } };
+      updatePayload = { $pull: { staffIds: memberId } };
     } else {
-      updateQuery = { $addToSet: { staffIds: memberId } };
+      updatePayload = { $addToSet: { staffIds: memberId } };
     }
 
-    const event = await ScheduleEvent.findByIdAndUpdate(
+    let eventUpdateQuery = ScheduleEvent.findByIdAndUpdate(
       eventId,
-      updateQuery,
+      updatePayload,
       { new: true }
-    ).populate("staffIds", "name email");
+    );
+
+    if (ScheduleEvent.schema.path("staffIds")) {
+      eventUpdateQuery = eventUpdateQuery.populate("staffIds", "name email");
+    }
+
+    const event = await eventUpdateQuery;
 
     return apiJson(event);
   } catch (error: any) {
