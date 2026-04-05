@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Playfair_Display, Noto_Sans_Ethiopic } from "next/font/google";
 import "./globals.css";
-import Header from "@/components/layout/Header";
+import ConditionalHeader from "@/components/layout/ConditionalHeader";
 import { LanguageProvider } from "@/context/LanguageContext";
 import { ThemeProvider } from "@/context/ThemeContext";
 import { AuthProvider } from "@/components/layout/AuthProvider";
@@ -48,7 +48,7 @@ export default function RootLayout({
         <AuthProvider>
           <ThemeProvider>
             <LanguageProvider>
-              <Header />
+              <ConditionalHeader />
               <main>{children}</main>
               <ChatBot />
             </LanguageProvider>

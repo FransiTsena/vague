@@ -19,22 +19,19 @@ interface ContactProps {
 export default function Contact({ mode = "services" }: ContactProps) {
     const { t, language } = useLanguage();
     const { isDark } = useTheme();
-    const interestOptions = useMemo(() => mode === "training"
+const interestOptions = useMemo(() => mode === "training"
         ? [
-            { value: "pro", label: t("training.course.pro") },
-            { value: "basic", label: t("training.course.basic") },
-            { value: "intermediate", label: t("training.course.intermediate") },
-            { value: "zero2hero", label: t("training.course.zero2hero") },
+            { value: "pro", label: "Executive Management" },
+            { value: "basic", label: "Service Foundations" },
+            { value: "intermediate", label: "Fine Dining & Service" },
+            { value: "zero2hero", label: "Zero2Hero Full Practice" },
         ]
         : [
-            { value: "seats", label: t("contact.interest.seats") },
-            { value: "dashboard", label: t("contact.interest.dashboard") },
-            { value: "roofline", label: t("contact.interest.roofline") },
-            { value: "doors", label: t("contact.interest.doors") },
-            { value: "steering", label: t("contact.interest.steering") },
-            { value: "fullInterior", label: t("contact.interest.fullInterior") },
-            { value: "architectural", label: t("contact.interest.architectural") },
-        ], [mode, t]);
+            { value: "seats", label: "Villa & Room Booking" },
+            { value: "dashboard", label: "Staffing & AI Dashboard" },
+            { value: "provenance", label: "Local Provenance Inquiry" },
+            { value: "management", label: "Resort Management" },
+        ], [mode]);
 
     const [formData, setFormData] = useState({
         name: "",
@@ -88,17 +85,17 @@ ${formData.message}
         <Section id="contact" className={isDark ? "bg-black text-white" : "bg-white text-black"}>
             <div className="max-w-3xl mx-auto text-center" lang={language}>
                 <h2 className="text-4xl md:text-6xl font-bold tracking-tighter mb-8">
-                    {t("contact.title1")} <span className={isDark ? "text-neutral-500" : "text-neutral-400"}>{t("contact.title2")}</span>
+                    Get in <span className={isDark ? "text-neutral-500" : "text-neutral-400"}>Touch</span>
                 </h2>
                 <p className={`mb-12 ${isDark ? "text-neutral-400" : "text-neutral-600"}`}>
-                    {t("contact.subtitle")}
+                    Experience the future of resort management and localized luxury.
                 </p>
 
                 <form onSubmit={handleSubmit} className="space-y-6 text-left">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div className="space-y-2">
                             <label htmlFor="name" className={`text-sm font-medium uppercase tracking-wider ${isDark ? "text-neutral-500" : "text-neutral-600"}`}>
-                                {t("contact.name")}
+                                Name
                             </label>
                             <input
                                 type="text"
@@ -107,12 +104,12 @@ ${formData.message}
                                 value={formData.name}
                                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                                 className={`w-full border rounded-lg px-4 py-3 focus:outline-none transition-colors ${isDark ? "bg-neutral-900 border-white/10 text-white focus:border-white/30" : "bg-neutral-100 border-black/10 text-black focus:border-black/30"}`}
-                                placeholder={t("contact.name.placeholder")}
+                                placeholder="Your Name"
                             />
                         </div>
                         <div className="space-y-2">
                             <label htmlFor="phone" className={`text-sm font-medium uppercase tracking-wider ${isDark ? "text-neutral-500" : "text-neutral-600"}`}>
-                                {t("contact.phone")}
+                                Phone Number
                             </label>
                             <input
                                 type="tel"
@@ -121,14 +118,14 @@ ${formData.message}
                                 value={formData.phone}
                                 onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                                 className={`w-full border rounded-lg px-4 py-3 focus:outline-none transition-colors ${isDark ? "bg-neutral-900 border-white/10 text-white focus:border-white/30" : "bg-neutral-100 border-black/10 text-black focus:border-black/30"}`}
-                                placeholder={t("contact.phone.placeholder")}
+                                placeholder="+251 ..."
                             />
                         </div>
                     </div>
 
                     <div className="space-y-2">
                         <label htmlFor="email" className={`text-sm font-medium uppercase tracking-wider ${isDark ? "text-neutral-500" : "text-neutral-600"}`}>
-                            {t("contact.email")}
+                            Email Address
                         </label>
                         <input
                             type="email"
@@ -136,13 +133,13 @@ ${formData.message}
                             value={formData.email}
                             onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                             className={`w-full border rounded-lg px-4 py-3 focus:outline-none transition-colors ${isDark ? "bg-neutral-900 border-white/10 text-white focus:border-white/30" : "bg-neutral-100 border-black/10 text-black focus:border-black/30"}`}
-                            placeholder={t("contact.email.placeholder")}
+                            placeholder="your@email.com"
                         />
                     </div>
 
                     <div className="space-y-2">
                         <label htmlFor="interest" className={`text-sm font-medium uppercase tracking-wider ${isDark ? "text-neutral-500" : "text-neutral-600"}`}>
-                            {t("contact.interest")}
+                            Interested In
                         </label>
                         <select
                             id="interest"
@@ -160,7 +157,7 @@ ${formData.message}
 
                     <div className="space-y-2">
                         <label htmlFor="message" className={`text-sm font-medium uppercase tracking-wider ${isDark ? "text-neutral-500" : "text-neutral-600"}`}>
-                            {t("contact.message")}
+                            Message
                         </label>
                         <textarea
                             id="message"
@@ -169,19 +166,17 @@ ${formData.message}
                             value={formData.message}
                             onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                             className={`w-full border rounded-lg px-4 py-3 focus:outline-none transition-colors resize-none ${isDark ? "bg-neutral-900 border-white/10 text-white focus:border-white/30 placeholder:text-neutral-500" : "bg-neutral-100 border-black/10 text-black focus:border-black/30 placeholder:text-neutral-500"}`}
-                            placeholder={t("contact.message.placeholder")}
+                            placeholder="How can we help you?"
                         />
                     </div>
 
                     <div className="text-center pt-8">
                         <Button type="submit" variant="primary" className="w-full md:w-auto gap-2">
                             <MessageCircle className="w-4 h-4" />
-                            {t("contact.submit")}
+                            Send Message
                         </Button>
                         <p className={`text-xs mt-4 ${isDark ? "text-neutral-600" : "text-neutral-500"}`}>
-                            {language === "en"
-                                ? "Your message will be sent directly via WhatsApp"
-                                : "መልዕክትዎ በቀጥታ በዋትስአፕ ይላካል"}
+                            Your message will be sent directly via WhatsApp
                         </p>
                     </div>
                 </form>

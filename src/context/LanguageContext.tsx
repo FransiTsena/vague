@@ -22,6 +22,7 @@ const translations: Record<Language, Record<string, string>> = {
         "nav.training": "Training",
         "nav.contact": "Contact",
         "cta.book": "Book Your Stay",
+        "nav.platform": "Vague",
 
         // Hero
         "hero.title1": "Escape to",
@@ -29,6 +30,23 @@ const translations: Record<Language, Record<string, string>> = {
         "hero.subtitle": "Ocean-view suites, curated experiences, and AI-powered pricing for the perfect stay at the perfect time.",
         "hero.cta1": "Explore Experiences",
         "hero.cta2": "Our Story",
+
+        // Platform Landing
+        "platform.hero.title1": "Maximize Your",
+        "platform.hero.title2": "Business Potential",
+        "platform.hero.subtitle": "Empower your hospitality business with AI-driven dynamic pricing, smart resource scheduling, and local provenance monetization.",
+        "platform.hero.cta1": "Launch Demo",
+        "platform.hero.cta2": "Learn More",
+
+        "platform.features.title": "AI-Powered Excellence",
+        "platform.features.pricing.title": "AI Dynamic Pricing",
+        "platform.features.pricing.desc": "Maximize occupancy and revenue with real-time market data and AI algorithms that adjust prices based on demand.",
+        "platform.features.scheduling.title": "Smart AI Scheduling",
+        "platform.features.scheduling.desc": "Optimize your staff and resources with intelligent scheduling that predicts peak times and reduces operational costs.",
+        "platform.features.provenance.title": "Local Provenance",
+        "platform.features.provenance.desc": "Monetize local products and boost your community impact by integrating local crafts and goods into your guest experience.",
+        "platform.features.analytics.title": "Guest Intelligence",
+        "platform.features.analytics.desc": "Deep dive into guest behavior and preferences to deliver hyper-personalized experiences that drive loyalty.",
 
         // Story
         "story.label": "Our Resort Story",
