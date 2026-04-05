@@ -67,8 +67,8 @@ const adminNavItems: NavItem[] = [
     tag: "Operations",
     subItems: [
       { href: "/admin/scheduling/shifts", label: "Shift Orchestration" },
-      { href: "/admin/scheduling/events", label: "Event Matrix" },
       { href: "/admin/staffing", label: "Deployment Map" },
+      { href: "/admin/scheduling/events", label: "Event Matrix" },
       { href: "/admin/scheduling", label: "Logistics Hub" },
     ]
   },

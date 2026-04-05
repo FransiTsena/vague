@@ -65,6 +65,12 @@ export default function ShiftOrchestrationPage() {
     setTimeout(() => setNotification(null), 3000);
   };
 
+  const [expandedDates, setExpandedDates] = useState<Record<string, boolean>>({});
+
+  const toggleDate = (date: string) => {
+    setExpandedDates(prev => ({ ...prev, [date]: !prev[date] }));
+  };
+
   const filteredShifts = useMemo(() => {
     return shifts.filter(shift => {
       const deptId = shift.departmentId?._id || shift.departmentId;
@@ -90,6 +96,20 @@ export default function ShiftOrchestrationPage() {
 
   const formatTime = (dateStr: string) => new Date(dateStr).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
   const getStatusColor = (s: string) => s === 'PUBLISHED' ? 'text-emerald-500 bg-emerald-500/5' : 'text-amber-500 bg-amber-500/5';
+
+  const groupedShifts = useMemo(() => {
+    const groups: Record<string, any[]> = {};
+    filteredShifts.forEach(shift => {
+      const date = new Date(shift.startsAt).toLocaleDateString('en-US', { 
+        weekday: 'long', 
+        month: 'long', 
+        day: 'numeric' 
+      });
+      if (!groups[date]) groups[date] = [];
+      groups[date].push(shift);
+    });
+    return groups;
+  }, [filteredShifts]);
 
   const activeShift = shifts.find(s => s._id === isAssigning);
   const filteredMembers = members.filter(m => {
@@ -141,87 +161,242 @@ export default function ShiftOrchestrationPage() {
            <span className="text-[10px] font-mono opacity-20 uppercase tracking-widest">{filteredShifts.length} Units Synchronized</span>
         </div>
 
-        {/* Dense Grid */}
+        {/* Dense Grid / Grouped Sections */}
         {loading && shifts.length === 0 ? (
-          <div className="h-64 flex flex-col items-center justify-center opacity-20"><Loader2 className="w-6 h-6 animate-spin mb-4" /><span className="text-[10px] font-bold uppercase tracking-widest">Calibrating...</span></div>
+          <div className="h-64 flex flex-col items-center justify-center opacity-20">
+            <Loader2 className="w-6 h-6 animate-spin mb-4" />
+            <span className="text-[10px] font-bold uppercase tracking-widest">Calibrating...</span>
+          </div>
+        ) : filteredShifts.length === 0 ? (
+          <div className="h-64 flex flex-col items-center justify-center border border-dashed border-white/5 rounded-3xl opacity-20">
+            <AlertCircle className="w-6 h-6 mb-4" />
+            <span className="text-[10px] font-bold uppercase tracking-widest">No Active Vectors Detected</span>
+          </div>
         ) : (
-          <div className={viewMode === 'grid' ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4" : "space-y-2"}>
-             {filteredShifts.map((shift) => (
-               <motion.div 
-                 key={shift._id}
-                 layout
-                 className={`group p-5 border rounded-2xl flex flex-col justify-between transition-all ${
-                   isDark ? "bg-[#0a0a0a] border-white/5 hover:border-white/10" : "bg-white border-black/5 shadow-sm"
-                 }`}
-               >
-                  <div>
-                    <div className="flex items-center justify-between mb-4">
-                      <span className={`px-2 py-0.5 rounded text-[8px] font-bold tracking-widest uppercase ${getStatusColor(shift.status)}`}>{shift.status || 'ACTV'}</span>
-                      <span className="text-[9px] font-mono opacity-20 truncate ml-2 uppercase">{shift.departmentId?.name}</span>
-                    </div>
-                    <h3 className="text-sm font-medium mb-1 truncate text-white">{shift.title}</h3>
-                    <div className="flex items-center gap-3 opacity-30 mb-4">
-                      <div className="flex items-center gap-1.5"><Clock className="w-3 h-3" /><span className="text-[10px] font-mono whitespace-nowrap">{formatTime(shift.startsAt)} - {formatTime(shift.endsAt)}</span></div>
-                    </div>
+          <div className="space-y-12">
+            {Object.entries(groupedShifts).map(([date, shiftsOnDate]) => (
+              <div key={date} className="space-y-6">
+                <div 
+                  className="flex items-center gap-4 cursor-pointer group/date"
+                  onClick={() => toggleDate(date)}
+                >
+                  <h2 className="text-[10px] font-black uppercase tracking-[0.3em] opacity-40 whitespace-nowrap group-hover/date:opacity-100 transition-opacity">{date}</h2>
+                  <div className="h-[1px] w-full bg-gradient-to-r from-white/10 to-transparent" />
+                  <div className={`p-1 rounded-md bg-white/5 transition-transform duration-300 ${expandedDates[date] === false ? "-rotate-90" : ""}`}>
+                    <MoreVertical className="w-3 h-3 opacity-20" />
                   </div>
+                </div>
+                
+                <AnimatePresence initial={true}>
+                  {expandedDates[date] !== false && (
+                    <motion.div 
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: "auto", opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      className="overflow-hidden"
+                    >
+                      <div className={viewMode === 'grid' ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 pb-2" : "space-y-2 pb-2"}>
+                        {shiftsOnDate.map((shift) => (
+                          <motion.div 
+                            key={shift._id}
+                            layout
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            onClick={() => setIsAssigning(shift._id)}
+                            className={`group p-5 border rounded-2xl flex flex-col justify-between transition-all duration-300 cursor-pointer active:scale-[0.98] ${
+                              isDark ? "bg-[#0a0a0a] border-white/5 hover:border-white/10 hover:shadow-2xl hover:shadow-emerald-500/5" : "bg-white border-black/5 shadow-sm"
+                            }`}
+                          >
+                              <div>
+                                <div className="flex items-center justify-between mb-4">
+                                  <span className={`px-2 py-0.5 rounded text-[8px] font-bold tracking-widest uppercase ${getStatusColor(shift.status)}`}>
+                                    {shift.status || 'ACTV'}
+                                  </span>
+                                  <span className="text-[9px] font-mono opacity-20 truncate ml-2 uppercase tracking-tighter">
+                                    {shift.departmentId?.name}
+                                  </span>
+                                </div>
+                                
+                                <h3 className="text-sm font-medium mb-1 truncate text-white tracking-tight">{shift.title}</h3>
+                                
+                                <div className="flex flex-col gap-1.5 opacity-30 mb-5">
+                                  <div className="flex items-center gap-2">
+                                    <Clock className="w-3 h-3" />
+                                    <span className="text-[10px] font-mono whitespace-nowrap">{formatTime(shift.startsAt)} - {formatTime(shift.endsAt)}</span>
+                                  </div>
+                                  <div className="flex items-center gap-2">
+                                    <Search className="w-3 h-3" />
+                                    <span className="text-[9px] uppercase font-bold tracking-[0.1em] truncate max-w-[150px]">
+                                      {shift.shiftType || 'Custom'} coverage
+                                    </span>
+                                  </div>
+                                </div>
+                              </div>
 
-                  <div className="flex items-center justify-between pt-4 border-t border-white/5">
-                    <div className="flex -space-x-2">
-                       {shift.staffIds?.slice(0, 3).map((s: any) => (
-                         <div key={s._id} className="w-6 h-6 rounded-full border border-[#0a0a0a] bg-neutral-800 flex items-center justify-center" title={s.name}><User className="w-2.5 h-2.5 opacity-30" /></div>
-                       ))}
-                       {(!shift.staffIds || shift.staffIds.length === 0) && <div className="text-[9px] opacity-20 italic">Vacant</div>}
-                    </div>
-                    <button onClick={() => setIsAssigning(shift._id)} className="p-1.5 hover:bg-white/10 rounded-md transition-colors opacity-40 group-hover:opacity-100"><Users className="w-3.5 h-3.5" /></button>
-                  </div>
-               </motion.div>
-             ))}
+                              <div className="flex items-center justify-between pt-4 border-t border-white/5">
+                                <div className="flex items-center gap-2">
+                                  <div className="flex -space-x-1.5">
+                                    {shift.staffIds?.slice(0, 3).map((s: any, idx: number) => (
+                                      <div 
+                                        key={s._id} 
+                                        className={`w-6 h-6 rounded-full border border-[#0a0a0a] bg-neutral-800 flex items-center justify-center transition-transform hover:scale-110 cursor-pointer`}
+                                        style={{ zIndex: 10 - idx }}
+                                        title={s.name}
+                                      >
+                                        <span className="text-[8px] font-black pointer-events-none">{s.name?.charAt(0)}</span>
+                                      </div>
+                                    ))}
+                                    {(!shift.staffIds || shift.staffIds.length === 0) && (
+                                      <div className="flex items-center gap-1.5 text-amber-500/40">
+                                        <AlertCircle className="w-2.5 h-2.5" />
+                                        <span className="text-[8px] font-bold uppercase tracking-widest italic">Vacant</span>
+                                      </div>
+                                    )}
+                                  </div>
+                                  {shift.staffIds?.length > 3 && (
+                                    <span className="text-[9px] font-mono opacity-20">+{shift.staffIds.length - 3}</span>
+                                  )}
+                                </div>
+
+                                <div className="flex items-center gap-1">
+                                  <div 
+                                    className={`p-2 rounded-lg transition-all ${
+                                      isDark ? "bg-white/5 group-hover:bg-white/10 text-white/40 group-hover:text-white" : "bg-black/5 group-hover:bg-black/10 text-black/40 group-hover:text-black"
+                                    }`}
+                                  >
+                                    <Users className="w-3.5 h-3.5" />
+                                  </div>
+                                  <button 
+                                    className="p-2 opacity-0 group-hover:opacity-20 hover:!opacity-100 transition-all"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        // future: show more actions
+                                    }}
+                                  >
+                                    <MoreVertical className="w-3.5 h-3.5" />
+                                  </button>
+                                </div>
+                              </div>
+                          </motion.div>
+                        ))}
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            ))}
           </div>
         )}
       </div>
 
       <AnimatePresence>
         {isAssigning && (
-           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[200] flex items-center justify-center p-4 backdrop-blur-md bg-black/60">
-              <motion.div initial={{ scale: 0.98, y: 10 }} animate={{ scale: 1, y: 0 }} className={`w-full max-w-3xl rounded-3xl p-8 border shadow-2xl flex flex-col md:flex-row gap-8 max-h-[85vh] ${isDark ? "bg-[#0d0d0d] border-white/10" : "bg-white border-black/10 text-black"}`}>
-                 <div className="flex-1 overflow-y-auto">
-                    <div className="flex items-center justify-between mb-6">
-                      <h2 className="text-lg font-medium">Deployment</h2>
-                      <span className="text-[9px] font-bold uppercase tracking-widest opacity-30">{activeShift?.title}</span>
+           <motion.div 
+             initial={{ opacity: 0 }} 
+             animate={{ opacity: 1 }} 
+             exit={{ opacity: 0 }} 
+             className="fixed inset-0 z-[200] flex items-center justify-center p-4 backdrop-blur-xl bg-black/80"
+           >
+              <motion.div 
+                initial={{ scale: 0.98, y: 10 }} 
+                animate={{ scale: 1, y: 0 }} 
+                className={`w-full max-w-4xl rounded-[2.5rem] p-10 border shadow-2xl flex flex-col md:flex-row gap-10 max-h-[85vh] relative overflow-hidden ${isDark ? "bg-[#080808] border-white/5" : "bg-white border-black/10 text-black"}`}
+              >
+                 {/* Visual Decor */}
+                 <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/5 blur-[100px] -z-10" />
+
+                 <div className="flex-1 overflow-y-auto custom-scrollbar">
+                    <div className="flex flex-col mb-8">
+                      <div className="flex items-center gap-3 mb-2">
+                        <div className="w-1.5 h-4 bg-emerald-500 rounded-full" />
+                        <h2 className="text-xl font-medium tracking-tight">Active Deployment</h2>
+                      </div>
+                      <p className="text-[10px] font-mono opacity-30 uppercase tracking-[0.2em]">{activeShift?.title} // {activeShift?.departmentId?.name}</p>
                     </div>
-                    <div className="space-y-2">
+
+                    <div className="space-y-3">
                       {activeShift?.staffIds?.map((s: any) => (
-                        <div key={s._id} className="p-3 rounded-xl flex items-center justify-between bg-white/5 border border-white/5">
-                          <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center"><User className="w-3.5 h-3.5 opacity-30" /></div>
-                            <span className="text-[11px] font-medium tracking-wide">{s.name}</span>
+                        <motion.div 
+                          layout
+                          key={s._id} 
+                          className="p-4 rounded-2xl flex items-center justify-between bg-white/[0.02] border border-white/5 group transition-colors hover:border-emerald-500/20"
+                        >
+                          <div className="flex items-center gap-4">
+                            <div className="w-10 h-10 rounded-full bg-emerald-500/10 flex items-center justify-center text-emerald-400 font-black text-xs">
+                              {s.name?.charAt(0)}
+                            </div>
+                            <div className="flex flex-col">
+                              <span className="text-[12px] font-semibold tracking-wide">{s.name}</span>
+                              <span className="text-[9px] opacity-30 uppercase font-bold tracking-widest">{s.role || 'Personnel'}</span>
+                            </div>
                           </div>
-                          <button onClick={() => handleAssign(activeShift._id, s._id, 'remove')} className="p-2 text-rose-500/40 hover:text-rose-500 transition-colors"><Trash2 className="w-3.5 h-3.5" /></button>
-                        </div>
+                          <button 
+                            onClick={() => handleAssign(activeShift._id, s._id, 'remove')} 
+                            className="p-2.5 rounded-xl text-rose-500/20 group-hover:text-rose-500 group-hover:bg-rose-500/5 transition-all"
+                            title="Recall from Shift"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </motion.div>
                       ))}
+                      {(!activeShift?.staffIds || activeShift?.staffIds.length === 0) && (
+                        <div className="py-12 flex flex-col items-center opacity-20">
+                          <AlertCircle className="w-8 h-8 mb-4" />
+                          <span className="text-[10px] font-black uppercase tracking-[0.3em]">No Personnel Deployed</span>
+                        </div>
+                      )}
                     </div>
                  </div>
 
                  <div className="w-[1px] bg-white/5 self-stretch hidden md:block" />
 
                  <div className="flex-1 flex flex-col overflow-hidden">
-                    <div className="relative mb-6">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 opacity-20" />
-                        <input autoFocus type="text" placeholder="DEPLOY STAFF..." value={assignmentSearch} onChange={(e) => setAssignmentSearch(e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-xl pl-10 pr-4 py-2.5 text-[11px] font-medium focus:outline-none focus:border-white/20 transition-all" />
+                    <div className="relative mb-8 pt-2">
+                        <Search className="absolute left-4 top-[calc(50%+4px)] -translate-y-1/2 w-4 h-4 opacity-20" />
+                        <input 
+                          autoFocus 
+                          type="text" 
+                          placeholder="SEARCH ROSTER..." 
+                          value={assignmentSearch} 
+                          onChange={(e) => setAssignmentSearch(e.target.value)} 
+                          className="w-full bg-white/5 border border-white/10 rounded-2xl pl-12 pr-4 py-4 text-[11px] font-bold tracking-widest focus:outline-none focus:border-emerald-500/40 transition-all uppercase" 
+                        />
                     </div>
-                    <div className="flex-1 overflow-y-auto space-y-1.5 px-0.5">
-                        {filteredMembers.map((m) => (
-                            <button key={m._id} onClick={() => handleAssign(activeShift?._id, m._id, 'add')} className="w-full p-3 rounded-xl flex items-center gap-3 bg-white/5 border border-transparent hover:border-white/10 hover:bg-white/10 transition-all text-left group">
-                                <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center group-hover:bg-white/10"><UserPlus className="w-3.5 h-3.5 opacity-30" /></div>
-                                <div className="flex flex-col">
-                                    <span className="text-[11px] font-medium">{m.name}</span>
-                                    <span className="text-[9px] opacity-30 uppercase tracking-widest">{m.role}</span>
+                    
+                    <div className="flex-1 overflow-y-auto space-y-2 pr-2 custom-scrollbar">
+                        {filteredMembers.length === 0 ? (
+                           <div className="py-10 text-center opacity-20">
+                              <p className="text-[10px] uppercase font-bold tracking-[0.2em]">No eligible candidates</p>
+                           </div>
+                        ) : filteredMembers.map((m) => (
+                            <button 
+                              key={m._id} 
+                              onClick={() => handleAssign(activeShift?._id, m._id, 'add')} 
+                              className="w-full p-4 rounded-2xl flex items-center justify-between bg-white/[0.01] border border-transparent hover:border-emerald-500/20 hover:bg-emerald-500/[0.02] transition-all text-left group"
+                            >
+                                <div className="flex items-center gap-4">
+                                  <div className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center border border-white/5 group-hover:border-emerald-500/30 group-hover:text-emerald-400 transition-colors">
+                                    <UserPlus className="w-4 h-4" />
+                                  </div>
+                                  <div className="flex flex-col">
+                                      <span className="text-[11px] font-black uppercase tracking-tight">{m.name}</span>
+                                      <span className="text-[9px] opacity-30 font-bold uppercase tracking-widest">{m.role}</span>
+                                  </div>
+                                </div>
+                                <div className="p-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                  <CheckCircle2 className="w-4 h-4 text-emerald-500" />
                                 </div>
                             </button>
                         ))}
                     </div>
                  </div>
-                 <button onClick={() => setIsAssigning(null)} className="absolute top-4 right-4 p-2 opacity-20 hover:opacity-100 transition-opacity"><X className="w-4 h-4" /></button>
+                 
+                 <button 
+                   onClick={() => setIsAssigning(null)} 
+                   className="absolute top-8 right-8 p-3 rounded-full hover:bg-white/5 transition-colors opacity-30 hover:opacity-100"
+                 >
+                   <X className="w-5 h-5" />
+                 </button>
               </motion.div>
            </motion.div>
         )}
