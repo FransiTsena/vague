@@ -19,11 +19,14 @@ import {
   CheckCircle2,
   Search,
   Calendar,
-  Clock
+  Clock,
+  Layers,
+  Sparkles
 } from "lucide-react";
 import Link from "next/link";
 import { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { StaffingCalendar } from "@/components/StaffingCalendar";
 
 export default function ShiftOrchestrationPage() {
   const { isDark } = useTheme();
@@ -33,9 +36,10 @@ export default function ShiftOrchestrationPage() {
   const [loading, setLoading] = useState(true);
   const [selectedDept, setSelectedDept] = useState("all");
   const [notification, setNotification] = useState<{type: 'success'|'error', message: string} | null>(null);
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [viewMode, setViewMode] = useState<'grid' | 'list' | 'map'>('grid');
   const [isAssigning, setIsAssigning] = useState<string | null>(null); 
   const [assignmentSearch, setAssignmentSearch] = useState("");
+  const [isGenerating, setIsGenerating] = useState(false);
 
   const fetchData = async () => {
     setLoading(true);
@@ -94,6 +98,29 @@ export default function ShiftOrchestrationPage() {
     } catch (err) { showNotification('error', "Network error."); }
   };
 
+  const handleGenerateAI = async (days: number = 7) => {
+    setIsGenerating(true);
+    try {
+      const res = await fetch("/api/seed", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ 
+          days, 
+          departmentId: selectedDept === 'all' ? undefined : selectedDept,
+          type: 'SHIFT'
+        })
+      });
+      if (res.ok) {
+        showNotification('success', `Generated ${days} days of orchestration.`);
+        fetchData();
+      }
+    } catch (err) {
+      showNotification('error', "AI sync failed.");
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
   const formatTime = (dateStr: string) => new Date(dateStr).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
   const getStatusColor = (s: string) => s === 'PUBLISHED' ? 'text-emerald-500 bg-emerald-500/5' : 'text-amber-500 bg-amber-500/5';
 
@@ -134,39 +161,72 @@ export default function ShiftOrchestrationPage() {
             </div>
             <div className="flex items-center gap-2">
                 <div className="flex bg-neutral-500/5 rounded-lg p-0.5 border border-white/5">
-                   <button onClick={() => setViewMode('grid')} className={`p-1.5 rounded-md ${viewMode === 'grid' ? 'bg-white/10 text-white' : 'opacity-40'}`}><LayoutGrid className="w-3.5 h-3.5" /></button>
-                   <button onClick={() => setViewMode('list')} className={`p-1.5 rounded-md ${viewMode === 'list' ? 'bg-white/10 text-white' : 'opacity-40'}`}><List className="w-3.5 h-3.5" /></button>
+                   <button onClick={() => setViewMode('grid')} className={`p-1.5 rounded-md ${viewMode === 'grid' ? 'bg-white/10 text-white shadow-sm' : 'opacity-40 hover:opacity-100 transition-opacity'}`} title="Grid Matrix"><LayoutGrid className="w-3.5 h-3.5" /></button>
+                   <button onClick={() => setViewMode('list')} className={`p-1.5 rounded-md ${viewMode === 'list' ? 'bg-white/10 text-white shadow-sm' : 'opacity-40 hover:opacity-100 transition-opacity'}`} title="Deployment Stream"><List className="w-3.5 h-3.5" /></button>
+                   <button onClick={() => setViewMode('map')} className={`p-1.5 rounded-md ${viewMode === 'map' ? 'bg-white/10 text-white shadow-sm' : 'opacity-40 hover:opacity-100 transition-opacity'}`} title="Strategic Map"><Layers className="w-3.5 h-3.5" /></button>
                 </div>
                 <button onClick={fetchData} className="p-2 hover:bg-neutral-500/5 rounded-lg transition-colors"><RefreshCcw className={`w-3.5 h-3.5 opacity-40 ${loading ? 'animate-spin' : ''}`} /></button>
-                <button className="ml-2 px-4 py-2 bg-white text-black text-[11px] font-bold uppercase tracking-wider rounded-lg hover:bg-neutral-200 transition-colors flex items-center gap-2">
-                  <Plus className="w-3 h-3" /> Allocation
+                
+                <button 
+                  onClick={() => handleGenerateAI(7)}
+                  disabled={isGenerating}
+                  className={`ml-2 px-4 py-2 text-[10px] font-black uppercase tracking-widest rounded-lg border transition-all flex items-center gap-2 ${
+                    isDark 
+                    ? "bg-indigo-500/10 border-indigo-500/30 text-indigo-400 hover:bg-indigo-500/20" 
+                    : "bg-indigo-50 border-indigo-200 text-indigo-600"
+                  }`}
+                >
+                  <Sparkles className={`w-3 h-3 ${isGenerating ? 'animate-pulse' : ''}`} />
+                  {isGenerating ? 'Synthesizing...' : 'AI Deploy'}
                 </button>
             </div>
         </div>
 
         {/* Dense Controls */}
-        <div className="flex flex-wrap items-center gap-3 mb-8">
-           <div className="relative group">
-              <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 opacity-30" />
-              <select 
-                value={selectedDept}
-                onChange={(e) => setSelectedDept(e.target.value)}
-                className="pl-9 pr-8 py-2 bg-neutral-500/5 border border-white/5 rounded-lg text-[11px] font-bold uppercase tracking-wider appearance-none focus:outline-none focus:border-white/20 transition-all cursor-pointer"
-              >
-                 <option value="all">Global Matrix</option>
-                 {departments.map(dept => <option key={dept._id} value={dept._id}>{dept.name}</option>)}
-              </select>
+        <div className="flex flex-wrap items-center justify-between gap-3 mb-8">
+           <div className="flex items-center gap-3">
+              <div className="relative group">
+                  <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 opacity-30" />
+                  <select 
+                    value={selectedDept}
+                    onChange={(e) => setSelectedDept(e.target.value)}
+                    className="pl-9 pr-8 py-2 bg-neutral-500/5 border border-white/5 rounded-lg text-[11px] font-bold uppercase tracking-wider appearance-none focus:outline-none focus:border-white/20 transition-all cursor-pointer"
+                  >
+                    <option value="all">Global Matrix</option>
+                    {departments.map(dept => <option key={dept._id} value={dept._id}>{dept.name}</option>)}
+                  </select>
+              </div>
+              <div className="h-4 w-[1px] bg-white/10 mx-2 hidden sm:block" />
+              <span className="text-[10px] font-mono opacity-20 uppercase tracking-widest">{filteredShifts.length} Vectors Logged</span>
            </div>
-           <div className="h-4 w-[1px] bg-white/10 mx-2 hidden sm:block" />
-           <span className="text-[10px] font-mono opacity-20 uppercase tracking-widest">{filteredShifts.length} Units Synchronized</span>
         </div>
 
-        {/* Dense Grid / Grouped Sections */}
+        {/* Views */}
         {loading && shifts.length === 0 ? (
           <div className="h-64 flex flex-col items-center justify-center opacity-20">
             <Loader2 className="w-6 h-6 animate-spin mb-4" />
             <span className="text-[10px] font-bold uppercase tracking-widest">Calibrating...</span>
           </div>
+        ) : viewMode === 'map' ? (
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className={`p-6 rounded-3xl border ${isDark ? "bg-[#080808] border-white/5 shadow-2xl" : "bg-white border-black/5 shadow-xl"}`}
+          >
+            <StaffingCalendar 
+              items={filteredShifts} 
+              onDayClick={(date) => {
+                const dateStr = date.toLocaleDateString('en-US', { 
+                  weekday: 'long', 
+                  month: 'long', 
+                  day: 'numeric' 
+                });
+                setExpandedDates({ [dateStr]: true });
+                setViewMode('grid');
+                // Scroll to date handled by browser if we add IDs
+              }}
+            />
+          </motion.div>
         ) : filteredShifts.length === 0 ? (
           <div className="h-64 flex flex-col items-center justify-center border border-dashed border-white/5 rounded-3xl opacity-20">
             <AlertCircle className="w-6 h-6 mb-4" />

@@ -90,15 +90,18 @@ export default function SchedulingAdminPage() {
             </div>
             
             <div className="flex flex-col gap-6 lg:items-end">
-                <div className="flex items-center gap-4">
-                    <Link href="/admin/staffing" className={`px-10 py-5 rounded-full text-[11px] font-black uppercase tracking-[0.4em] transition-all flex items-center gap-4 shadow-xl ${
+                <div className="flex flex-wrap items-center gap-4">
+                    <Link href="/admin/scheduling/shifts" className={`px-10 py-5 rounded-full text-[11px] font-black uppercase tracking-[0.4em] transition-all flex items-center gap-4 shadow-xl ${
                         isDark ? "bg-white text-black hover:bg-neutral-200" : "bg-black text-white hover:bg-neutral-800"
                     }`}>
-                        <Calendar className={`w-4 h-4 ${isDark ? "text-neutral-500" : "text-neutral-400"}`} /> View Deployment Map
+                        <Zap className={`w-4 h-4 ${isDark ? "text-amber-500" : "text-amber-400"}`} /> Shift Orchestration
                     </Link>
-                    <button className={`p-5 rounded-full border ${isDark ? "border-white/10 bg-white/5 hover:bg-white/10" : "border-black/10 bg-white shadow-xl hover:bg-neutral-50"}`}>
-                        <Plus className="w-5 h-5" />
-                    </button>
+                    <Link href="/admin/staffing" className={`p-5 rounded-full border transition-all ${isDark ? "border-white/10 bg-white/5 hover:bg-white/10" : "border-black/10 bg-white shadow-xl hover:bg-neutral-50"}`} title="Deployment Map">
+                        <Calendar className="w-5 h-5 opacity-40" />
+                    </Link>
+                    <Link href="/admin/scheduling/roster" className={`p-5 rounded-full border transition-all ${isDark ? "border-white/10 bg-white/5 hover:bg-white/10" : "border-black/10 bg-white shadow-xl hover:bg-neutral-50"}`} title="Staff Roster">
+                        <Users className="w-5 h-5 opacity-40" />
+                    </Link>
                 </div>
             </div>
         </section>
@@ -124,16 +127,21 @@ export default function SchedulingAdminPage() {
             ))}
         </div>
 
-        {/* Log Stream */}
-        <div className={`rounded-xl border shadow-[0_4px_24px_rgba(0,0,0,0.1)] overflow-hidden ${isDark ? "border-white/10 bg-[#0a0a0a] shadow-white/5" : "border-black/5 bg-white shadow-black/5"}`}>
-            <div className={`p-8 border-b flex justify-between items-center ${isDark ? 'border-white/10' : 'border-black/10'}`}>
-                <h3 className="text-xs font-bold uppercase tracking-widest">Recent Operations Stream</h3>
+{/* Recent Operations Stream */}
+        <div className={`rounded-3xl border ${isDark ? "bg-[#0a0a0a] border-white/5 shadow-2xl shadow-indigo-500/10" : "bg-white border-neutral-100 shadow-xl"}`}>
+            <div className="p-8 border-b border-white/5 flex items-center justify-between">
                 <div className="flex items-center gap-4">
-                    <div className="relative">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 opacity-40" />
-                        <input className={`pl-9 pr-4 py-2 rounded-lg text-xs font-medium border outline-none transition-all ${isDark ? "bg-white/5 border-white/10 focus:border-white/20" : "bg-black/5 border-black/10 focus:border-black/20"}`} placeholder="Search logs..." />
+                    <div className="w-10 h-10 rounded-full bg-indigo-500/20 flex items-center justify-center">
+                        <Zap className="w-5 h-5 text-indigo-400" />
+                    </div>
+                    <div>
+                        <h3 className="text-lg font-bold tracking-tight">Recent Operations Stream</h3>
+                        <p className="text-xs opacity-50 font-medium">Auto-synced with dispatch terminal</p>
                     </div>
                 </div>
+                <Link href="/admin/scheduling/shifts" className="text-[10px] font-black uppercase tracking-widest px-6 py-3 rounded-full border border-white/10 hover:bg-white/5 transition-colors">
+                    View Full Orchestration
+                </Link>
             </div>
 
             <div className="overflow-x-auto">
@@ -148,20 +156,30 @@ export default function SchedulingAdminPage() {
                     </thead>
                     <tbody className={`divide-y ${isDark ? "divide-white/10" : "divide-neutral-200"}`}>
                         {Array.isArray(events) && events.slice(0, 10).map((evt, i) => (
-                            <tr key={i} className={`group cursor-pointer transition-colors ${isDark ? "hover:bg-white/5" : "hover:bg-neutral-50"}`}>
+                            <tr 
+                                key={i} 
+                                onClick={() => window.location.href = `/admin/scheduling/shifts?date=${new Date(evt.startsAt).toISOString().split('T')[0]}`}
+                                className={`group cursor-pointer transition-colors ${isDark ? "hover:bg-white/5" : "hover:bg-neutral-50"}`}
+                            >
                                 <td className="py-4 px-6">
-                                    <div className="flex items-center gap-3">
+                                    <div className="flex items-center gap-3">   
                                         <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm ${isDark ? "bg-white/10 text-white" : "bg-black/10 text-black"}`}>{(evt.title || "?").charAt(0)}</div>
                                         <p className="text-sm font-medium">{(evt.title || "No Title").split(' - ')[1] || evt.title}</p>
                                     </div>
                                 </td>
-                                <td className="py-4 px-6 text-sm opacity-80">
-                                    {(evt.title || "").split(' - ')[0] || "General Area"}
+                                <td className="py-4 px-6 text-sm opacity-80">   
+                                    {evt.departmentId?.name || (evt.title || "").split(' - ')[0] || "General Area"}
                                 </td>
                                 <td className="py-4 px-6">
-                                    <span className="inline-flex items-center gap-1.5 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 rounded-md px-2.5 py-1 text-xs font-semibold">
-                                        <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                                        Active
+                                    <span className={`inline-flex items-center gap-1.5 rounded-md px-2.5 py-1 text-xs font-semibold ${
+                                        (evt.staffIds?.length || 0) > 0 
+                                            ? "bg-emerald-500/10 text-emerald-400" 
+                                            : "bg-amber-500/10 text-amber-400"
+                                    }`}>
+                                        <div className={`w-1.5 h-1.5 rounded-full ${
+                                            (evt.staffIds?.length || 0) > 0 ? "bg-emerald-500" : "bg-amber-500"
+                                        }`} />
+                                        {(evt.staffIds?.length || 0) > 0 ? `${evt.staffIds.length} Assigned` : "Unassigned"}
                                     </span>
                                 </td>
                                 <td className="py-4 px-6 text-right font-mono text-xs opacity-70 group-hover:opacity-100 transition-opacity">
