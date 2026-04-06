@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useTheme } from "@/context/ThemeContext";
 import { 
@@ -40,6 +40,7 @@ export default function ShiftOrchestrationPage() {
   const [isAssigning, setIsAssigning] = useState<string | null>(null); 
   const [assignmentSearch, setAssignmentSearch] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
+  const [openMenu, setOpenMenu] = useState<string | null>(null);
 
   const fetchData = async () => {
     setLoading(true);
@@ -63,6 +64,14 @@ export default function ShiftOrchestrationPage() {
   };
 
   useEffect(() => { fetchData(); }, []);
+
+  // Close the shift options menu when clicking outside it
+  useEffect(() => {
+    if (!openMenu) return;
+    const handler = (e: MouseEvent) => setOpenMenu(null);
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [openMenu]);
 
   const showNotification = (type: 'success'|'error', message: string) => {
     setNotification({ type, message });
@@ -98,27 +107,74 @@ export default function ShiftOrchestrationPage() {
     } catch (err) { showNotification('error', "Network error."); }
   };
 
-  const handleGenerateAI = async (days: number = 7) => {
+  const handleAIDeploy = async () => {
     setIsGenerating(true);
     try {
-      const res = await fetch("/api/seed", {
+      const res = await fetch("/api/admin/staffing/ai-assign", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ 
-          days, 
-          departmentId: selectedDept === 'all' ? undefined : selectedDept,
-          type: 'SHIFT'
-        })
+        body: JSON.stringify({
+          departmentId: selectedDept,
+        }),
       });
+      const data = await res.json();
       if (res.ok) {
-        showNotification('success', `Generated ${days} days of orchestration.`);
+        if (data.assigned === 0 && data.alreadyStaffed > 0) {
+          showNotification('success', `All ${data.alreadyStaffed} shifts already staffed.`);
+        } else if (data.assigned === 0) {
+          showNotification('error', 'No vacant shifts found — generate shifts first.');
+        } else {
+          const occStr = data.averageOccupancy != null ? ` · ${data.averageOccupancy}% avg occupancy` : '';
+          showNotification(
+            'success',
+            `AI deployed ${data.assigned} staff across ${data.shiftsProcessed} shifts${occStr}.`
+          );
+        }
         fetchData();
+      } else {
+        showNotification('error', data.error || "AI assignment failed.");
       }
     } catch (err) {
-      showNotification('error', "AI sync failed.");
+      showNotification('error', "Network error during AI deploy.");
     } finally {
       setIsGenerating(false);
     }
+  };
+
+  const handleClearShift = async (shiftId: string) => {
+    setOpenMenu(null);
+    try {
+      const res = await fetch(`/api/admin/staffing/events?id=${shiftId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ staffIds: [] }),
+      });
+      if (res.ok) {
+        setShifts(prev => prev.map(s => s._id === shiftId ? { ...s, staffIds: [] } : s));
+        showNotification('success', "Assignments cleared.");
+      } else {
+        showNotification('error', "Failed to clear assignments.");
+      }
+    } catch { showNotification('error', "Network error."); }
+  };
+
+  const handleCheckIn = async (shiftId: string) => {
+    setOpenMenu(null);
+    try {
+      const res = await fetch(`/api/admin/staffing/events?id=${shiftId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: "PUBLISHED" }),
+      });
+      if (res.ok) {
+        // Only update the status field — don't replace the whole object
+        // because the PATCH response doesn't populate staffIds
+        setShifts(prev => prev.map(s => s._id === shiftId ? { ...s, status: "PUBLISHED" } : s));
+        showNotification('success', "Shift marked as checked in.");
+      } else {
+        showNotification('error', "Failed to update status.");
+      }
+    } catch { showNotification('error', "Network error."); }
   };
 
   const formatTime = (dateStr: string) => new Date(dateStr).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
@@ -168,16 +224,17 @@ export default function ShiftOrchestrationPage() {
                 <button onClick={fetchData} className="p-2 hover:bg-neutral-500/5 rounded-lg transition-colors"><RefreshCcw className={`w-3.5 h-3.5 opacity-40 ${loading ? 'animate-spin' : ''}`} /></button>
                 
                 <button 
-                  onClick={() => handleGenerateAI(7)}
+                  onClick={handleAIDeploy}
                   disabled={isGenerating}
+                  title="AI analyses available staff and automatically assigns the best-fit person to each vacant shift"
                   className={`ml-2 px-4 py-2 text-[10px] font-black uppercase tracking-widest rounded-lg border transition-all flex items-center gap-2 ${
                     isDark 
-                    ? "bg-indigo-500/10 border-indigo-500/30 text-indigo-400 hover:bg-indigo-500/20" 
-                    : "bg-indigo-50 border-indigo-200 text-indigo-600"
+                    ? "bg-indigo-500/10 border-indigo-500/30 text-indigo-400 hover:bg-indigo-500/20 disabled:opacity-40" 
+                    : "bg-indigo-50 border-indigo-200 text-indigo-600 disabled:opacity-40"
                   }`}
                 >
-                  <Sparkles className={`w-3 h-3 ${isGenerating ? 'animate-pulse' : ''}`} />
-                  {isGenerating ? 'Synthesizing...' : 'AI Deploy'}
+                  <Sparkles className={`w-3 h-3 ${isGenerating ? 'animate-spin' : ''}`} />
+                  {isGenerating ? 'Assigning...' : 'AI Deploy'}
                 </button>
             </div>
         </div>
@@ -326,15 +383,66 @@ export default function ShiftOrchestrationPage() {
                                   >
                                     <Users className="w-3.5 h-3.5" />
                                   </div>
-                                  <button 
-                                    className="p-2 opacity-0 group-hover:opacity-20 hover:!opacity-100 transition-all"
-                                    onClick={(e) => {
+                                  <div className="relative">
+                                    <button 
+                                      className={`p-2 rounded-lg transition-all ${
+                                        openMenu === shift._id
+                                          ? (isDark ? 'bg-white/10 opacity-100' : 'bg-black/10 opacity-100')
+                                          : 'opacity-0 group-hover:opacity-40 hover:!opacity-100'
+                                      }`}
+                                      onClick={(e) => {
                                         e.stopPropagation();
-                                        // future: show more actions
-                                    }}
-                                  >
-                                    <MoreVertical className="w-3.5 h-3.5" />
-                                  </button>
+                                        setOpenMenu(openMenu === shift._id ? null : shift._id);
+                                      }}
+                                      title="Shift options"
+                                    >
+                                      <MoreVertical className="w-3.5 h-3.5" />
+                                    </button>
+
+                                    <AnimatePresence>
+                                      {openMenu === shift._id && (
+                                        <motion.div
+                                          initial={{ opacity: 0, scale: 0.95, y: -4 }}
+                                          animate={{ opacity: 1, scale: 1, y: 0 }}
+                                          exit={{ opacity: 0, scale: 0.95, y: -4 }}
+                                          transition={{ duration: 0.12 }}
+                                          className={`absolute bottom-8 right-0 z-[100] w-48 rounded-xl border shadow-2xl overflow-hidden ${
+                                            isDark ? 'bg-[#111] border-white/10' : 'bg-white border-black/10'
+                                          }`}
+                                          onClick={(e) => e.stopPropagation()}
+                                          onMouseDown={(e) => e.stopPropagation()}
+                                        >
+                                          <div className={`px-3 py-2 border-b ${
+                                            isDark ? 'border-white/5' : 'border-black/5'
+                                          }`}>
+                                            <p className="text-[9px] font-black uppercase tracking-[0.2em] opacity-30">Shift Options</p>
+                                          </div>
+                                          <button
+                                            onClick={() => handleCheckIn(shift._id)}
+                                            className={`w-full flex items-center gap-3 px-4 py-3 text-[11px] font-semibold text-left transition-colors ${
+                                              isDark
+                                                ? 'hover:bg-emerald-500/10 text-white/80 hover:text-emerald-400'
+                                                : 'hover:bg-emerald-50 text-neutral-700 hover:text-emerald-600'
+                                            }`}
+                                          >
+                                            <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
+                                            Mark as Checked In
+                                          </button>
+                                          <button
+                                            onClick={() => handleClearShift(shift._id)}
+                                            className={`w-full flex items-center gap-3 px-4 py-3 text-[11px] font-semibold text-left transition-colors border-t ${
+                                              isDark
+                                                ? 'border-white/5 hover:bg-rose-500/10 text-white/60 hover:text-rose-400'
+                                                : 'border-black/5 hover:bg-rose-50 text-neutral-500 hover:text-rose-500'
+                                            }`}
+                                          >
+                                            <Trash2 className="w-3.5 h-3.5 shrink-0" />
+                                            Clear Assignments
+                                          </button>
+                                        </motion.div>
+                                      )}
+                                    </AnimatePresence>
+                                  </div>
                                 </div>
                               </div>
                           </motion.div>
@@ -348,6 +456,7 @@ export default function ShiftOrchestrationPage() {
           </div>
         )}
       </div>
+
 
       <AnimatePresence>
         {isAssigning && (

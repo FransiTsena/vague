@@ -205,6 +205,7 @@ export async function PATCH(req: NextRequest) {
     if (body.type) updateData.type = body.type;
     if (body.shiftType) updateData.shiftType = body.shiftType;
     if (body.status) updateData.status = body.status;
+    if (body.staffIds !== undefined) updateData.staffIds = body.staffIds;
 
     const updated = await ScheduleEvent.findByIdAndUpdate(id, updateData, { new: true }).populate([
       { path: "departmentId", select: "name" },
