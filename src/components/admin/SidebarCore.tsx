@@ -44,6 +44,27 @@ const adminNavItems: NavItem[] = [
     tag: "Intelligence",
   },
   {
+    href: "/admin/bookings",
+    label: "Reservations",
+    icon: CalendarDays,
+    tag: "Operations",
+    subItems: [
+      { href: "/admin/bookings", label: "Guest Ledger" },
+      { href: "/admin/bookings/arrivals", label: "Arrivals" },
+      { href: "/admin/bookings/analytics", label: "Booking Insights" }
+    ]
+  },
+  {
+    href: "/admin/rooms",
+    label: "Inventory",
+    icon: ShieldCheck,
+    tag: "Operations",
+    subItems: [
+      { href: "/admin/rooms", label: "Room Assets" },
+      { href: "/admin/rooms/availability", label: "State Monitoring" }
+    ]
+  },
+  {
     href: "/admin/analytics",
     label: "Analytics",
     icon: TrendingUp,

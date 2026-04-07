@@ -38,6 +38,16 @@ const adminNavItems: NavItem[] = [
     tag: "Overview"
   },
   {
+    href: "/admin/bookings",
+    label: "Reservations",
+    icon: CalendarDays,
+    tag: "Operations",
+    subItems: [
+      { href: "/admin/bookings", label: "Guest Ledger" },
+      { href: "/admin/rooms", label: "Room Inventory" }
+    ]
+  },
+  {
     href: "/admin/analytics",
     label: "Analytics",
     icon: TrendingUp,

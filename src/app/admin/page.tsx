@@ -13,6 +13,20 @@ const adminCards = [
     tag: "Analytics"
   },
   {
+    href: "/admin/bookings",
+    title: "Reservation Ledger",
+    description: "Manage guest lifecycles, lifecycle status, and reservation details across the entire property inventory.",
+    icon: Activity,
+    tag: "Operations"
+  },
+  {
+    href: "/admin/rooms",
+    title: "Room Inventory",
+    description: "Manage physical property assets, configurations, base pricing tiers, and real-time unit status.",
+    icon: Grid3X3,
+    tag: "Assets"
+  },
+  {
     href: "/admin/scheduling",
     title: "Personnel Orchestration",
     description: "Manage workforce dynamics, shift allocations, and organizational efficiency across all property departments.",
