@@ -212,16 +212,21 @@ export default function ShiftOrchestrationPage() {
               </Link>
               <div>
                 <h1 className="text-xl font-medium tracking-tight">Shift Orchestration</h1>
-                <p className="text-[10px] uppercase tracking-widest opacity-30 font-bold">Logistics Matrix</p>
+                <p className={`text-[10px] uppercase tracking-widest font-bold ${isDark ? 'text-neutral-500' : 'text-neutral-400'}`}>Logistics Matrix</p>
               </div>
             </div>
             <div className="flex items-center gap-2">
-                <div className="flex bg-neutral-500/5 rounded-lg p-0.5 border border-white/5">
-                   <button onClick={() => setViewMode('grid')} className={`p-1.5 rounded-md ${viewMode === 'grid' ? 'bg-white/10 text-white shadow-sm' : 'opacity-40 hover:opacity-100 transition-opacity'}`} title="Grid Matrix"><LayoutGrid className="w-3.5 h-3.5" /></button>
-                   <button onClick={() => setViewMode('list')} className={`p-1.5 rounded-md ${viewMode === 'list' ? 'bg-white/10 text-white shadow-sm' : 'opacity-40 hover:opacity-100 transition-opacity'}`} title="Deployment Stream"><List className="w-3.5 h-3.5" /></button>
-                   <button onClick={() => setViewMode('map')} className={`p-1.5 rounded-md ${viewMode === 'map' ? 'bg-white/10 text-white shadow-sm' : 'opacity-40 hover:opacity-100 transition-opacity'}`} title="Strategic Map"><Layers className="w-3.5 h-3.5" /></button>
+                <div className={`flex rounded-lg p-0.5 border ${isDark ? 'bg-neutral-900 border-white/10' : 'bg-neutral-100 border-black/5'}`}>
+                   <button onClick={() => setViewMode('grid')} className={`p-1.5 rounded-md transition-all ${viewMode === 'grid' ? (isDark ? 'bg-white/10 text-white' : 'bg-white text-black shadow-sm') : (isDark ? 'text-neutral-500 hover:text-neutral-200' : 'text-neutral-400 hover:text-neutral-700')}`} title="Grid Matrix"><LayoutGrid className="w-3.5 h-3.5" /></button>
+                   <button onClick={() => setViewMode('list')} className={`p-1.5 rounded-md transition-all ${viewMode === 'list' ? (isDark ? 'bg-white/10 text-white' : 'bg-white text-black shadow-sm') : (isDark ? 'text-neutral-500 hover:text-neutral-200' : 'text-neutral-400 hover:text-neutral-700')}`} title="Deployment Stream"><List className="w-3.5 h-3.5" /></button>
+                   <button onClick={() => setViewMode('map')} className={`p-1.5 rounded-md transition-all ${viewMode === 'map' ? (isDark ? 'bg-white/10 text-white' : 'bg-white text-black shadow-sm') : (isDark ? 'text-neutral-500 hover:text-neutral-200' : 'text-neutral-400 hover:text-neutral-700')}`} title="Strategic Map"><Layers className="w-3.5 h-3.5" /></button>
                 </div>
-                <button onClick={fetchData} className="p-2 hover:bg-neutral-500/5 rounded-lg transition-colors"><RefreshCcw className={`w-3.5 h-3.5 opacity-40 ${loading ? 'animate-spin' : ''}`} /></button>
+                <button 
+                  onClick={fetchData} 
+                  className={`p-2 rounded-lg transition-colors ${isDark ? 'hover:bg-neutral-800 text-neutral-500 hover:text-neutral-200' : 'hover:bg-neutral-100 text-neutral-400 hover:text-neutral-700'}`}
+                >
+                  <RefreshCcw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
+                </button>
                 
                 <button 
                   onClick={handleAIDeploy}
@@ -253,8 +258,8 @@ export default function ShiftOrchestrationPage() {
                     {departments.map(dept => <option key={dept._id} value={dept._id}>{dept.name}</option>)}
                   </select>
               </div>
-              <div className="h-4 w-[1px] bg-white/10 mx-2 hidden sm:block" />
-              <span className="text-[10px] font-mono opacity-20 uppercase tracking-widest">{filteredShifts.length} Vectors Logged</span>
+              <div className={`h-4 w-[1px] mx-2 hidden sm:block ${isDark ? 'bg-neutral-800' : 'bg-neutral-200'}`} />
+              <span className={`text-[10px] font-mono uppercase tracking-widest ${isDark ? 'text-neutral-600' : 'text-neutral-400'}`}>{filteredShifts.length} Vectors Logged</span>
            </div>
         </div>
 
@@ -297,10 +302,10 @@ export default function ShiftOrchestrationPage() {
                   className="flex items-center gap-4 cursor-pointer group/date"
                   onClick={() => toggleDate(date)}
                 >
-                  <h2 className="text-[10px] font-black uppercase tracking-[0.3em] opacity-40 whitespace-nowrap group-hover/date:opacity-100 transition-opacity">{date}</h2>
-                  <div className="h-[1px] w-full bg-gradient-to-r from-white/10 to-transparent" />
-                  <div className={`p-1 rounded-md bg-white/5 transition-transform duration-300 ${expandedDates[date] === false ? "-rotate-90" : ""}`}>
-                    <MoreVertical className="w-3 h-3 opacity-20" />
+                  <h2 className={`text-[10px] font-black uppercase tracking-[0.3em] whitespace-nowrap transition-opacity ${isDark ? 'text-neutral-500 group-hover/date:text-neutral-200' : 'text-neutral-400 group-hover/date:text-neutral-700'}`}>{date}</h2>
+                  <div className={`h-[1px] w-full bg-gradient-to-r from-transparent via-neutral-500/10 to-transparent ${isDark ? 'via-neutral-800' : 'via-neutral-200'}`} />
+                  <div className={`p-1 rounded-md transition-transform duration-300 ${isDark ? 'bg-neutral-900 text-neutral-500' : 'bg-neutral-100 text-neutral-400'} ${expandedDates[date] === false ? "-rotate-90" : ""}`}>
+                    <MoreVertical className="w-3 h-3" />
                   </div>
                 </div>
                 
@@ -336,7 +341,7 @@ export default function ShiftOrchestrationPage() {
                                 
                                 <h3 className="text-sm font-medium mb-1 truncate text-white tracking-tight">{shift.title}</h3>
                                 
-                                <div className="flex flex-col gap-1.5 opacity-30 mb-5">
+                                <div className={`flex flex-col gap-1.5 mb-5 ${isDark ? 'text-neutral-500' : 'text-neutral-500'}`}>
                                   <div className="flex items-center gap-2">
                                     <Clock className="w-3 h-3" />
                                     <span className="text-[10px] font-mono whitespace-nowrap">{formatTime(shift.startsAt)} - {formatTime(shift.endsAt)}</span>
@@ -356,7 +361,7 @@ export default function ShiftOrchestrationPage() {
                                     {shift.staffIds?.slice(0, 3).map((s: any, idx: number) => (
                                       <div 
                                         key={s._id} 
-                                        className={`w-6 h-6 rounded-full border border-[#0a0a0a] bg-neutral-800 flex items-center justify-center transition-transform hover:scale-110 cursor-pointer`}
+                                        className={`w-6 h-6 rounded-full border border-[#0a0a0a] bg-red flex items-center justify-center transition-transform hover:scale-110 cursor-pointer`}
                                         style={{ zIndex: 10 - idx }}
                                         title={s.name}
                                       >

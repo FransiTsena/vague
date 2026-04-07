@@ -138,24 +138,36 @@ export default function StaffingAdminPage() {
                 <ArrowLeft className="w-3 h-3" /> Dynamics Terminal
             </Link>
             <div className="flex items-center gap-4">
-                <div className="flex items-center gap-1 border border-neutral-800 rounded-full p-1">
+                <div className={`flex items-center gap-1 border rounded-full p-1 transition-colors ${
+                  isDark ? 'border-neutral-800 bg-neutral-900/50' : 'border-neutral-200 bg-neutral-100'
+                }`}>
                    <button 
                      onClick={() => setViewMode('calendar')}
-                     className={`p-1.5 rounded-full transition-all ${viewMode === 'calendar' ? 'bg-white text-black' : 'opacity-40 hover:opacity-100'}`}
+                     className={`p-1.5 rounded-full transition-all ${
+                       viewMode === 'calendar' 
+                         ? (isDark ? 'bg-white text-black' : 'bg-black text-white') 
+                         : (isDark ? 'text-neutral-500 hover:text-neutral-200' : 'text-neutral-400 hover:text-neutral-700')
+                     }`}
                    >
-                      <LayoutGrid className="w-3 h-3" />
+                      <LayoutGrid className="w-3.5 h-3.5" />
                    </button>
                    <button 
                      onClick={() => setViewMode('analytics')}
-                     className={`p-1.5 rounded-full transition-all ${viewMode === 'analytics' ? 'bg-white text-black' : 'opacity-40 hover:opacity-100'}`}
+                     className={`p-1.5 rounded-full transition-all ${
+                       viewMode === 'analytics' 
+                         ? (isDark ? 'bg-white text-black' : 'bg-black text-white') 
+                         : (isDark ? 'text-neutral-500 hover:text-neutral-200' : 'text-neutral-400 hover:text-neutral-700')
+                     }`}
                    >
-                      <BarChart3 className="w-3 h-3" />
+                      <BarChart3 className="w-3.5 h-3.5" />
                    </button>
                 </div>
-                <div className="h-4 w-[1px] bg-neutral-800 mx-2" />
+                <div className={`h-4 w-[1px] mx-2 ${isDark ? 'bg-neutral-800' : 'bg-neutral-200'}`} />
                 <button 
-                  onClick={fetchData}
-                  className="p-2 opacity-40 hover:opacity-100 transition-opacity"
+                   onClick={fetchData}
+                   className={`p-2 transition-all rounded-full ${
+                     isDark ? 'text-neutral-500 hover:text-neutral-200 hover:bg-neutral-800' : 'text-neutral-400 hover:text-neutral-700 hover:bg-neutral-100'
+                   }`}
                 >
                   <RefreshCcw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
                 </button>
@@ -166,9 +178,9 @@ export default function StaffingAdminPage() {
         <div className="flex flex-col lg:flex-row justify-between gap-16 mb-16 border-b border-neutral-100 dark:border-white/5 pb-16">
           <div className="max-w-3xl">
             <h1 className="font-serif text-6xl md:text-8xl tracking-tighter mb-8 italic">
-              Deployment <span className="opacity-40 not-italic font-sans font-light">Map</span>
+              Deployment <span className={`not-italic font-sans font-light ${isDark ? 'text-neutral-500' : 'text-neutral-400'}`}>Map</span>
             </h1>
-            <p className="text-neutral-500 dark:text-neutral-400 text-lg md:text-xl leading-relaxed font-light">
+            <p className={`text-lg md:text-xl leading-relaxed font-light ${isDark ? "text-neutral-400" : "text-neutral-600"}`}>
                Spatio-temporal visualization of property personnel. Orchestrate coverage flows and 
                analyze operational density across the hierarchical staffing matrix.
             </p>
@@ -225,8 +237,8 @@ export default function StaffingAdminPage() {
                      <div className="text-[10px] font-mono opacity-40 uppercase tracking-widest">{aiResult.efficiency}% Efficiency</div>
                   </div>
                   
-                  <h4 className="font-serif text-xl font-light mb-4">Intelligence <span className="italic">Observation</span></h4>
-                  <p className="text-[13px] leading-relaxed text-neutral-500 font-light mb-8 italic">
+                  <h4 className="font-serif text-xl font-light mb-4 text-foreground">Intelligence <span className="italic">Observation</span></h4>
+                  <p className={`text-[13px] leading-relaxed font-light mb-8 italic ${isDark ? "text-neutral-400" : "text-neutral-600"}`}>
                     "{aiResult.recommendation}"
                   </p>
                   

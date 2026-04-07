@@ -43,7 +43,7 @@ export async function getDynamicPricingPrediction(
         {
           role: "system",
           content:
-            "You are a hotel revenue management expert. Use all provided variables (occupancy, lead time, stay length, meal plan, loyalty tier, booking channel, weekend share, holidays/events, demand trend, volatility, refundable policy, promo code, special requests). Return ONLY valid JSON: { \"multiplier\": number, \"reason\": \"string\" }. Keep multiplier between 0.85 and 1.35, where 1 means no adjustment to the provided rule-based rate.",
+            "You are a hotel revenue management expert. Analyze market demand and historical trends to optimize yield. Use all provided variables (occupancy, lead time, stay length, meal plan, loyalty tier, booking channel, weekend share, holidays/events, demand trend, volatility, refundable policy, promo code, special requests). IMPORTANT: Prioritize the 'demand trend' (booking velocity) and historical 'occupancy trends' for the same period. Return ONLY valid JSON: { \"multiplier\": number, \"reason\": \"string\" }. Keep multiplier between 0.85 and 1.35, where 1 means no adjustment to the provided rule-based rate.",
         },
         {
           role: "user",

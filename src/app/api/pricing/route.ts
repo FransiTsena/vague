@@ -303,6 +303,9 @@ export async function GET(request: Request) {
     const currentTypeBookings = currentBookings.filter((booking) => booking.roomId?.type === room.type).length;
     const previousTypeBookings = previousBookings.filter((booking) => booking.roomId?.type === room.type).length;
 
+    const velocityDelta = currentTypeBookings - previousTypeBookings;
+    const velocityChangePercent = previousTypeBookings > 0 ? (velocityDelta / previousTypeBookings) * 100 : 0;
+
     const demandTrendRaw = previousTypeBookings === 0 ? 1 : currentTypeBookings / previousTypeBookings;
     const demandTrendMultiplier = clamp(0.92 + demandTrendRaw * 0.1, 0.9, 1.18);
 
@@ -357,6 +360,9 @@ export async function GET(request: Request) {
       expectedGuests,
       currentTypeBookings,
       previousTypeBookings,
+      velocityDelta,
+      velocityChangePercent: round2(velocityChangePercent),
+      historicalTrendMessage: `Booking velocity for ${room.type} is ${velocityChangePercent > 0 ? "UP" : "DOWN"} by ${Math.abs(velocityChangePercent).toFixed(1)}% compared to the previous 30-day window.`,
       referenceDate: dateStr,
       checkOut: checkOutDate.toISOString().slice(0, 10),
       isHoliday,
@@ -446,6 +452,10 @@ export async function GET(request: Request) {
       aiInsight: actionableAdvice,
       factors: factorBreakdown,
       date: checkInDate.toISOString().slice(0, 10),
+      trends: {
+        velocityDelta,
+        velocityChangePercent: round2(velocityChangePercent)
+      }
     });
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : "Unknown pricing error";
