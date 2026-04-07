@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { useTheme } from "@/context/ThemeContext";
-import { Activity, ShieldAlert, TrendingDown, DollarSign, Zap } from "lucide-react";
-import { motion } from "framer-motion";
+import { Activity, ShieldAlert, TrendingDown, DollarSign, Zap, Sparkles, AlertCircle, Wrench, CheckCircle2, LayoutPanelLeft } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface AssetStats {
   roomId: string;
@@ -11,10 +11,32 @@ interface AssetStats {
   type: string;
   efficiency: number;
   status: string;
+  health: number;
 }
+
+const DEPLOYMENT_FEED = [
+  { id: 1, unit: "104", type: "MAINTENANCE", message: "HVAC Duty Cycle exceeded. Predict 82% failure risk.", action: "Queue Inspection", severity: "high" },
+  { id: 2, unit: "112", type: "OPTIMIZATION", message: "Low occupancy predicted. Target for complimentary LUX upgrade path.", action: "Approve Yield Shift", severity: "medium" },
+  { id: 3, unit: "201", type: "ENERGY", message: "Neural load suggests vampire draw in Suite 201. Inspect smart grid.", action: "Deploy Field Tech", severity: "low" }
+];
 
 export default function AssetIntelligence({ rooms }: { rooms: any[] }) {
   const { isDark } = useTheme();
+  const [activeInsight, setActiveInsight] = useState(0);
+  const [isProcessing, setIsProcessing] = useState<number | null>(null);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setActiveInsight((prev) => (prev + 1) % DEPLOYMENT_FEED.length);
+    }, 5000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const handleExecute = async (id: number) => {
+    setIsProcessing(id);
+    await new Promise(r => setTimeout(r, 1500));
+    setIsProcessing(null);
+  };
   
   // High-level metrics
   const avgUtilization = 11.3;
@@ -74,8 +96,19 @@ export default function AssetIntelligence({ rooms }: { rooms: any[] }) {
               
               <div className="space-y-1">
                 <div className="h-[1px] w-full bg-current opacity-10 mb-2" />
-                <div className="text-[7px] font-mono uppercase tracking-widest opacity-40">
-                  Eff: {Math.floor(Math.random() * 25 + 5)}%
+                <div className="flex justify-between items-center group/meta">
+                   <div className="text-[7px] font-mono uppercase tracking-widest opacity-40">
+                     Eff: {Math.floor(Math.random() * 25 + 5)}%
+                   </div>
+                   {i % 4 === 0 && (
+                     <motion.div 
+                       animate={{ opacity: [0.2, 0.5, 0.2] }}
+                       transition={{ duration: 2, repeat: Infinity }}
+                       title="Neural Degradation Risk"
+                     >
+                        <AlertCircle className="w-2 h-2 text-rose-500" />
+                     </motion.div>
+                   )}
                 </div>
               </div>
 
@@ -115,6 +148,63 @@ export default function AssetIntelligence({ rooms }: { rooms: any[] }) {
               <p className="text-[7px] font-mono uppercase tracking-widest opacity-30 leading-relaxed">
                 Predicted degradation shift next week based on unconstrained demand
               </p>
+           </div>
+
+           {/* AI Deployment Queue - NEW Section */}
+           <div className={`p-8 border border-emerald-500/10 min-h-[280px] flex flex-col justify-between ${isDark ? "bg-emerald-500/[0.02]" : "bg-emerald-500/[0.01]"}`}>
+              <div className="space-y-6">
+                <div className="flex items-center gap-3">
+                  <Sparkles className="w-3 h-3 text-emerald-500 animate-pulse" />
+                  <span className="text-[8px] font-bold tracking-[0.4em] uppercase text-emerald-500/80 italic">Neural Deployment</span>
+                </div>
+
+                <AnimatePresence mode="wait">
+                  <motion.div
+                    key={activeInsight}
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -20 }}
+                    className="space-y-4"
+                  >
+                    <div className="flex items-baseline gap-3">
+                      <span className="text-5xl font-serif font-light">{DEPLOYMENT_FEED[activeInsight].unit}</span>
+                      <span className={`text-[8px] font-mono border px-2 py-0.5 rounded uppercase ${
+                        DEPLOYMENT_FEED[activeInsight].severity === 'high' ? 'border-rose-500/50 text-rose-500' :
+                        DEPLOYMENT_FEED[activeInsight].severity === 'medium' ? 'border-amber-500/50 text-amber-500' :
+                        'border-sky-500/50 text-sky-500'
+                      }`}>
+                        {DEPLOYMENT_FEED[activeInsight].type}
+                      </span>
+                    </div>
+                    <p className="text-[10px] uppercase font-mono tracking-widest leading-loose opacity-60">
+                       {DEPLOYMENT_FEED[activeInsight].message}
+                    </p>
+                  </motion.div>
+                </AnimatePresence>
+              </div>
+
+              <div className="space-y-4">
+                 <div className="flex gap-1">
+                    {DEPLOYMENT_FEED.map((_, i) => (
+                      <div key={i} className={`h-[1px] flex-1 transition-all duration-700 ${i === activeInsight ? "bg-current" : "bg-current/10"}`} />
+                    ))}
+                 </div>
+                 <button 
+                  onClick={() => handleExecute(DEPLOYMENT_FEED[activeInsight].id)}
+                  disabled={isProcessing !== null}
+                  className={`w-full py-4 border text-[9px] font-mono uppercase tracking-[0.3em] font-bold transition-all flex items-center justify-center gap-3 ${
+                    isProcessing === DEPLOYMENT_FEED[activeInsight].id ? "opacity-50 cursor-wait bg-current text-white dark:text-black" :
+                    isDark ? "border-white hover:bg-white hover:text-black" : "border-black hover:bg-black hover:text-white"
+                   }`}
+                 >
+                    {isProcessing === DEPLOYMENT_FEED[activeInsight].id ? (
+                      <Activity className="w-3 h-3 animate-spin" />
+                    ) : (
+                      <LayoutPanelLeft className="w-3 h-3" />
+                    )}
+                    {isProcessing === DEPLOYMENT_FEED[activeInsight].id ? "Synchronizing Asset..." : DEPLOYMENT_FEED[activeInsight].action}
+                 </button>
+              </div>
            </div>
         </div>
       </div>
