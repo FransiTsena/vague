@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useTheme } from "@/context/ThemeContext";
-import { Calendar, User, MoreVertical, Trash2, CheckCircle, Clock, ExternalLink, Activity, ChevronDown, ChevronUp } from "lucide-react";
+import { Calendar, User, MoreVertical, Trash2, CheckCircle, Clock, ExternalLink, Activity, ChevronDown, ChevronUp, Sparkles, AlertCircle } from "lucide-react";
 import BookingVelocity from "@/components/sections/BookingVelocity";
 
 interface IBooking {
@@ -129,6 +129,11 @@ export default function BookingsAdmin() {
                           <div className="mt-1 flex items-center gap-2">
                              <span className="text-[7px] font-mono text-sky-500 uppercase tracking-tighter bg-sky-500/5 px-1 rounded">{booking.guestId?.predictedSegment}</span>
                              <span className="text-[7px] font-mono text-neutral-400 uppercase opacity-30">| PREDICTOR ACTIVE</span>
+                             {booking.guestId?.isVip && (
+                               <div className="flex items-center gap-1 text-[7px] font-mono text-amber-500 uppercase ml-2">
+                                  <Sparkles className="w-2 h-2" /> High LTV Probability
+                               </div>
+                             )}
                           </div>
                        </div>
                     </div>
@@ -137,6 +142,10 @@ export default function BookingsAdmin() {
                      <div className="flex flex-col">
                         <span className="text-xl font-serif font-light">{booking.roomId?.roomNumber}</span>
                         <span className="text-[9px] font-mono text-neutral-400 uppercase tracking-widest">{booking.roomId?.type}</span>
+                        <div className="mt-1 flex items-center gap-1 opacity-40">
+                           <Activity className="w-2 h-2" />
+                           <span className="text-[7px] font-mono uppercase tracking-tighter">Efficiency Check: Optimal</span>
+                        </div>
                      </div>
                   </td>
                   <td className="py-8 px-4">
@@ -149,6 +158,11 @@ export default function BookingsAdmin() {
                         <span className="opacity-40 uppercase">OUT:</span>
                         <span>{new Date(booking.checkOut).toLocaleDateString()}</span>
                       </div>
+                      {new Date(booking.checkIn).getTime() - Date.now() < 48 * 60 * 60 * 1000 && booking.bookingStatus !== 'checked_in' && (
+                         <div className="flex items-center gap-1 text-[7px] font-mono text-sky-500 uppercase mt-1 animate-pulse">
+                            <AlertCircle className="w-2 h-2" /> Arrival Imminent: Prep Alert
+                         </div>
+                      )}
                     </div>
                   </td>
                   <td className="py-8 px-4">

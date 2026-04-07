@@ -71,11 +71,6 @@ export default function AnalyticsPage() {
       <div className="mx-6 px-6 sm:px-12 space-y-8 md:space-y-12">
         <div className="relative">
           <div className="absolute -left-12 top-0 h-full w-[1px] bg-neutral-100 dark:bg-white/5 hidden xl:block" />
-          <BookingVelocity />
-        </div>
-
-        <div className="relative border-t border-neutral-100 dark:border-white/5 pt-8 md:pt-12">
-          <div className="absolute -left-12 top-0 h-full w-[1px] bg-neutral-100 dark:bg-white/5 hidden xl:block" />
           <OccupancyAnalytics />
         </div>
 
@@ -87,6 +82,11 @@ export default function AnalyticsPage() {
         <div className="relative border-t border-neutral-100 dark:border-white/5 pt-8 md:pt-12">
           <div className="absolute -left-12 top-0 h-full w-[1px] bg-neutral-100 dark:bg-white/5 hidden xl:block" />
           <GuestIntelligence />
+        </div>
+
+        <div className="relative border-t border-neutral-100 dark:border-white/5 pt-8 md:pt-12">
+          <div className="absolute -left-12 top-0 h-full w-[1px] bg-neutral-100 dark:bg-white/5 hidden xl:block" />
+          <BookingVelocity />
         </div>
 
         <div className="relative border-t border-neutral-100 dark:border-white/5 pt-8 md:pt-12">
