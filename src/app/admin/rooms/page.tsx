@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { useTheme } from "@/context/ThemeContext";
-import { Plus, Edit2, Trash2, Camera, MoreHorizontal, Check, X } from "lucide-react";
+import { Plus, Edit2, Trash2, Camera, MoreHorizontal, Check, X, LayoutGrid, Database, Activity } from "lucide-react";
+import AssetIntelligence from "@/components/sections/AssetIntelligence";
 
 interface IRoom {
   _id: string;
@@ -20,6 +21,7 @@ export default function RoomsAdmin() {
   const [isLoading, setIsLoading] = useState(true);
   const [isAdding, setIsAdding] = useState(false);
   const [editingRoom, setEditingRoom] = useState<IRoom | null>(null);
+  const [showIntelligence, setShowIntelligence] = useState(false);
 
   // Form State
   const [formData, setFormData] = useState({
@@ -107,13 +109,32 @@ export default function RoomsAdmin() {
           <h1 className="text-4xl font-serif font-light mb-2 italic">Room <span className="not-italic text-neutral-400">Inventory</span></h1>
           <p className="text-xs font-mono text-neutral-500 uppercase tracking-widest leading-loose">Asset orchestration & availability</p>
         </div>
-        <button
-          onClick={() => { setIsAdding(true); setEditingRoom(null); }}
-          className={`px-6 py-2 flex items-center gap-2 border text-xs font-mono transition-all ${isDark ? "border-white/20 hover:bg-white/10" : "border-black/10 hover:bg-black/5"}`}
-        >
-          <Plus className="w-4 h-4" /> ADD UNIT
-        </button>
+        <div className="flex gap-4">
+          <button 
+                onClick={() => setShowIntelligence(!showIntelligence)}
+                className={`px-6 py-2 flex items-center gap-2 border text-xs font-mono transition-all ${
+                  showIntelligence 
+                    ? "bg-white text-black border-white" 
+                    : "border-current hover:bg-white hover:text-black opacity-40 hover:opacity-100"
+                }`}
+              >
+                <Activity className="w-4 h-4" /> 
+                {showIntelligence ? "HIDE METRICS" : "ASSET INTEL"}
+          </button>
+          <button
+            onClick={() => { setIsAdding(true); setEditingRoom(null); }}
+            className={`px-6 py-2 flex items-center gap-2 border text-xs font-mono transition-all ${isDark ? "border-white/20 hover:bg-white/10" : "border-black/10 hover:bg-black/5"}`}
+          >
+            <Plus className="w-4 h-4" /> ADD UNIT
+          </button>
+        </div>
       </div>
+
+      {showIntelligence && (
+        <div className="animate-in fade-in slide-in-from-top-6 duration-700 ease-out">
+          <AssetIntelligence rooms={rooms} />
+        </div>
+      )}
 
       {isAdding && (
         <div className={`mb-12 p-8 border ${isDark ? "border-white/10" : "border-black/5"} animate-in fade-in slide-in-from-top-4`}>

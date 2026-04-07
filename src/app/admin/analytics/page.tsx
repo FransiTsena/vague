@@ -3,12 +3,24 @@
 import PricingDemo from "@/components/sections/PricingDemo";
 import OccupancyAnalytics from "@/components/sections/OccupancyAnalytics";
 import GuestIntelligence from "@/components/sections/GuestIntelligence";
+import BookingVelocity from "@/components/sections/BookingVelocity";
+import AssetIntelligence from "@/components/sections/AssetIntelligence";
 import { useTheme } from "@/context/ThemeContext";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Calendar, TrendingUp, Activity, ShieldCheck } from "lucide-react";
 
 export default function AnalyticsPage() {
   const { isDark } = useTheme();
+  const [rooms, setRooms] = useState([]);
+
+  useEffect(() => {
+    fetch("/api/admin/rooms")
+      .then(res => res.json())
+      .then(data => setRooms(Array.isArray(data) ? data : []))
+      .catch(err => console.error("Error fetching rooms for analytics:", err));
+  }, []);
+
   return (
     <main className={`min-h-screen theme-transition pb-20 ${isDark ? "bg-black text-white" : "bg-white text-black"} pt-8 md:pt-12 tracking-widest`}>
       {/* Header Section */}
@@ -59,6 +71,11 @@ export default function AnalyticsPage() {
       <div className="mx-6 px-6 sm:px-12 space-y-8 md:space-y-12">
         <div className="relative">
           <div className="absolute -left-12 top-0 h-full w-[1px] bg-neutral-100 dark:bg-white/5 hidden xl:block" />
+          <BookingVelocity />
+        </div>
+
+        <div className="relative border-t border-neutral-100 dark:border-white/5 pt-8 md:pt-12">
+          <div className="absolute -left-12 top-0 h-full w-[1px] bg-neutral-100 dark:bg-white/5 hidden xl:block" />
           <OccupancyAnalytics />
         </div>
 
@@ -70,6 +87,11 @@ export default function AnalyticsPage() {
         <div className="relative border-t border-neutral-100 dark:border-white/5 pt-8 md:pt-12">
           <div className="absolute -left-12 top-0 h-full w-[1px] bg-neutral-100 dark:bg-white/5 hidden xl:block" />
           <GuestIntelligence />
+        </div>
+
+        <div className="relative border-t border-neutral-100 dark:border-white/5 pt-8 md:pt-12">
+          <div className="absolute -left-12 top-0 h-full w-[1px] bg-neutral-100 dark:bg-white/5 hidden xl:block" />
+          <AssetIntelligence rooms={rooms} />
         </div>
       </div>
     </main>

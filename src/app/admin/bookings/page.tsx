@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { useTheme } from "@/context/ThemeContext";
-import { Calendar, User, MoreVertical, Trash2, CheckCircle, Clock, ExternalLink, Activity } from "lucide-react";
+import { Calendar, User, MoreVertical, Trash2, CheckCircle, Clock, ExternalLink, Activity, ChevronDown, ChevronUp } from "lucide-react";
+import BookingVelocity from "@/components/sections/BookingVelocity";
 
 interface IBooking {
   _id: string;
@@ -29,6 +30,7 @@ export default function BookingsAdmin() {
   const { isDark } = useTheme();
   const [bookings, setBookings] = useState<IBooking[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [showIntelligence, setShowIntelligence] = useState(false);
 
   useEffect(() => {
     fetchBookings();
@@ -74,9 +76,25 @@ export default function BookingsAdmin() {
         <div className="flex items-center gap-4 text-[10px] font-mono opacity-40 uppercase tracking-[0.2em]">
           <span>Total Volume: {bookings.length}</span>
           <div className="w-[1px] h-4 bg-current" />
-          <span>Active Cycles: {bookings.filter(b => b.bookingStatus === 'checked_in').length}</span>
+          <button 
+            onClick={() => setShowIntelligence(!showIntelligence)}
+            className={`ml-4 flex items-center gap-2 px-3 py-1 border transition-all ${
+              showIntelligence 
+                ? "bg-white text-black border-white" 
+                : "border-current hover:bg-white hover:text-black"
+            }`}
+          >
+            {showIntelligence ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+            Intelligence
+          </button>
         </div>
       </div>
+
+      {showIntelligence && (
+        <div className="mb-12 animate-in fade-in slide-in-from-top-4 duration-500">
+          <BookingVelocity />
+        </div>
+      )}
 
       {isLoading ? (
         <div className="flex justify-center py-24 opacity-20">
