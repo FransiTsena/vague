@@ -12,7 +12,7 @@ import { Calendar, TrendingUp, Activity, ShieldCheck } from "lucide-react";
 
 export default function AnalyticsPage() {
   const { isDark } = useTheme();
-  const [rooms, setRooms] = useState([]);
+  const [rooms, setRooms] = useState<any[]>([]);
 
   useEffect(() => {
     fetch("/api/admin/rooms")

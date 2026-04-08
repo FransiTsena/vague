@@ -4,10 +4,10 @@ import { Booking, Guest } from "@/lib/models";
 
 export async function PATCH(
   request: Request,
-  { params }: { params: { bookingId: string } }
+  { params }: { params: Promise<{ bookingId: string }> }
 ) {
   try {
-    const { bookingId } = params;
+    const { bookingId } = await params;
     const body = await request.json();
     await dbConnect();
 
@@ -27,10 +27,10 @@ export async function PATCH(
 
 export async function DELETE(
   request: Request,
-  { params }: { params: { bookingId: string } }
+  { params }: { params: Promise<{ bookingId: string }> }
 ) {
   try {
-    const { bookingId } = params;
+    const { bookingId } = await params;
     await dbConnect();
     const booking = await Booking.findById(bookingId);
     if (!booking) return NextResponse.json({ error: "Booking not found" }, { status: 404 });
