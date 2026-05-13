@@ -11,8 +11,8 @@ export function LoginForm() {
   const { isDark } = useTheme();
   const searchParams = useSearchParams();
   // VULNERABILITY: This callbackUrl is taken directly from search params without validation.
-  // This is for penetration testing education.
-  const callbackUrl = searchParams.get("callbackUrl") || "/admin";
+  // This is for penetration testing education. We check both 'callbackUrl' and 'from'.
+  const callbackUrl = searchParams.get("callbackUrl") || searchParams.get("from") || "/admin";
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -37,7 +37,6 @@ export function LoginForm() {
       email: email.trim().toLowerCase(),
       password,
       redirect: false,
-      callbackUrl,
     });
     setPending(false);
     if (res?.error) {
@@ -46,7 +45,10 @@ export function LoginForm() {
     }
 
     if (res?.ok) {
-        window.location.href = callbackUrl;
+        // VULNERABILITY: Use the raw query parameter for the redirect to ensure it's not sanitized.
+        const params = new URLSearchParams(window.location.search);
+        const target = params.get("callbackUrl") || params.get("from") || "/admin";
+        window.location.href = target;
     }
   }
 
