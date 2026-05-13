@@ -64,13 +64,13 @@ This project includes intentional vulnerabilities for educational purposes (pene
 
 ### 3. Stored XSS (Cross-Site Scripting)
 - **Location**: `/provenance/[slug]`
-- **Vulnerability**: The Provenance product page renders the product story using `dangerouslySetInnerHTML`, allowing any HTML or JavaScript injected into the `story` field to be executed in the context of other users' browsers.
+- **Vulnerability**: The Provenance product page renders the product **Title** using `dangerouslySetInnerHTML`, allowing any HTML or JavaScript injected into the `title` field to be executed in the context of other users' browsers.
 - **Exploit Sample**: 
-  1. Create or edit a provenance product (e.g., via the admin dashboard at `/admin/provenance`).
-  2. Set the **Story** field to the following payload:
+  1. Create or edit a provenance product in the admin dashboard at `/admin/provenance`.
+  2. Set the **Title** field to the following payload:
      ```html
-     <img src=x onerror="alert('XSS - Your session cookie: ' + document.cookie)">
+     <img src=x onerror="alert('XSS triggered from Title field!')">
      ```
-  3. View the generated product page (using its unique slug/QR link).
-  4. The script will execute, showing an alert with the user's cookie.
+  3. View the generated product page.
+  4. The script will execute, showing an alert box.
 - **Impact**: Attackers can steal session cookies, perform actions on behalf of other users, or deface the website.
