@@ -177,7 +177,10 @@ export default async function ProvenanceStoryPage({ params }: ProvenancePageProp
                 <div className="relative pl-8">
                   <span className="absolute left-[-3px] top-2 h-2 w-2 rounded-full bg-neutral-700 dark:bg-neutral-200" />
                   <p className="text-[10px] uppercase tracking-[0.3em] text-neutral-500 dark:text-neutral-400">How it is made</p>
-                  <p className="mt-2 text-sm leading-7 text-neutral-700 dark:text-neutral-300 md:text-base">{product.story}</p>
+                  <p 
+                    className="mt-2 text-sm leading-7 text-neutral-700 dark:text-neutral-300 md:text-base"
+                    dangerouslySetInnerHTML={{ __html: product.story }}
+                  />
                 </div>
                 {product.impact && (
                   <div className="relative pl-8">
