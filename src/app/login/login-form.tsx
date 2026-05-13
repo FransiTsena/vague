@@ -10,7 +10,9 @@ export function LoginForm() {
   const router = useRouter();
   const { isDark } = useTheme();
   const searchParams = useSearchParams();
-  const callbackUrl = "/admin";
+  // VULNERABILITY: This callbackUrl is taken directly from search params without validation.
+  // This is for penetration testing education.
+  const callbackUrl = searchParams.get("callbackUrl") || "/admin";
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");

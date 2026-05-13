@@ -98,7 +98,10 @@ export default function GeneratedProductPage({ slug }: { slug: string }) {
 
                         <div className="rounded-[2rem] border border-black/10 bg-white p-6 shadow-sm dark:border-white/10 dark:bg-white/5">
                             <p className="text-xs uppercase tracking-[0.35em] text-neutral-500 dark:text-neutral-400">Story</p>
-                            <p className="mt-3 text-sm leading-8 text-neutral-700 dark:text-neutral-300">{product.story}</p>
+                            <p 
+                                className="mt-3 text-sm leading-8 text-neutral-700 dark:text-neutral-300"
+                                dangerouslySetInnerHTML={{ __html: product.story }}
+                            />
                         </div>
                     </div>
 
