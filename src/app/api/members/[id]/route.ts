@@ -8,14 +8,14 @@ export const dynamic = "force-dynamic";
 
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     await dbConnect();
     // Require authentication
     await requireUser(["ADMIN", "DEPARTMENT_HEAD", "MEMBER"]);
 
-    const id = params.id;
+    const { id } = await params;
     const body = await req.json();
 
     // VULNERABILITY: Blindly updating the member with whatever is in the body.
@@ -43,14 +43,14 @@ export async function PATCH(
 
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     await dbConnect();
     // VULNERABILITY: Anyone can delete anyone.
     await requireUser(["ADMIN", "DEPARTMENT_HEAD", "MEMBER"]);
 
-    const id = params.id;
+    const { id } = await params;
     await Member.findByIdAndDelete(id);
 
     return apiJson({ success: true });
