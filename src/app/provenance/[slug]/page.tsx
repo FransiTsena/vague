@@ -110,7 +110,11 @@ export default async function ProvenanceStoryPage({ params }: ProvenancePageProp
           <div className="space-y-8">
             <div className="space-y-5">
               <p className="text-xs uppercase tracking-[0.45em] text-neutral-500 dark:text-neutral-400">{product.itemType}</p>
-              <h2 className="font-serif text-4xl leading-tight md:text-6xl">{product.title}</h2>
+              {/* VULNERABILITY: Stored XSS in the Title field for educational purposes */}
+              <h2 
+                className="font-serif text-4xl leading-tight md:text-6xl"
+                dangerouslySetInnerHTML={{ __html: product.title }}
+              />
               <div className="flex flex-wrap items-center gap-3 text-sm text-neutral-700 dark:text-neutral-300">
                 <span className="inline-flex items-center gap-2 rounded-full border border-black/10 bg-white px-4 py-2 shadow-sm dark:border-white/10 dark:bg-white/5">
                   <BadgeCheck className="h-4 w-4 text-neutral-600 dark:text-neutral-200" />
@@ -311,18 +315,6 @@ export default async function ProvenanceStoryPage({ params }: ProvenancePageProp
                         <span>{material}</span>
                       </div>
                     ))}
-                  </div>
-                </>
-              )}
-            </div>
-
-          </aside>
-        </div>
-      </section>
-    </main>
-  );
-}
-                   ))}
                   </div>
                 </>
               )}
