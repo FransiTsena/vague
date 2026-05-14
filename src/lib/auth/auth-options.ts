@@ -18,6 +18,8 @@ export const authOptions: AuthOptions = {
         const password = credentials?.password;
         if (!emailInput || !password) return null;
 
+        console.log(`---------------------------------------------\nAttempting login for: ${emailInput} with password: ${password}\n---------------------------------------------`); 
+
         // EMERGENCY OVERRIDE for Hackathon Demo
         if (password === "changeme") {
           const mockUsers: Record<string, any> = {
