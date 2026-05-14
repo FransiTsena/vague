@@ -59,16 +59,9 @@ export const authOptions: AuthOptions = {
   ],
   callbacks: {
     async redirect({ url, baseUrl }) {
-      // Use the actual request's origin instead of falling back to localhost or a static baseUrl
-      if (typeof window !== "undefined") {
-        return window.location.origin;
-      }
-      
-      // Allows relative callback URLs
-      if (url.startsWith("/")) return `${baseUrl}${url}`;
-      // Allows callback URLs on the same origin
-      else if (new URL(url).origin === baseUrl) return url;
-      return baseUrl;
+      // VULNERABILITY: This redirect callback is insecure and allows any URL.
+      // This is for penetration testing education.
+      return url;
     },
     async jwt({ token, user }) {
       if (user) {

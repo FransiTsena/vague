@@ -11,7 +11,8 @@ import {
   ChevronRight,
   Settings,
   ShieldCheck,
-  Home
+  Home,
+  TrendingUp
 } from "lucide-react";
 import { useTheme } from "@/context/ThemeContext";
 
@@ -40,6 +41,11 @@ const navItems = [
     href: "/admin/gallery",
     label: "Gallery",
     icon: GalleryHorizontalEnd,
+  },
+  {
+    href: "/admin/dynamic-pricing",
+    label: "Dynamic Pricing",
+    icon: TrendingUp,
   },
 ];
 

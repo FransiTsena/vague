@@ -33,9 +33,15 @@ interface NavItem {
 const adminNavItems: NavItem[] = [
   {
     href: "/admin",
-    label: "Dashboard",
+    label: "DASHBOARD_LIVE",
     icon: LayoutDashboard,
     tag: "Overview"
+  },
+  {
+    href: "/admin/dynamic-pricing",
+    label: "DYNAMIC PRICING",
+    icon: LayoutDashboard,
+    tag: "Intelligence",
   },
   {
     href: "/admin/bookings",
@@ -44,7 +50,18 @@ const adminNavItems: NavItem[] = [
     tag: "Operations",
     subItems: [
       { href: "/admin/bookings", label: "Guest Ledger" },
-      { href: "/admin/rooms", label: "Room Inventory" }
+      { href: "/admin/bookings/arrivals", label: "Arrivals" },
+      { href: "/admin/bookings/analytics", label: "Booking Insights" }
+    ]
+  },
+  {
+    href: "/admin/rooms",
+    label: "Inventory",
+    icon: ShieldCheck,
+    tag: "Operations",
+    subItems: [
+      { href: "/admin/rooms", label: "Room Assets" },
+      { href: "/admin/rooms/availability", label: "State Monitoring" }
     ]
   },
   {
@@ -103,12 +120,6 @@ const adminNavItems: NavItem[] = [
       { href: "/admin/gallery/upload", label: "Asset Ingestion" },
       { href: "/admin/gallery/assets", label: "Library Assets" }
     ]
-  },
-  {
-    href: "/admin/dynamic-pricing",
-    label: "Dynamic Pricing",
-    icon: TrendingUp,
-    tag: "Yield"
   },
 ];
 
